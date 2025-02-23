@@ -1,10 +1,10 @@
 import { NO_INDEX_PAGE } from "@/constants/seo.constants";
 import { Metadata } from "next";
-import Auth from "./Auth";
+import Auth from "./login/page";
 export const metadata: Metadata = {
   title: "Авторизация",
   ...NO_INDEX_PAGE,
 };
 export default function Page() {
-  return <Auth />;
+  return <div></div>;
 }

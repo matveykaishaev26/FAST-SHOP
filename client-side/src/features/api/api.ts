@@ -4,6 +4,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
   baseUrl: process.env.SERVER_URL,
+  credentials: 'include',
   prepareHeaders: (headers) => {
     const accessToken = getAccessToken();
 
@@ -15,6 +16,7 @@ const baseQuery = fetchBaseQuery({
 });
 export const api = createApi({
   reducerPath: "api",
+  
   baseQuery: async (args, api, extraOptions) => {
     const result = await baseQuery(args, api, extraOptions);
 
@@ -31,5 +33,6 @@ export const api = createApi({
 
     return result;
   },
+
   endpoints: () => ({}),
 });

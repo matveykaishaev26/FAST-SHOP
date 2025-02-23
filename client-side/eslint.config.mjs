@@ -11,6 +11,11 @@
 
 // const eslintConfig = [
 //   ...compat.extends("next/core-web-vitals", "next/typescript"),
+//   {
+//     rules: {
+//       "no-unused-vars": "off",
+//     },
+//   },
 // ];
 
 // export default eslintConfig;

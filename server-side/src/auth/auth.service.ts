@@ -14,7 +14,7 @@ import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { PrismaClient } from '@prisma/client';
 import { TokenService } from 'src/token/token.service';
-
+import { verify } from 'argon2';
 @Injectable()
 export class AuthService {
   EXPIRE_DAY_REFRESH_TOKEN = 1;
@@ -31,6 +31,10 @@ export class AuthService {
   private logger: Logger = new Logger(AuthService.name);
   async login(dto: AuthDto) {
     const user = await this.userService.validateVerifiedUser(dto.email);
+    const isCorrect = await verify(user.password, dto.password);
+    if (!isCorrect) {
+      throw new UnauthorizedException('Неверный пароль или логин');
+    }
     const tokens = this.tokenService.issueTokens(user.id);
     return { user, ...tokens };
   }
@@ -41,19 +45,19 @@ export class AuthService {
         'Пользователь с таким email уже зарегистрирован!',
       );
     }
-
+    if (!existingUser) {
+      await this.userService.createUser(dto);
+    }
     const newVerificationToken = await this.tokenService.generateTemporaryToken(
       dto.email,
       'verificationToken',
     );
-    if (!existingUser) {
-      await this.userService.createUser(dto);
-    }
+
     await this.emailService.sendVerificationEmail(
       dto.email,
       newVerificationToken,
     );
-    return { message: 'Код отправлен' };
+    return { message: 'Код подтверждения отправлен на вашу почту' };
   }
   async emailVerification(token: string) {
     const verificationToken = await this.tokenService.validateTemporaryToken(
