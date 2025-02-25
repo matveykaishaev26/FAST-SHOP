@@ -1,9 +1,5 @@
 import { IUser } from "./user.interface";
 
-export enum AuthEnum {
-  LOGIN = "login",
-  REGISTER = "register",
-}
 export interface IAuthLogin {
   email: string;
   password: string;
@@ -11,17 +7,18 @@ export interface IAuthLogin {
 export interface IAuthRegister extends IAuthLogin {
   name: string;
 }
-export interface IAuthForm {
-  name: string;
-  email: string;
-  password: string;
-}
+
 export interface IAuthResponse {
   user: IUser;
   accessToken: string;
 }
-
 export interface IAuthRegisterResponse {
   message: string;
 }
-
+export interface IAuthSendPasswordResetResponse extends IAuthRegisterResponse {}
+export interface IAuthSendPasswordReset extends Pick<IAuthLogin, "email"> {}
+export interface IAuthResetPassword extends Pick<IAuthLogin, "password"> {}
+export interface IAuthResetPasswordResponse extends IAuthRegisterResponse {}
+export interface IVerifyToken {
+  token: string;
+}

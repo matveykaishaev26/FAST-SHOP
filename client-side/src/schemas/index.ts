@@ -1,7 +1,6 @@
 import * as z from "zod";
 
-const AuthMainFieldsSchema = z.object({
-  email: z.string().email("Пожалуйта, введите корректный email").nonempty("Поле не должно быть пустым"),
+const PasswordSchema = z.object({
   password: z
     .string()
     .min(6, {
@@ -12,13 +11,25 @@ const AuthMainFieldsSchema = z.object({
     }),
 });
 
-export const LoginSchema = AuthMainFieldsSchema;
+const EmailSchema = z.object({
+  email: z.string().email("Пожалуйта, введите корректный email").nonempty("Поле не должно быть пустым"),
+});
+
+const AuthMainFieldsSchema = PasswordSchema.merge(EmailSchema);
+
+export const LoginSchema = PasswordSchema.merge(EmailSchema);
 export const RegisterSchema = AuthMainFieldsSchema.merge(
   z.object({
-    name: z.string( {
+    name: z.string({
       required_error: "Имя обязательно",
-    }).min(1, {
-      message: "Имя не может быть пусым",
     }),
-  })  
-);  
+  })
+);
+
+export const ForgotPasswordSchema = EmailSchema;
+export const ResetPasswordSchema = PasswordSchema.extend({
+  confirmPassword: z.string(),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Пароли не совпадают",
+  path: ["confirmPassword"],
+});

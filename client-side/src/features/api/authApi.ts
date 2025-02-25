@@ -1,13 +1,19 @@
 import { removeFromStorage, saveTokenStorage } from "@/services/auth/auth-token.service";
 import { api } from "./api";
-import { IAuthLogin, IAuthRegister, AuthEnum, IAuthResponse, IAuthForm } from "@/shared/types/auth.interface";
+import {
+  IAuthLogin,
+  IAuthRegister,
+  IAuthSendPasswordReset,
+  IAuthResetPassword,
+  IVerifyToken,
+} from "@/shared/types/auth.interface";
 
 import { API_URL } from "@/config/api.config";
 export const authApi = api.injectEndpoints({
   endpoints: (build) => ({
     login: build.mutation({
       query: (data: IAuthLogin) => ({
-        url: '/auth/login',
+        url: "/auth/login",
         method: "POST",
         body: data,
       }),
@@ -20,21 +26,7 @@ export const authApi = api.injectEndpoints({
         }
       },
     }),
-    main: build.mutation<IAuthResponse, { type: AuthEnum; data: IAuthForm }>({
-      query: ({ type, data }) => ({
-        url: `/${type}`,
-        method: "POST",
-        body: data,
-      }),
-      async onQueryStarted(_, { queryFulfilled }) {
-        try {
-          const { data } = await queryFulfilled;
-          if (data.accessToken) saveTokenStorage(data.accessToken);
-        } catch (error) {
-          console.error("Login failed:", error);
-        }
-      },
-    }),
+
     register: build.mutation({
       query: (data: IAuthRegister) => ({
         url: API_URL.auth("/register"),
@@ -78,8 +70,35 @@ export const authApi = api.injectEndpoints({
         }
       },
     }),
+    sendPasswordReset: build.mutation({
+      query: (data: IAuthSendPasswordReset) => ({
+        url: API_URL.auth("/send-password-reset-email"),
+        method: "POST",
+        body: data,
+      }),
+    }),
+    resetPassword: build.mutation({
+      query: (data: IAuthResetPassword) => ({
+        url: API_URL.auth("/reset-password"),
+        method: "POST",
+        body: data,
+      }),
+    }),
+    verifyEmail: build.mutation({
+      query: (data: IVerifyToken) => ({
+        url: API_URL.auth(`/verify-email?token=${data.token}`),
+        method: "POST",
+      }),
+    }),
   }),
 });
 
-export const { useLoginMutation, useRegisterMutation, useGetNewTokensMutation, useLogoutMutation, useMainMutation } =
-  authApi;
+export const {
+  useLoginMutation,
+  useRegisterMutation,
+  useGetNewTokensMutation,
+  useLogoutMutation,
+  useSendPasswordResetMutation,
+  useResetPasswordMutation,
+  useVerifyEmailMutation,
+} = authApi;

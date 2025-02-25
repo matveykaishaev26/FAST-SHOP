@@ -8,7 +8,7 @@ export class EmailService {
   }
 
   async sendVerificationEmail(email: string, token: string) {
-    const confirmLink = `${process.env.CLIENT_URL}/auth/new-verification?token=${token}`;
+    const confirmLink = `${process.env.CLIENT_URL}/auth/verify-email?token=${token}`;
     try {
       await this.resend.emails.send({
         from: 'fastshop@resend.dev',

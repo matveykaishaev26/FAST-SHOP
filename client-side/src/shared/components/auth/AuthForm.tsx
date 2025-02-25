@@ -21,7 +21,7 @@ export function AuthForm({
   return (
     <Card className="w-[400px]">
       <CardHeader>
-        <CardTitle className="text-center text-3xl">{header}</CardTitle>
+        <CardTitle className="text-center text-2xl">{header}</CardTitle>
         {description ? <CardDescription className="text-center">{description}</CardDescription> : ""}
       </CardHeader>
       <CardContent>{children}</CardContent>

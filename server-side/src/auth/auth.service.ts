@@ -1,6 +1,5 @@
 import {
   Injectable,
-  NotFoundException,
   BadRequestException,
   UnauthorizedException,
   Logger,
@@ -12,7 +11,6 @@ import { AuthDto, NewPasswordDto, PasswordResetDto } from './dto/auth.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
-import { PrismaClient } from '@prisma/client';
 import { TokenService } from 'src/token/token.service';
 import { verify } from 'argon2';
 @Injectable()
@@ -39,15 +37,23 @@ export class AuthService {
     return { user, ...tokens };
   }
   async register(dto: AuthDto) {
+    this.logger.warn(dto);
     const existingUser = await this.userService.getByEmail(dto.email);
     if (existingUser?.emailVerifiedAt) {
       throw new BadRequestException(
         'Пользователь с таким email уже зарегистрирован!',
       );
     }
-    if (!existingUser) {
-      await this.userService.createUser(dto);
-    }
+    if (existingUser)
+      await this.prisma.user.update({
+        where: {
+          email: existingUser.email,
+        },
+        data: {
+          ...dto,
+        },
+      });
+   
     const newVerificationToken = await this.tokenService.generateTemporaryToken(
       dto.email,
       'verificationToken',

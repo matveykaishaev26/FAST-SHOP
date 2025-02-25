@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "../ui/button";
 import { FaYandex } from "react-icons/fa";
 import { FaGithub } from "react-icons/fa6";
@@ -15,13 +16,13 @@ export function ContinueWith() {
     {
       label: "Яндекс",
       icon: <FaYandex color={"#ff0000"} size={20} />,
-      onClick: () => router.push(`${process.env.SERVER_URL}/auth/yandex`),
+      onClick: () => router.replace(`${process.env.SERVER_URL}/auth/yandex`),
     },
     {
       label: "Github",
 
       icon: <FaGithub size={20} />,
-      onClick: () => router.push(`${process.env.SERVER_URL}/auth/github`),
+      onClick: () => router.replace(`${process.env.SERVER_URL}/auth/github`),
     },
   ];
   return (

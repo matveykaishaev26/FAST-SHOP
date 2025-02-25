@@ -12,8 +12,8 @@ import { useRegisterMutation } from "@/features/api/authApi";
 import ErrorMessage from "@/shared/components/auth/ErrorMessage";
 import SuccessMessage from "@/shared/components/auth/SuccessMessage";
 import { IAuthRegisterResponse } from "@/shared/types/auth.interface";
-import { ApiError } from "@/shared/types/api.interface";
-export default function Register() {
+import { IApiError } from "@/shared/types/api.interface";
+export default function RegisterPage() {
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
@@ -25,6 +25,7 @@ export default function Register() {
   const [mutate, { data: registerData, isLoading, error }] = useRegisterMutation();
   const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
     try {
+      console.log(data);
       await mutate({
         name: data.name,
         email: data.email,
@@ -46,12 +47,17 @@ export default function Register() {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2" action="">
-          <RegisterFields isPending={isLoading} form={form} />
-          {error && <ErrorMessage message={(error as ApiError).data.message} />}
-          {registerData && <SuccessMessage message={(registerData as IAuthRegisterResponse).message} />}
-          <Button disabled={isLoading} type="submit" className="w-full">
-            Зарегестрироваться
-          </Button>
+          {registerData ? (
+            <SuccessMessage message={(registerData as IAuthRegisterResponse).message} />
+          ) : (
+            <>
+              <RegisterFields isPending={isLoading} form={form} />
+              {error && <ErrorMessage message={(error as IApiError).data.message} />}
+              <Button disabled={isLoading} type="submit" className="w-full">
+                Зарегестрироваться
+              </Button>
+            </>
+          )}
         </form>
       </Form>
     </AuthForm>
