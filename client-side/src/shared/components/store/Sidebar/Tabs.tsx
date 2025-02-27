@@ -2,9 +2,9 @@
 import { ChartColumnIncreasing, FolderKanban, PackageSearch, Paintbrush, Settings, Star } from "lucide-react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
-import { ReactNode } from "react";
 import { STORE_URL } from "@/config/url.config";
 import { LucideIcon } from "lucide-react";
+import { usePathname } from "next/navigation";
 interface ISidebarTab {
   label: string;
   href: string;
@@ -12,6 +12,7 @@ interface ISidebarTab {
 }
 export default function Tabs() {
   const params = useParams<{ storeId: string }>();
+  const pathname = usePathname();
   const tabs: ISidebarTab[] = [
     {
       label: "Статистика",
@@ -20,22 +21,22 @@ export default function Tabs() {
     },
     {
       label: "Товары",
-      href: "/products",
+      href: STORE_URL.products(params.storeId),
       icon: PackageSearch,
     },
     {
       label: "Категории",
-      href: STORE_URL.products(params.storeId),
+      href: STORE_URL.categories(params.storeId),
       icon: FolderKanban,
     },
     {
       label: "Цвета",
-      href: STORE_URL.categories(params.storeId),
+      href: STORE_URL.colors(params.storeId),
       icon: Paintbrush,
     },
     {
       label: "Отзывы",
-      href: STORE_URL.colors(params.storeId),
+      href: STORE_URL.reviews(params.storeId),
       icon: Star,
     },
     {
@@ -50,7 +51,9 @@ export default function Tabs() {
         <Link
           href={tab.href}
           key={tab.label}
-          className="flex p-2  items-center gap-x-4 text-muted-foreground rounded-lg hover:bg-primary/10"
+          className={`flex p-2 select-none items-center gap-x-4 text-muted-foreground rounded-lg hover:bg-primary/10 ${
+            pathname === tab.href ? "bg-primary/30 hover:bg-primary/30" : ""
+          }`}
         >
           <tab.icon size={18} />
           <div className="text-[15px]">{tab.label}</div>

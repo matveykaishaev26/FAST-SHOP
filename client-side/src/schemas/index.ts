@@ -1,5 +1,4 @@
 import * as z from "zod";
-
 const PasswordSchema = z.object({
   password: z
     .string()
@@ -20,9 +19,7 @@ const AuthMainFieldsSchema = PasswordSchema.merge(EmailSchema);
 export const LoginSchema = PasswordSchema.merge(EmailSchema);
 export const RegisterSchema = AuthMainFieldsSchema.merge(
   z.object({
-    name: z.string({
-      required_error: "Имя обязательно",
-    }),
+    name: z.string(),
   })
 );
 
