@@ -1,48 +1,56 @@
 "use client";
 import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { useVerifyEmailMutation } from "@/features/api/authApi";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Loading from "@/shared/components/ui/Loading/Loading";
-import ErrorMessage from "@/shared/components/auth/ErrorMessage";
-import SuccessMessage from "@/shared/components/auth/SuccessMessage";
 import { PUBLIC_URL } from "@/config/url.config";
+import { IAuthVerifyEmailResponse } from "@/shared/types/auth.interface";
+import { IApiError } from "@/shared/types/api.interface";
+import Message from "@/shared/components/auth/Message";
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [mutate, { data: verifyData, isLoading, error: verifyError }] = useVerifyEmailMutation();
-  const [error, setError] = useState<string | undefined>();
-
-  const onSubmit = useCallback(async () => {
-    if (!token) {
-      setError("Токен не найден");
-      return;
-    }
-    try {
-      await mutate({ token });
-    } catch (err) {
-      setError("Ошибка при проверке почты");
-    }
-  }, [token]);
+  const [mutate, { data: verifyData, error: verifyError }] = useVerifyEmailMutation();
+  const [error, setError] = useState<string | null>(null);
+  const [loadingStarted, setLoadingStarted] = useState(true); // новое состояние для контроля начала загрузки
 
   useEffect(() => {
+    const verifyEmail = async () => {
+      if (!token) {
+        setError("Токен не найден");
+        return;
+      }
+      try {
+        setLoadingStarted(true); // Устанавливаем сразу
+        await mutate({ token }).unwrap();
+      } catch (err) {
+        const apiError = err as IApiError;
+        setError(apiError?.data?.message || "Ошибка при проверке почты");
+      } finally {
+        setLoadingStarted(false);
+      }
+    };
+
     if (token) {
-      onSubmit();
+      verifyEmail();
     } else {
       setError("Токен не найден");
     }
-  }, [token, onSubmit]);
+  }, [token]);
 
   return (
     <AuthForm btnLinkHref={PUBLIC_URL.auth("/login")} btnLinkText="Вернуться на страницу входа" header="Проверка почты">
-      {isLoading ? (
-        <Loading loading={isLoading} />
+      {loadingStarted ? (
+        <div className="flex justify-center">
+          <Loading loading={loadingStarted} />
+        </div>
       ) : error || verifyError ? (
-        <ErrorMessage message={error || verifyError?.message || "Неизвестная ошибка"} />
+        <Message type="error" message={error ?? (verifyError as IApiError)?.data?.message ?? "Произошла ошибка"} />
       ) : verifyData ? (
-        <SuccessMessage message={JSON.stringify(verifyData)} />
+        <Message type="success" message={(verifyData as IAuthVerifyEmailResponse).message} />
       ) : null}
     </AuthForm>
   );

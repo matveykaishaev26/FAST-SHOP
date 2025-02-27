@@ -20,9 +20,8 @@ export class TokenService {
     tokenModel: T,
   ) {
     const model = this.prisma[tokenModel] as any;
-    if (tokenModel === 'verificationToken')
-      await this.userService.validateUser(email);
-    else await this.userService.validateVerifiedUser(email);
+    if (tokenModel === 'passwordResetToken')
+      await this.userService.validateVerifiedUser(email);
     const existingToken = await model.findUnique({
       where: { email },
     });

@@ -1,8 +1,8 @@
-import ClipLoader from "react-spinners/ClipLoader";
+import BeatLoader from "react-spinners/BeatLoader";
 
 interface Props {
   loading: boolean;
 }
 export default function Loading({ loading }: Props) {
-  return <ClipLoader loading={loading} />;
+  return <BeatLoader loading={loading} />;
 }

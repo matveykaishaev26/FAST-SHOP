@@ -2,6 +2,7 @@ import { FormField, FormControl, FormItem, FormMessage } from "@/shared/componen
 import { Input } from "@/shared/components/ui/input";
 import { RegisterSchema } from "@/schemas";
 import { IAuthFieldsProps } from "../types/auth-fields.interface";
+
 export function RegisterFields({ form, isPending }: IAuthFieldsProps<typeof RegisterSchema>) {
   return (
     <>

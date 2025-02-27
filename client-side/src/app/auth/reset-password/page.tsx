@@ -7,15 +7,18 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
 import { PUBLIC_URL } from "@/config/url.config";
-import SuccessMessage from "@/shared/components/auth/SuccessMessage";
+import Message from "@/shared/components/auth/Message";
 import { useResetPasswordMutation } from "@/features/api/authApi";
 import { IAuthResetPasswordResponse } from "@/shared/types/auth.interface";
 import * as z from "zod";
-import ErrorMessage from "@/shared/components/auth/ErrorMessage";
 import { IApiError } from "@/shared/types/api.interface";
-
+import { useSearchParams } from "next/navigation";
+import { useState } from "react";
 export default function ForgotPasswordPage() {
-  const [mutate, { data, isLoading: sendIsLoading, error }] = useResetPasswordMutation();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");
+  const [error, setError] = useState<string | null>(null);
+  const [mutate, { data: resetData, isLoading: resetIsLoading, error: resetError }] = useResetPasswordMutation();
   const form = useForm<z.infer<typeof ResetPasswordSchema>>({
     resolver: zodResolver(ResetPasswordSchema),
     defaultValues: {
@@ -25,14 +28,19 @@ export default function ForgotPasswordPage() {
   });
   const onSubmit = async (data: z.infer<typeof ResetPasswordSchema>) => {
     console.log(data);
+    if (!token) {
+      setError("Ошибка: нет токена для сброса пароля");
+      return;
+    }
     try {
       await mutate({
+        token,
         password: data.password,
       }).unwrap();
       console.log(data);
       form.reset();
     } catch {
-      console.log(error);
+      console.log(resetError);
     }
   };
   return (
@@ -44,14 +52,16 @@ export default function ForgotPasswordPage() {
     >
       <Form {...form}>
         <form className="space-y-2" onSubmit={form.handleSubmit(onSubmit)} action="">
-          {data ? (
-            <SuccessMessage message={(data as IAuthResetPasswordResponse).message} />
+          {resetData ? (
+            <Message type={"success"} message={(resetData as IAuthResetPasswordResponse).message} />
           ) : (
             <>
-              <ResetPasswordFields isPending={sendIsLoading} form={form} />
-              {error && <ErrorMessage message={(error as IApiError).data.message} />}
+              <ResetPasswordFields isPending={resetIsLoading} form={form} />
+              {(resetError || error !== null) && (
+                <Message type="error" message={String((resetError as IApiError)?.data?.message ?? error ?? "")} />
+              )}
 
-              <Button disabled={sendIsLoading} type="submit" className="w-full">
+              <Button disabled={resetIsLoading} type="submit" className="w-full">
                 Обновить пароль
               </Button>
             </>

@@ -11,7 +11,8 @@ import { DASHBOARD_URL, PUBLIC_URL } from "@/config/url.config";
 import { useLoginMutation } from "@/features/api/authApi";
 import { useRouter } from "next/navigation";
 import { IApiError } from "@/shared/types/api.interface";
-import ErrorMessage from "@/shared/components/auth/ErrorMessage";
+import Message from "@/shared/components/auth/Message";
+import { useState } from "react";
 import Link from "next/link";
 export default function LoginPage() {
   const form = useForm<z.infer<typeof LoginSchema>>({
@@ -22,21 +23,27 @@ export default function LoginPage() {
     },
   });
 
-  const [mutate, { data: loginData, isLoading, error }] = useLoginMutation();
+  const [mutate, { data: loginData, error }] = useLoginMutation();
+  const [loginLoading, setLoginLoading] = useState(false);
   const router = useRouter();
-  const onSubmit = async (data: z.infer<typeof LoginSchema>) => {
-    try {
-      await mutate({
-        email: data.email,
-        password: data.password,
-      }).unwrap();
-      console.log(loginData);
-      router.replace(DASHBOARD_URL.root());
-    } catch (err) {
-      console.log(error);
-    }
+  const onSubmit = (data: z.infer<typeof LoginSchema>) => {
+    setLoginLoading(true);
+    mutate({
+      email: data.email,
+      password: data.password,
+    })
+      .unwrap()
+      .then(() => {
+        console.log(loginData);
+        router.replace(DASHBOARD_URL.root());
+      })
+      .catch((err) => {
+        setLoginLoading(false);
+        if (err instanceof Error) {
+          console.error(err.message); // Можно обработать ошибку
+        }
+      });
   };
-
   return (
     <AuthForm
       header={"Войти"}
@@ -47,10 +54,10 @@ export default function LoginPage() {
     >
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-2" action="">
-          <LoginFields isPending={isLoading} form={form} />
-          {error && <ErrorMessage message={(error as IApiError).data.message} />}
+          <LoginFields isPending={loginLoading} form={form} />
+          {error && <Message type={"error"} message={(error as IApiError).data.message} />}
 
-          <Button disabled={isLoading} type="submit" className="w-full">
+          <Button disabled={loginLoading} type="submit" className="w-full">
             Войти
           </Button>
           <div className="w-full flex justify-center">

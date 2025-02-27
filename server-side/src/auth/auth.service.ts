@@ -12,7 +12,7 @@ import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { TokenService } from 'src/token/token.service';
-import { verify } from 'argon2';
+import { verify, hash } from 'argon2';
 @Injectable()
 export class AuthService {
   EXPIRE_DAY_REFRESH_TOKEN = 1;
@@ -50,10 +50,12 @@ export class AuthService {
           email: existingUser.email,
         },
         data: {
-          ...dto,
+          name: dto.name,
+          email: dto.email,
+          password: await hash(dto.password),
         },
       });
-   
+
     const newVerificationToken = await this.tokenService.generateTemporaryToken(
       dto.email,
       'verificationToken',
@@ -63,7 +65,7 @@ export class AuthService {
       dto.email,
       newVerificationToken,
     );
-    return { message: 'Код подтверждения отправлен на вашу почту' };
+    return { message: `Код подтверждения отправлен на ${dto.email}` };
   }
   async emailVerification(token: string) {
     const verificationToken = await this.tokenService.validateTemporaryToken(
@@ -79,7 +81,7 @@ export class AuthService {
     });
 
     const tokens = this.tokenService.issueTokens(user.id);
-    const updatedUser = await this.prisma.user.update({
+    await this.prisma.user.update({
       where: {
         email: verificationToken.email,
       },
@@ -87,7 +89,7 @@ export class AuthService {
         emailVerifiedAt: new Date(),
       },
     });
-    return { updatedUser, ...tokens };
+    return { message: `Почта ${user.email} успешна подтверждена`, ...tokens };
   }
 
   async getNewTokens(refreshToken: string) {
@@ -128,7 +130,7 @@ export class AuthService {
       dto.password,
     );
     const tokens = this.tokenService.issueTokens(user.id);
-    return { updatedUser, ...tokens };
+    return { message: 'Пароль успешно изменен!', ...tokens };
   }
   async validateOAuthLogin(req: any) {
     let user = await this.userService.getByEmail(req.user.email);

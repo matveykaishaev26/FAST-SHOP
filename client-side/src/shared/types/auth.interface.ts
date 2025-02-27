@@ -17,8 +17,12 @@ export interface IAuthRegisterResponse {
 }
 export interface IAuthSendPasswordResetResponse extends IAuthRegisterResponse {}
 export interface IAuthSendPasswordReset extends Pick<IAuthLogin, "email"> {}
-export interface IAuthResetPassword extends Pick<IAuthLogin, "password"> {}
+export interface IAuthResetPassword {
+  password: string;
+  token: string;
+}
 export interface IAuthResetPasswordResponse extends IAuthRegisterResponse {}
 export interface IVerifyToken {
   token: string;
 }
+export interface IAuthVerifyEmailResponse extends IAuthRegisterResponse {}

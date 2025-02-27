@@ -8,11 +8,10 @@ import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
 import { PUBLIC_URL } from "@/config/url.config";
 import { useSendPasswordResetMutation } from "@/features/api/authApi";
-import SuccessMessage from "@/shared/components/auth/SuccessMessage";
 import { IAuthSendPasswordResetResponse } from "@/shared/types/auth.interface";
 import * as z from "zod";
-import ErrorMessage from "@/shared/components/auth/ErrorMessage";
 import { IApiError } from "@/shared/types/api.interface";
+import Message from "@/shared/components/auth/Message";
 
 export default function ForgotPasswordPage() {
   const [mutate, { data, isLoading: sendIsLoading, error }] = useSendPasswordResetMutation();
@@ -44,11 +43,11 @@ export default function ForgotPasswordPage() {
       <Form {...form}>
         <form className="space-y-2" onSubmit={form.handleSubmit(onSubmit)} action="">
           {data ? (
-            <SuccessMessage message={(data as IAuthSendPasswordResetResponse).message} />
+            <Message type={"success"} message={(data as IAuthSendPasswordResetResponse).message} />
           ) : (
             <>
               <ForgotPasswordFields isPending={sendIsLoading} form={form} />
-              {error && <ErrorMessage message={(error as IApiError).data.message} />}
+              {error && <Message type={"error"} message={(error as IApiError).data.message} />}
 
               <Button disabled={sendIsLoading} type="submit" className="w-full">
                 Отправить ссылку
