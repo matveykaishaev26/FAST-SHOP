@@ -1,6 +1,6 @@
 "use client";
 import { AuthForm } from "@/shared/components/auth/AuthForm";
-import { RegisterSchema } from "@/schemas";
+import { RegisterSchema } from "@/schemas/auth";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
 import { useForm } from "react-hook-form";

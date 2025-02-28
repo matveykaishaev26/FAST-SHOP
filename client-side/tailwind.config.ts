@@ -59,6 +59,9 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
       },
+      spacing: {
+        icon: "2.25rem",
+      },
       fontFamily: {
         sans: ["var(--font-geist-sans)", "sans-serif"],
       },

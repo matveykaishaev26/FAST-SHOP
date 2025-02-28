@@ -5,6 +5,7 @@ import Link from "next/link";
 import { STORE_URL } from "@/config/url.config";
 import { LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
+import StoresTab from "./StoresTab";
 interface ISidebarTab {
   label: string;
   href: string;
@@ -47,6 +48,7 @@ export default function Tabs() {
   ];
   return (
     <div className="flex flex-col gap-y-2">
+      <StoresTab />
       {tabs.map((tab) => (
         <Link
           href={tab.href}
@@ -55,8 +57,8 @@ export default function Tabs() {
             pathname === tab.href ? "bg-primary/30 hover:bg-primary/30" : ""
           }`}
         >
-          <tab.icon size={18} />
-          <div className="text-[15px]">{tab.label}</div>
+          <tab.icon size={16} />
+          <div className="text-[16px]">{tab.label}</div>
         </Link>
       ))}
     </div>

@@ -1,12 +1,12 @@
 import { IStore, IStoreCreate, IStoreEdit } from "@/shared/types/store.interface";
 import { api } from "./api";
-
+import { API_URL } from "@/config/api.config";
 export const storeApi = api.injectEndpoints({
   endpoints: (build) => ({
     // Получить все магазины
     getAllStores: build.query<IStore[], void>({
       query: () => ({
-        url: "/stores",
+        url: API_URL.stores(),
         method: "GET",
       }),
     }),
@@ -14,7 +14,7 @@ export const storeApi = api.injectEndpoints({
     // Создать новый магазин
     createStore: build.mutation<IStore, IStoreCreate>({
       query: (data) => ({
-        url: "/stores",
+        url: API_URL.stores(),
         method: "POST",
         body: data,
       }),
@@ -23,7 +23,7 @@ export const storeApi = api.injectEndpoints({
     // Обновить магазин
     updateStore: build.mutation<IStore, { id: string; data: IStoreEdit }>({
       query: ({ id, data }) => ({
-        url: `/stores/${id}`,
+        url: API_URL.stores(`/${id}`),
         method: "PUT",
         body: data,
       }),
@@ -32,16 +32,12 @@ export const storeApi = api.injectEndpoints({
     // Удалить магазин
     deleteStore: build.mutation<IStore, string>({
       query: (id) => ({
-        url: `/stores/${id}`,
+        url: API_URL.stores(`/${id}`),
         method: "DELETE",
       }),
     }),
   }),
 });
 
-export const {
-  useGetAllStoresQuery,
-  useCreateStoreMutation,
-  useUpdateStoreMutation,
-  useDeleteStoreMutation,
-} = storeApi;
+export const { useGetAllStoresQuery, useCreateStoreMutation, useUpdateStoreMutation, useDeleteStoreMutation } =
+  storeApi;

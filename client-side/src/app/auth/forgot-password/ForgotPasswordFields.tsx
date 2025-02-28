@@ -1,6 +1,6 @@
 import { FormField, FormControl, FormItem, FormMessage } from "@/shared/components/ui/form";
 import { Input } from "@/shared/components/ui/input";
-import { ForgotPasswordSchema } from "@/schemas";
+import { ForgotPasswordSchema } from "@/schemas/auth";
 import { IAuthFieldsProps } from "../types/auth-fields.interface";
 export function ForgotPasswordFields({ form, isPending }: IAuthFieldsProps<typeof ForgotPasswordSchema>) {
   return (

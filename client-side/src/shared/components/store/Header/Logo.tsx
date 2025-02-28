@@ -4,7 +4,7 @@ import { PUBLIC_URL } from "@/config/url.config";
 export default function Logo() {
   return (
     <Link href={PUBLIC_URL.home()} className="w-auto flex items-center gap-x-2 select-none">
-      <Image src={"/images/logo.svg"} alt={"logo"} width={40} height={40} />
+      <Image priority src={"/images/logo.svg"} alt={"logo"} width={40} height={40} />
       <span className="text-xl font-bold">fastshop</span>
     </Link>
   );

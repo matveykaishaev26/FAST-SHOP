@@ -150,6 +150,7 @@ model Category {
   @@map("category")
 }
 
+
 model Color {
   id        String   @id @default(cuid())
   createdAt DateTime @default(now()) @map("created_at")

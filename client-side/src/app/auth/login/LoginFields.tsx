@@ -1,7 +1,7 @@
 import { FormField, FormControl, FormItem, FormMessage } from "@/shared/components/ui/form";
 import { UseFormReturn } from "react-hook-form";
 import { Input } from "@/shared/components/ui/input";
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { z } from "zod";
 type LoginFieldsProps = {
   form: UseFormReturn<z.infer<typeof LoginSchema>>;

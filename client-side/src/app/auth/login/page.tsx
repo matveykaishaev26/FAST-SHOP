@@ -3,7 +3,7 @@ import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { LoginFields } from "./LoginFields";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
-import { LoginSchema } from "@/schemas";
+import { LoginSchema } from "@/schemas/auth";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";

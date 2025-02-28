@@ -1,5 +1,3 @@
-import { Button } from "../../ui/button";
-import { FiSidebar } from "react-icons/fi";
 import { ChevronDown, ChevronRight } from "lucide-react";
 
 interface ISidebarToggleProps {

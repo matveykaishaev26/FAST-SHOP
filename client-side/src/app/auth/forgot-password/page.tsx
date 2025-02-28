@@ -1,6 +1,6 @@
 "use client";
 import { ForgotPasswordFields } from "./ForgotPasswordFields";
-import { ForgotPasswordSchema } from "@/schemas";
+import { ForgotPasswordSchema } from "@/schemas/auth";
 import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";

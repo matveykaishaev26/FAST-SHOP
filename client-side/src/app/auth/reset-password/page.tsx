@@ -1,6 +1,6 @@
 "use client";
 import { ResetPasswordFields } from "./ResetPasswordFields";
-import { ResetPasswordSchema } from "@/schemas";
+import { ResetPasswordSchema } from "@/schemas/auth";
 import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
