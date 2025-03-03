@@ -11,53 +11,51 @@ import {
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
-import { CategoryService } from './category.service';
+import { CreateBrandDto } from './dto/create-brand.dto';
 import { Auth } from 'src/auth/decorators/auth.decorator';
-import { CategoryDto } from './dto/category.dto';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { BrandService } from './brand.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
-@Controller('categories')
-export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+@Controller('brands')
+export class BrandController {
+  constructor(private readonly brandService: BrandService) {}
 
   @Get()
   async getAll() {
-    return this.categoryService.getAll();
+    return this.brandService.getAll();
   }
 
   @Get('by-id/:id')
-  @Auth()
-  async getById(@Param('id') colorId: string) {
-    return this.categoryService.getById(colorId);
+  async getById(@Param('id') id: string) {
+    return this.brandService.getById(id);
   }
+
   @Post()
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() dto: CategoryDto) {
-    return this.categoryService.create(dto);
+  async create(@Body() dto: CreateBrandDto) {
+    return this.brandService.create(dto);
   }
 
+  @Put(':id')
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
-  @Auth()
-  @Put(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async update(@Param('id') id: string, @Body() dto: CategoryDto) {
-    return this.categoryService.update(id, dto);
+  async update(@Param('id') id: string, @Body() dto: CreateBrandDto) {
+    return this.brandService.update(id, dto);
   }
 
+  @Delete(':id')
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
-  @Auth()
-  @Delete(':id')
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
   async delete(@Param('id') id: string) {
-    return this.categoryService.delete(id);
+    return this.brandService.delete(id);
   }
 }

@@ -1,6 +1,6 @@
 import { IsNotEmpty } from 'class-validator';
 
-export class CategoryDto {
+export class CreateBrandDto {
   @IsNotEmpty({
     message: 'Название категории обязательно!',
   })

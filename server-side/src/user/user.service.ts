@@ -14,10 +14,9 @@ export class UserService {
         id,
       },
       include: {
-        stores: true,
         favorites: {
           include: {
-            product: true,
+            productVariant: true,
           },
         },
         orders: true,
@@ -33,10 +32,9 @@ export class UserService {
         email,
       },
       include: {
-        stores: true,
         favorites: {
           include: {
-            product: true,
+            productVariant: true,
           },
         },
         orders: true,
@@ -54,10 +52,9 @@ export class UserService {
         },
       },
       include: {
-        stores: true,
         favorites: {
           include: {
-            product: true,
+            productVariant: true,
           },
         },
         orders: true,
@@ -65,17 +62,17 @@ export class UserService {
     });
     return user;
   }
-  async createUser(dto: AuthDto) {
-    this.logger.warn(dto);
-    const user = await this.prisma.user.create({
-      data: {
-        name: dto.name,
-        email: dto.email,
-        password: await hash(dto.password),
-      },
-    });
-    return user;
-  }
+  // async createUser(dto: AuthDto) {
+  //   this.logger.warn(dto);
+  //   const user = await this.prisma.user.create({
+  //     data: {
+  //       name: dto.name,
+  //       email: dto.email,
+  //       password: await hash(dto.password),
+  //     },
+  //   });
+  //   return user;
+  // }
   async updatePassword(id: string, newPassword: string) {
     return await this.prisma.user.update({
       where: {
@@ -101,20 +98,20 @@ export class UserService {
     return user;
   }
 
-  async toggleFavorite(productId: string, userId: string) {
+  async toggleFavorite(productVariantId: string, userId: string) {
     const user = await this.getById(userId);
 
     const isExists = this.prisma.userFavorites.findFirst({
       where: {
         userId,
-        productId,
+        productVariantId,
       },
     });
     if (isExists) {
       await this.prisma.userFavorites.deleteMany({
         where: {
           userId,
-          productId,
+          productVariantId,
         },
       });
     } else {
@@ -125,9 +122,9 @@ export class UserService {
               id: userId,
             },
           },
-          product: {
+          productVariant: {
             connect: {
-              id: productId,
+              id: productVariantId,
             },
           },
         },

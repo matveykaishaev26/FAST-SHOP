@@ -10,11 +10,15 @@ import {
   UsePipes,
   Delete,
   ValidationPipe,
+  UseGuards,
 } from '@nestjs/common';
 import { ProductService } from './product.service';
-import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { UserRole } from '@prisma/client';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/auth/guards/roles.guard';
+import { Roles } from 'src/auth/decorators/roles.decorator';
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -24,17 +28,13 @@ export class ProductController {
     return this.productService.getAll(searchTerm);
   }
 
-  @Get('by-storeId/:storeId')
-  async getByStoreId(@Param('storeId') storeId: string) {
-    return this.productService.getByStoreId(storeId);
-  }
-
   @Get('by-id/:id')
   async getById(@Param('id') colorId: string) {
     return this.productService.getById(colorId);
   }
   @Get('by-categoryId/:categoryId')
-  @Auth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async getByCategoryId(@Param('categoryId') storeId: string) {
     return this.productService.getByCategoryId(storeId);
   }
@@ -49,18 +49,21 @@ export class ProductController {
     return this.productService.getSimilar(id);
   }
 
+  @Post()
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
-  @Post(':storeId')
-  @Auth()
-  async create(@Param('storeId') storeId: string, @Body() dto: CreateProductDto) {
-    return this.productService.create(storeId, dto);
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+ 
+  async create(@Body() dto: CreateProductDto) {
+    return this.productService.create(dto);
   }
 
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Delete(':id')
-  @Auth()
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
   async delete(@Param('id') id: string) {
     return this.productService.delete(id);
   }
@@ -68,8 +71,9 @@ export class ProductController {
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Put(':id')
-  @Auth()
-  async update(@Param('id') id: string, @Body() dto: UpdateProductDto ) {
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(id, dto);
   }
 }

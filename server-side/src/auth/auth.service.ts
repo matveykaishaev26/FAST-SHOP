@@ -13,6 +13,7 @@ import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
 import { TokenService } from 'src/token/token.service';
 import { verify, hash } from 'argon2';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class AuthService {
   EXPIRE_DAY_REFRESH_TOKEN = 1;
@@ -44,7 +45,7 @@ export class AuthService {
         'Пользователь с таким email уже зарегистрирован!',
       );
     }
-    if (existingUser)
+    if (existingUser) {
       await this.prisma.user.update({
         where: {
           email: existingUser.email,
@@ -55,6 +56,15 @@ export class AuthService {
           password: await hash(dto.password),
         },
       });
+    } else {
+      await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: await hash(dto.password),
+        } as Prisma.UserCreateInput, // Приведение типа, если нужно
+      });
+    }
 
     const newVerificationToken = await this.tokenService.generateTemporaryToken(
       dto.email,
@@ -143,10 +153,9 @@ export class AuthService {
           picture: req.user.picture,
         },
         include: {
-          stores: true,
           favorites: {
             include: {
-              product: true,
+              productVariant: true,
             },
           },
           orders: true,

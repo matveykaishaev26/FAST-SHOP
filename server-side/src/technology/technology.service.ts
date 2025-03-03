@@ -1,16 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CategoryDto } from './dto/category.dto';
-
+import { CreateTechnologyDto } from './dto/create-technology.dto';
 @Injectable()
-export class CategoryService {
+export class TechnologyService {
   constructor(private prisma: PrismaService) {}
 
   async getAll() {
-    return await this.prisma.category.findMany();
+    return await this.prisma.technology.findMany();
   }
   async getById(id: string) {
-    const color = await this.prisma.category.findUnique({
+    const color = await this.prisma.technology.findUnique({
       where: {
         id: id,
       },
@@ -23,18 +22,18 @@ export class CategoryService {
     return color;
   }
 
-  async create(dto: CategoryDto) {
-    return this.prisma.category.create({
+  async create(dto: CreateTechnologyDto) {
+    return this.prisma.technology.create({
       data: {
         title: dto.title,
       },
     });
   }
 
-  async update(id: string, dto: CategoryDto) {
+  async update(id: string, dto: CreateTechnologyDto) {
     await this.getById(id);
 
-    return this.prisma.category.update({
+    return this.prisma.technology.update({
       where: {
         id,
       },
@@ -47,7 +46,7 @@ export class CategoryService {
   async delete(id: string) {
     await this.getById(id);
 
-    return this.prisma.category.delete({
+    return this.prisma.technology.delete({
       where: {
         id,
       },

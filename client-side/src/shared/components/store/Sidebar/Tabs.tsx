@@ -1,5 +1,5 @@
 "use client";
-import { ChartColumnIncreasing, FolderKanban, PackageSearch, Paintbrush, Settings, Star } from "lucide-react";
+import { ChartColumnIncreasing, FolderKanban, PackageSearch, Settings, Star } from "lucide-react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { STORE_URL } from "@/config/url.config";
@@ -30,11 +30,7 @@ export default function Tabs() {
       href: STORE_URL.categories(params.storeId),
       icon: FolderKanban,
     },
-    {
-      label: "Цвета",
-      href: STORE_URL.colors(params.storeId),
-      icon: Paintbrush,
-    },
+
     {
       label: "Отзывы",
       href: STORE_URL.reviews(params.storeId),

@@ -6,26 +6,14 @@ import { UpdateProductDto } from './dto/update-product.dto';
 export class ProductService {
   constructor(private prisma: PrismaService) {}
 
-  async getByStoreId(storeId: string) {
-    return await this.prisma.product.findMany({
-      where: {
-        storeId: storeId,
-      },
-      include: {
-        category: true,
-        color: true,
-      },
-    });
-  }
-
   async getById(id: string) {
     const product = await this.prisma.product.findUnique({
       where: {
         id,
       },
-      include: {
+      select: {
+        id: true,
         category: true,
-        color: true,
         reviews: true,
       },
     });
@@ -63,7 +51,7 @@ export class ProductService {
 
   async getMostPopular() {
     const mostPopuldarProducts = await this.prisma.orderItem.groupBy({
-      by: ['productId'],
+      by: ['productVariantId'],
       _count: {
         quantity: true,
       },
@@ -74,7 +62,9 @@ export class ProductService {
       },
     });
 
-    const productIds = mostPopuldarProducts.map((item) => item.productId);
+    const productIds = mostPopuldarProducts.map(
+      (item) => item.productVariantId,
+    );
 
     const products = await this.prisma.product.findMany({
       where: {
@@ -135,11 +125,10 @@ export class ProductService {
     return products;
   }
 
-  async create(storeId: string, dto: CreateProductDto) {
+  async create(dto: CreateProductDto) {
     return await this.prisma.product.create({
       data: {
         ...dto,
-        storeId,
       },
     });
   }

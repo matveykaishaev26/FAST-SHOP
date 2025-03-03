@@ -5,17 +5,6 @@ import { ReviewDto } from './dto/review.dto';
 export class ReviewService {
   constructor(private prisma: PrismaService) {}
 
-  async getByStoreId(storeId: string) {
-    return await this.prisma.review.findMany({
-      where: {
-        storeId,
-      },
-      include: {
-        user: true,
-      },
-    });
-  }
-
   async getById(id: string, userId: string) {
     const review = await this.prisma.review.findUnique({
       where: { id, userId },
@@ -31,12 +20,7 @@ export class ReviewService {
     return review;
   }
 
-  async create(
-    userId: string,
-    productId: string,
-    storeId: string,
-    dto: ReviewDto,
-  ) {
+  async create(userId: string, productId: string, dto: ReviewDto) {
     return this.prisma.review.create({
       data: {
         ...dto,
@@ -48,11 +32,6 @@ export class ReviewService {
         user: {
           connect: {
             id: userId,
-          },
-        },
-        store: {
-          connect: {
-            id: storeId,
           },
         },
       },
