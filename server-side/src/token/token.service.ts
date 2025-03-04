@@ -74,8 +74,8 @@ export class TokenService {
 
     return temporaryToken;
   }
-  issueTokens(userId: string) {
-    const data = { id: userId };
+  issueTokens(userId: string, userRole: string) {
+    const data = { id: userId, role: userRole };
 
     const accessToken = this.jwt.sign(data, {
       expiresIn: '1h',

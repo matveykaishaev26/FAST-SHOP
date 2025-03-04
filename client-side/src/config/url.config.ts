@@ -12,6 +12,10 @@ export const PUBLIC_URL = {
   category: (id: "") => PUBLIC_URL.root(`/category/${id}`),
 };
 
+export const ADMIN_URL = {
+  root: (url: "") => `$/store/${url}`,
+};
+
 export const DASHBOARD_URL = {
   root: (url = "") => `/dashboard${url ? url : ""}`,
   home: () => DASHBOARD_URL.root("/"),

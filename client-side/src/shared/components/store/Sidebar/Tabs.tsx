@@ -5,7 +5,6 @@ import Link from "next/link";
 import { STORE_URL } from "@/config/url.config";
 import { LucideIcon } from "lucide-react";
 import { usePathname } from "next/navigation";
-import StoresTab from "./StoresTab";
 interface ISidebarTab {
   label: string;
   href: string;
@@ -25,8 +24,9 @@ export default function Tabs() {
       href: STORE_URL.products(params.storeId),
       icon: PackageSearch,
     },
+
     {
-      label: "Категории",
+      label: "Аттрибуты",
       href: STORE_URL.categories(params.storeId),
       icon: FolderKanban,
     },
@@ -44,7 +44,6 @@ export default function Tabs() {
   ];
   return (
     <div className="flex flex-col gap-y-2">
-      <StoresTab />
       {tabs.map((tab) => (
         <Link
           href={tab.href}

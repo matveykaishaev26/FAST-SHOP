@@ -34,7 +34,7 @@ export class AuthService {
     if (!isCorrect) {
       throw new UnauthorizedException('Неверный пароль или логин');
     }
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     return { user, ...tokens };
   }
   async register(dto: AuthDto) {
@@ -90,7 +90,7 @@ export class AuthService {
       },
     });
 
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     await this.prisma.user.update({
       where: {
         email: verificationToken.email,
@@ -107,7 +107,7 @@ export class AuthService {
     if (!result) throw new UnauthorizedException('Невалидный refresh токен!');
     const user = await this.userService.getById(result.id);
 
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id,user.role);
     return { user, ...tokens };
   }
 
@@ -139,7 +139,7 @@ export class AuthService {
       user.id,
       dto.password,
     );
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     return { message: 'Пароль успешно изменен!', ...tokens };
   }
   async validateOAuthLogin(req: any) {
@@ -170,7 +170,7 @@ export class AuthService {
       });
     }
 
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     return { user, ...tokens };
   }
 

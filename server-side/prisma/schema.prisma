@@ -172,7 +172,7 @@ model ProductMaterials {
   materialId String @map("material_id")
 
   productPart ProductPart
-  percentage  Float
+  percentage  Float?
 
   product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
 
