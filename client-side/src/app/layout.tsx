@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
-import "./globals.css";
+import "@/styles/globals.css";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/constants/seo.constants";
-import { GeistSans } from "geist/font/sans";
+import { Roboto } from "next/font/google";
+import { Inter } from "next/font/google";
 import Providers from "./providers";
+
 export const metadata: Metadata = {
   title: {
     absolute: SITE_NAME,
@@ -10,6 +12,16 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
 };
+const roboto = Roboto({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "700"], // Можно указать нужные веса
+  variable: "--font-roboto", // Создаст CSS-переменную
+});
+const inter = Inter({
+  subsets: ["latin", "cyrillic"],
+  weight: ["400", "500", "700"], // Можно указать нужные веса
+  variable: "--font-inter", // Создаст CSS-переменную
+});
 
 export default function RootLayout({
   children,
@@ -17,8 +29,8 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="ru">
-      <body className={GeistSans.variable}>
+    <html suppressHydrationWarning lang="ru">
+      <body className={`${roboto.variable} ${inter.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

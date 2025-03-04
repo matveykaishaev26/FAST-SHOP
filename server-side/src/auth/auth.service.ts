@@ -1,6 +1,5 @@
 import {
   Injectable,
-  NotFoundException,
   BadRequestException,
   UnauthorizedException,
   Logger,
@@ -12,9 +11,9 @@ import { AuthDto, NewPasswordDto, PasswordResetDto } from './dto/auth.dto';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
 import { EmailService } from 'src/email/email.service';
-import { PrismaClient } from '@prisma/client';
 import { TokenService } from 'src/token/token.service';
-
+import { verify, hash } from 'argon2';
+import { Prisma } from '@prisma/client';
 @Injectable()
 export class AuthService {
   EXPIRE_DAY_REFRESH_TOKEN = 1;
@@ -31,29 +30,52 @@ export class AuthService {
   private logger: Logger = new Logger(AuthService.name);
   async login(dto: AuthDto) {
     const user = await this.userService.validateVerifiedUser(dto.email);
-    const tokens = this.tokenService.issueTokens(user.id);
+    const isCorrect = await verify(user.password, dto.password);
+    if (!isCorrect) {
+      throw new UnauthorizedException('Неверный пароль или логин');
+    }
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     return { user, ...tokens };
   }
   async register(dto: AuthDto) {
+    this.logger.warn(dto);
     const existingUser = await this.userService.getByEmail(dto.email);
     if (existingUser?.emailVerifiedAt) {
       throw new BadRequestException(
         'Пользователь с таким email уже зарегистрирован!',
       );
     }
+    if (existingUser) {
+      await this.prisma.user.update({
+        where: {
+          email: existingUser.email,
+        },
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: await hash(dto.password),
+        },
+      });
+    } else {
+      await this.prisma.user.create({
+        data: {
+          name: dto.name,
+          email: dto.email,
+          password: await hash(dto.password),
+        } as Prisma.UserCreateInput, // Приведение типа, если нужно
+      });
+    }
 
     const newVerificationToken = await this.tokenService.generateTemporaryToken(
       dto.email,
       'verificationToken',
     );
-    if (!existingUser) {
-      await this.userService.createUser(dto);
-    }
+
     await this.emailService.sendVerificationEmail(
       dto.email,
       newVerificationToken,
     );
-    return { message: 'Код отправлен' };
+    return { message: `Код подтверждения отправлен на ${dto.email}` };
   }
   async emailVerification(token: string) {
     const verificationToken = await this.tokenService.validateTemporaryToken(
@@ -68,8 +90,8 @@ export class AuthService {
       },
     });
 
-    const tokens = this.tokenService.issueTokens(user.id);
-    const updatedUser = await this.prisma.user.update({
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
+    await this.prisma.user.update({
       where: {
         email: verificationToken.email,
       },
@@ -77,7 +99,7 @@ export class AuthService {
         emailVerifiedAt: new Date(),
       },
     });
-    return { updatedUser, ...tokens };
+    return { message: `Почта ${user.email} успешна подтверждена`, ...tokens };
   }
 
   async getNewTokens(refreshToken: string) {
@@ -85,7 +107,7 @@ export class AuthService {
     if (!result) throw new UnauthorizedException('Невалидный refresh токен!');
     const user = await this.userService.getById(result.id);
 
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id,user.role);
     return { user, ...tokens };
   }
 
@@ -117,8 +139,8 @@ export class AuthService {
       user.id,
       dto.password,
     );
-    const tokens = this.tokenService.issueTokens(user.id);
-    return { updatedUser, ...tokens };
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
+    return { message: 'Пароль успешно изменен!', ...tokens };
   }
   async validateOAuthLogin(req: any) {
     let user = await this.userService.getByEmail(req.user.email);
@@ -131,10 +153,9 @@ export class AuthService {
           picture: req.user.picture,
         },
         include: {
-          stores: true,
           favorites: {
             include: {
-              product: true,
+              productVariant: true,
             },
           },
           orders: true,
@@ -149,7 +170,7 @@ export class AuthService {
       });
     }
 
-    const tokens = this.tokenService.issueTokens(user.id);
+    const tokens = this.tokenService.issueTokens(user.id, user.role);
     return { user, ...tokens };
   }
 

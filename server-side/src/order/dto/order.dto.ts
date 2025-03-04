@@ -1,4 +1,4 @@
-import { EnumOrderStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 import { Type } from 'class-transformer';
 import {
   IsOptional,
@@ -11,12 +11,12 @@ import {
 
 export class OrderDto {
   @IsOptional()
-  @IsEnum(EnumOrderStatus, {
+  @IsEnum(OrderStatus, {
     message:
       'Статус должен быть одним из: ' +
-      Object.values(EnumOrderStatus).join(', '),
+      Object.values(OrderStatus).join(', '),
   })
-  status: EnumOrderStatus;
+  status: OrderStatus;
 
   @IsArray({
     message: 'В заказе нет ни одного товара',
@@ -33,9 +33,6 @@ export class OrderItemDto {
   @IsNumber({}, { message: 'Цена должна быть числом' })
   price: number;
 
-
   @IsString({ message: 'ID продукта должен быть строкой' })
-  productId: string;
-  @IsString({ message: 'ID продукта должен быть строкой' })
-  storeId: string;
+  productVariantId: string;
 }

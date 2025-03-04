@@ -4,9 +4,13 @@ export default {
   darkMode: ["class"],
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/shared/components/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/shared/**/*.{js,ts,jsx,tsx,mdx}",
+    "./src/styles/globals.css",
+    "./node_modules/@shadcn/ui/dist/**/*.js",
   ],
+
   theme: {
     extend: {
       colors: {
@@ -40,6 +44,10 @@ export default {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
+        success: {
+          DEFAULT: "hsl(var(--success))",
+          foreground: "hsl(var(--success-foreground))",
+        },
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
@@ -51,9 +59,13 @@ export default {
           "5": "hsl(var(--chart-5))",
         },
       },
-      fontFamily: {
-        sans: ["var(--font-geits-sans"],
+      spacing: {
+        icon: "2.25rem",
       },
+      fontFamily: {
+        sans: ["var(--font-geist-sans)", "sans-serif"],
+      },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",

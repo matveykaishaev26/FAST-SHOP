@@ -1,5 +1,3 @@
-export default function Page() {
-    return (
-        <div></div>
-    );
+export default function Store() {
+  return <div>Store</div>;
 }

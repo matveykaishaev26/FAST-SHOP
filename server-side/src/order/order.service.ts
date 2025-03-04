@@ -3,7 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import Stripe from 'stripe';
 import { OrderDto } from './dto/order.dto';
 import { PaymentStatusDto } from './dto/payment-status.dto';
-import { EnumOrderStatus } from '@prisma/client';
+import { OrderStatus } from '@prisma/client';
 import { env } from 'process';
 @Injectable()
 export class OrderService {
@@ -19,12 +19,7 @@ export class OrderService {
       price: item.price,
       product: {
         connect: {
-          id: item.productId,
-        },
-      },
-      store: {
-        connect: {
-          id: item.storeId,
+          id: item.productVariantId,
         },
       },
     }));
@@ -85,7 +80,7 @@ export class OrderService {
 
       await this.prisma.order.update({
         where: { id: orderId },
-        data: { status: EnumOrderStatus.PAYED },
+        data: { status: OrderStatus.PAYED },
       });
     }
   }

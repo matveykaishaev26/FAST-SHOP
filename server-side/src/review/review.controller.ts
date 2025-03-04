@@ -18,24 +18,18 @@ import { ReviewDto } from './dto/review.dto';
 export class ReviewController {
   constructor(private readonly reviewService: ReviewService) {}
 
-  @Auth()
-  @Get('by-storeId/:storeId')
-  async getAll(@Param('storeId') storeId: string) {
-    return this.reviewService.getByStoreId(storeId);
-  }
-
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Auth()
-  @Post(':productId/:storeId')
+  @Post(':productVariantId')
   async create(
     @CurrentUser('id') userId: string,
-    @Param('storeId') storeId: string,
-    @Param('productId') productId: string,
+    @Param('productVariantId') productVariantId: string,
 
     @Body() dto: ReviewDto,
   ) {
-    return this.reviewService.create(userId, productId, storeId, dto);
+    console.log(userId);
+    return this.reviewService.create(userId, productVariantId, dto);
   }
 
   @Auth()

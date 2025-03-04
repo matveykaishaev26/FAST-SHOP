@@ -1,4 +1,11 @@
-import { IsNotEmpty, IsString, IsNumber, ArrayMinSize } from 'class-validator';
+import { Gender } from '@prisma/client';
+import {
+  IsNotEmpty,
+  IsString,
+  IsNumber,
+  IsEnum,
+  IsOptional,
+} from 'class-validator';
 
 export class CreateProductDto {
   @IsNotEmpty({
@@ -12,28 +19,6 @@ export class CreateProductDto {
   @IsString()
   description: string;
 
-  @IsNumber(
-    {},
-    {
-      message: 'Цена должна быть числом',
-    },
-  )
-  @IsNotEmpty({
-    message: 'Цена обязательна',
-  })
-  price: number;
-
-  @IsString({
-    message: 'Укажите хотябы одну картинку',
-    each: true,
-  })
-  @IsNotEmpty({
-    message: 'Путь к картинке не должен быть пустой',
-    each: true,
-  })
-  @ArrayMinSize(1, { message: 'Должна быть хотябы одна картинка' })
-  images: string[];
-
   @IsString({
     message: 'Категория обязательна!',
   })
@@ -42,11 +27,17 @@ export class CreateProductDto {
   })
   categoryId: string;
 
-  @IsString({
-    message: 'Цвет обязателен!',
-  })
   @IsNotEmpty({
-    message: 'ID цвета обязательно!',
+    message: 'ID бренда обязательно!',
   })
-  colorId: string;
+  brandId: string;
+
+  @IsString({
+    message: 'Неправильный тип!',
+  })
+  technologyId: string;
+  @IsOptional()
+  styleId: string;
+  @IsEnum(Gender)
+  gender: Gender;
 }

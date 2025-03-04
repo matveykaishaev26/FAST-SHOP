@@ -5,10 +5,14 @@ import { CategoryDto } from './dto/category.dto';
 @Injectable()
 export class CategoryService {
   constructor(private prisma: PrismaService) {}
-  async getById(colorId: string) {
-    const color = await this.prisma.color.findUnique({
+
+  async getAll() {
+    return await this.prisma.category.findMany();
+  }
+  async getById(id: string) {
+    const color = await this.prisma.category.findUnique({
       where: {
-        id: colorId,
+        id: id,
       },
     });
 
@@ -19,20 +23,10 @@ export class CategoryService {
     return color;
   }
 
-  async getByStoreId(storeId: string) {
-    return await this.prisma.color.findMany({
-      where: {
-        storeId,
-      },
-    });
-  }
-
-  async create(storeId, dto: CategoryDto) {
+  async create(dto: CategoryDto) {
     return this.prisma.category.create({
       data: {
         title: dto.title,
-        description: dto.description,
-        storeId,
       },
     });
   }
@@ -46,7 +40,6 @@ export class CategoryService {
       },
       data: {
         title: dto.title,
-        description: dto.description,
       },
     });
   }

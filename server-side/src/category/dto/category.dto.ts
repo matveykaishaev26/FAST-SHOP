@@ -5,8 +5,4 @@ export class CategoryDto {
     message: 'Название категории обязательно!',
   })
   title: string;
-  @IsNotEmpty({
-    message: 'Описание категории обязательно!',
-  })
-  description: string;
 }

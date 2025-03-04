@@ -4,6 +4,8 @@ import { Strategy } from 'passport-github';
 import { ConfigService } from '@nestjs/config';
 import { Profile } from 'passport';
 import { VerifiedCallback } from 'passport-jwt';
+import axios from 'axios';  // импортируем axios для запроса дополнительной информации
+
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
   async validate(
@@ -12,17 +14,41 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     profile: Profile,
     done: VerifiedCallback,
   ) {
-    const { displayName, emails, photos, provider, id } = profile;
+    const { displayName, photos, provider, id } = profile;
+    // console.log('Github profile', profile);
+
+    // Получаем email, если он есть в профиле
+    let email = null;
+    if (profile.emails && profile.emails.length > 0) {
+      email = profile.emails[0].value;
+    }
+
+    if (!email) {
+      // Если email не найден, запросим его через API GitHub
+      try {
+        const response = await axios.get('https://api.github.com/user/emails', {
+          headers: {
+            Authorization: `Bearer ${_accessToken}`,
+          },
+        });
+        const emailData = response.data.find((emailObj: any) => emailObj.primary);
+        email = emailData ? emailData.email : null;
+      } catch (error) {
+        console.error('Ошибка при получении email с GitHub API', error);
+      }
+    }
 
     const user = {
-      providerId: id,
-      email: emails[0].value,
+      providerAccountId: id,
+      email,
       name: displayName,
-      picture: photos[0].value,
+      picture: photos[0]?.value,  // убедимся, что фото существует
       provider,
     };
+
     done(null, user);
   }
+
   constructor(private configService: ConfigService) {
     super({
       clientID: configService.get('GITHUB_CLIENT_ID'),

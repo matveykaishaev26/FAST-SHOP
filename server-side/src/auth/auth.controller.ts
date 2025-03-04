@@ -37,7 +37,7 @@ export class AuthController {
     return response;
   }
 
-  @Post('forgot-password')
+  @Post('send-password-reset-email')
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   async passwordReset(@Body() dto: PasswordResetDto) {
@@ -45,7 +45,7 @@ export class AuthController {
     return response;
   }
 
-  @Post('new-password')
+  @Post('reset-password')
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   async createNewPassword(
@@ -62,7 +62,7 @@ export class AuthController {
     return response;
   }
   @HttpCode(200)
-  @Post('email-verification')
+  @Post('verify-email')
   async emailVerification(
     @Query('token') token: string,
     @Res({ passthrough: true }) res: Response,
