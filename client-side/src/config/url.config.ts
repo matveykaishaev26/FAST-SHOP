@@ -12,33 +12,29 @@ export const PUBLIC_URL = {
   category: (id: "") => PUBLIC_URL.root(`/category/${id}`),
 };
 
-export const ADMIN_URL = {
-  root: (url: "") => `$/store/${url}`,
-};
-
 export const DASHBOARD_URL = {
   root: (url = "") => `/dashboard${url ? url : ""}`,
   home: () => DASHBOARD_URL.root("/"),
   favorites: () => DASHBOARD_URL.root("/favorites"),
 };
-export const STORE_URL = {
-  root: (url = "") => `/store${url ? url : ""}`,
+export const ADMIN_URL = {
+  root: (url = "") => `/admin${url ? url : ""}`,
 
-  home: (storeId = "") => STORE_URL.root(`/${storeId}`),
+  home: (storeId = "") => ADMIN_URL.root(`/${storeId}`),
 
-  products: (storeId = "") => STORE_URL.root(`/${storeId}/products`),
-  productCreate: (storeId = "") => STORE_URL.root(`/${storeId}/products/create`),
-  productEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/products/${id}`),
+  products: (storeId = "") => ADMIN_URL.root(`/products`),
+  productCreate: (storeId = "") => ADMIN_URL.root(`/${storeId}/products/create`),
+  productEdit: (storeId = "", id = "") => ADMIN_URL.root(`/${storeId}/products/${id}`),
 
-  categories: (storeId = "") => STORE_URL.root(`/${storeId}/categories`),
-  categoryCreate: (storeId = "") => STORE_URL.root(`/${storeId}/categories/create`),
-  categoryEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/categories/${id}`),
+  categories: (storeId = "") => ADMIN_URL.root(`/${storeId}/categories`),
+  categoryCreate: (storeId = "") => ADMIN_URL.root(`/${storeId}/categories/create`),
+  categoryEdit: (storeId = "", id = "") => ADMIN_URL.root(`/${storeId}/categories/${id}`),
 
-  colors: (storeId = "") => STORE_URL.root(`/${storeId}/colors`),
-  colorCreate: (storeId = "") => STORE_URL.root(`/${storeId}/colors/create`),
-  colorEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/colors/${id}`),
+  reviews: (storeId = "") => ADMIN_URL.root(`/reviews`),
 
-  reviews: (storeId = "") => STORE_URL.root(`/${storeId}/reviews`),
+  statistics: (storeId = "") => ADMIN_URL.root(`/statistics`),
 
-  settings: (storeId = "") => STORE_URL.root(`/${storeId}/settings`),
+  settings: (storeId = "") => ADMIN_URL.root(`/settings`),
+
+  attributes: (storeId = "") => ADMIN_URL.root(`/attributes`),
 };

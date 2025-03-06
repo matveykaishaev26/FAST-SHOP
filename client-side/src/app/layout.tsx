@@ -4,7 +4,7 @@ import { SITE_DESCRIPTION, SITE_NAME } from "@/constants/seo.constants";
 import { Roboto } from "next/font/google";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
-
+import Header from "./_components/Header/Header";
 export const metadata: Metadata = {
   title: {
     absolute: SITE_NAME,
@@ -31,7 +31,11 @@ export default function RootLayout({
   return (
     <html suppressHydrationWarning lang="ru">
       <body className={`${roboto.variable} ${inter.variable}`}>
-        <Providers>{children}</Providers>
+        <Providers>
+          {" "}
+          <Header />
+          <div className="max-w-page m-auto">{children}</div>
+        </Providers>
       </body>
     </html>
   );

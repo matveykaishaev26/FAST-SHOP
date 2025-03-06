@@ -1,5 +1,4 @@
 "use client";
-import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { useVerifyEmailMutation } from "@/features/api/authApi";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
@@ -7,7 +6,8 @@ import Loading from "@/shared/components/ui/Loading/Loading";
 import { PUBLIC_URL } from "@/config/url.config";
 import { IAuthVerifyEmailResponse } from "@/shared/types/auth.interface";
 import { IApiError } from "@/shared/types/api.interface";
-import Message from "@/shared/components/auth/Message";
+import Message from "@/app/auth/_components/Message";
+import { AuthForm } from "../_components/AuthForm";
 
 export default function VerifyEmailPage() {
   const searchParams = useSearchParams();
