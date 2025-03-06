@@ -16,7 +16,7 @@ import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { UserRole } from '@prisma/client';
 import { CreateProductVariantQuantityDto } from './dto/create-product-variant-quantity.dto';
-@Controller('product-variant-quantity')
+@Controller('product-variant-quantities')
 export class ProductVariantQuantityController {
   constructor(
     private readonly productVariantQuantityService: ProductVariantQuantityService,

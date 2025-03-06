@@ -70,7 +70,7 @@ export default {
         sans: ["var(--font-geist-sans)", "sans-serif"],
       },
       screens: {
-        page: "1600px",
+        page: "1700px",
       },
 
       borderRadius: {

@@ -5,6 +5,7 @@ import { Roboto } from "next/font/google";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
 import Header from "./_components/Header/Header";
+import { BottomControl } from "./_components/BottomControl";
 export const metadata: Metadata = {
   title: {
     absolute: SITE_NAME,
@@ -32,9 +33,11 @@ export default function RootLayout({
     <html suppressHydrationWarning lang="ru">
       <body className={`${roboto.variable} ${inter.variable}`}>
         <Providers>
-          {" "}
-          <Header />
-          <div className="max-w-page m-auto">{children}</div>
+          <div>
+            <Header />
+            <div className="max-w-page m-auto p-4 page:px-0">{children}</div>
+            <BottomControl />
+          </div>
         </Providers>
       </body>
     </html>

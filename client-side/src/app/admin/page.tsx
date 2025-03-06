@@ -7,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function StorePage() {
-  return <div>Привет</div>;
+  return <div>Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sapiente rem dolores, molestiae consectetur animi debitis aliquid excepturi esse aspernatur suscipit eos reprehenderit ipsa! Eaque quaerat, qui praesentium explicabo odit cumque.</div>;
 }

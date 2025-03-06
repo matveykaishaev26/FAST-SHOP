@@ -8,7 +8,7 @@ import { ExtractJwt } from 'passport-jwt';
 export class JwtStrategy extends PassportStrategy(Strategy) {
   async validate({ id }: { id: string }) {
     const user = await this.userService.getById(id);
-    console.log(user);
+    // console.log(user);
     if (!user) {
       throw new UnauthorizedException('Пользователь не найден');
     }
@@ -20,7 +20,6 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   ) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: true,
       secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }

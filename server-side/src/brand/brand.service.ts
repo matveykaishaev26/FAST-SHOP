@@ -5,8 +5,24 @@ import { CreateBrandDto } from './dto/create-brand.dto';
 export class BrandService {
   constructor(private prisma: PrismaService) {}
 
-  async getAll() {
-    return await this.prisma.brand.findMany();
+  async getBrands(skip: number, take: number) {
+    skip = Math.max(skip, 0);
+    const brands = await this.prisma.brand.findMany({
+      skip,
+      take,
+      orderBy: [
+        {
+          title: 'asc',
+        },
+      ],
+    });
+
+    const total = await this.prisma.brand.count(); // Всего брендов
+
+    return {
+      brands,
+      total,
+    };
   }
   async getById(id: string) {
     const color = await this.prisma.brand.findUnique({
