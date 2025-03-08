@@ -1,5 +1,4 @@
 "use client";
-import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { RegisterSchema } from "@/schemas/auth";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
@@ -11,7 +10,8 @@ import { PUBLIC_URL } from "@/config/url.config";
 import { useRegisterMutation } from "@/features/api/authApi";
 import { IAuthRegisterResponse } from "@/shared/types/auth.interface";
 import { IApiError } from "@/shared/types/api.interface";
-import Message from "@/shared/components/auth/Message";
+import Message from "@/app/auth/_components/Message";
+import { AuthForm } from "../_components/AuthForm";
 export default function RegisterPage() {
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),

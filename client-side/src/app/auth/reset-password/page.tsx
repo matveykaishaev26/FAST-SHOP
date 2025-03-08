@@ -1,19 +1,19 @@
 "use client";
 import { ResetPasswordFields } from "./ResetPasswordFields";
 import { ResetPasswordSchema } from "@/schemas/auth";
-import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
 import { PUBLIC_URL } from "@/config/url.config";
-import Message from "@/shared/components/auth/Message";
+import Message from "@/app/auth/_components/Message";
 import { useResetPasswordMutation } from "@/features/api/authApi";
 import { IAuthResetPasswordResponse } from "@/shared/types/auth.interface";
 import * as z from "zod";
 import { IApiError } from "@/shared/types/api.interface";
 import { useSearchParams } from "next/navigation";
 import { useState } from "react";
+import { AuthForm } from "../_components/AuthForm";
 export default function ForgotPasswordPage() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");

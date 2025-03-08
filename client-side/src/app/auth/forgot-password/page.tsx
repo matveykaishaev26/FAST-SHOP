@@ -1,7 +1,6 @@
 "use client";
 import { ForgotPasswordFields } from "./ForgotPasswordFields";
 import { ForgotPasswordSchema } from "@/schemas/auth";
-import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Form } from "@/shared/components/ui/form";
@@ -11,7 +10,8 @@ import { useSendPasswordResetMutation } from "@/features/api/authApi";
 import { IAuthSendPasswordResetResponse } from "@/shared/types/auth.interface";
 import * as z from "zod";
 import { IApiError } from "@/shared/types/api.interface";
-import Message from "@/shared/components/auth/Message";
+import Message from "@/app/auth/_components/Message";
+import { AuthForm } from "../_components/AuthForm";
 
 export default function ForgotPasswordPage() {
   const [mutate, { data, isLoading: sendIsLoading, error }] = useSendPasswordResetMutation();

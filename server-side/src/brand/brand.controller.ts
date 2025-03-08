@@ -12,19 +12,22 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CreateBrandDto } from './dto/create-brand.dto';
-import { Auth } from 'src/auth/decorators/auth.decorator';
 import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { BrandService } from './brand.service';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
+import { Query } from '@nestjs/common';
+import { Auth } from 'src/auth/decorators/auth.decorator';
 @Controller('brands')
 export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @Get()
-  async getAll() {
-    return this.brandService.getAll();
+  async getBrands(@Query('page') page = 1, @Query('limit') limit = 20) {
+    const skip = (page - 1) * limit;
+    const brands = await this.brandService.getBrands(skip, +limit);
+    return brands;
   }
 
   @Get('by-id/:id')
@@ -35,8 +38,7 @@ export class BrandController {
   @Post()
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
+  @Auth()
   async create(@Body() dto: CreateBrandDto) {
     return this.brandService.create(dto);
   }

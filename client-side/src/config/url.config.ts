@@ -10,35 +10,35 @@ export const PUBLIC_URL = {
   explorer: (query = "") => PUBLIC_URL.root(`/explorer${query}`),
   product: (id: "") => PUBLIC_URL.root(`/product/${id}`),
   category: (id: "") => PUBLIC_URL.root(`/category/${id}`),
+  catalog: (id: "") => PUBLIC_URL.root(`/catalog${id}`),
+
 };
 
+export const PROFILE_URL = {
+  root: (url = "") => `/profile${url ? url : ""}`,
+  home: () => PROFILE_URL.root("/"),
+  favorites: () => PROFILE_URL.root("/favorites"),
+  profile: () => PROFILE_URL.root("/profile"),
+  basket: () => PROFILE_URL.root('/backet')
+};
 export const ADMIN_URL = {
-  root: (url: "") => `$/store/${url}`,
-};
+  root: (url = "") => `/admin${url ? url : ""}`,
 
-export const DASHBOARD_URL = {
-  root: (url = "") => `/dashboard${url ? url : ""}`,
-  home: () => DASHBOARD_URL.root("/"),
-  favorites: () => DASHBOARD_URL.root("/favorites"),
-};
-export const STORE_URL = {
-  root: (url = "") => `/store${url ? url : ""}`,
+  home: (storeId = "") => ADMIN_URL.root(`/${storeId}`),
 
-  home: (storeId = "") => STORE_URL.root(`/${storeId}`),
+  products: (storeId = "") => ADMIN_URL.root(`/products`),
+  productCreate: (storeId = "") => ADMIN_URL.root(`/${storeId}/products/create`),
+  productEdit: (storeId = "", id = "") => ADMIN_URL.root(`/${storeId}/products/${id}`),
 
-  products: (storeId = "") => STORE_URL.root(`/${storeId}/products`),
-  productCreate: (storeId = "") => STORE_URL.root(`/${storeId}/products/create`),
-  productEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/products/${id}`),
+  categories: (storeId = "") => ADMIN_URL.root(`/${storeId}/categories`),
+  categoryCreate: (storeId = "") => ADMIN_URL.root(`/${storeId}/categories/create`),
+  categoryEdit: (storeId = "", id = "") => ADMIN_URL.root(`/${storeId}/categories/${id}`),
 
-  categories: (storeId = "") => STORE_URL.root(`/${storeId}/categories`),
-  categoryCreate: (storeId = "") => STORE_URL.root(`/${storeId}/categories/create`),
-  categoryEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/categories/${id}`),
+  reviews: (storeId = "") => ADMIN_URL.root(`/reviews`),
 
-  colors: (storeId = "") => STORE_URL.root(`/${storeId}/colors`),
-  colorCreate: (storeId = "") => STORE_URL.root(`/${storeId}/colors/create`),
-  colorEdit: (storeId = "", id = "") => STORE_URL.root(`/${storeId}/colors/${id}`),
+  statistics: (storeId = "") => ADMIN_URL.root(`/statistics`),
 
-  reviews: (storeId = "") => STORE_URL.root(`/${storeId}/reviews`),
+  settings: (storeId = "") => ADMIN_URL.root(`/settings`),
 
-  settings: (storeId = "") => STORE_URL.root(`/${storeId}/settings`),
+  attributes: (storeId = "") => ADMIN_URL.root(`/attributes`),
 };

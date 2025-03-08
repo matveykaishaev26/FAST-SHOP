@@ -8,8 +8,6 @@ export class CreateProductVariantDto {
   @IsNotEmpty({
     message: 'Цвет обязателен',
   })
-  @IsEnum(Color)
-  color: Color;
   @IsDecimal(
     { force_decimal: true, decimal_digits: '2' },
     { message: 'Неправильный ввод цены!' },

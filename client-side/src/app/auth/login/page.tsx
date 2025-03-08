@@ -1,5 +1,4 @@
 "use client";
-import { AuthForm } from "@/shared/components/auth/AuthForm";
 import { LoginFields } from "./LoginFields";
 import { Form } from "@/shared/components/ui/form";
 import { Button } from "@/shared/components/ui/button";
@@ -7,13 +6,14 @@ import { LoginSchema } from "@/schemas/auth";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DASHBOARD_URL, PUBLIC_URL } from "@/config/url.config";
+import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { useLoginMutation } from "@/features/api/authApi";
 import { useRouter } from "next/navigation";
 import { IApiError } from "@/shared/types/api.interface";
-import Message from "@/shared/components/auth/Message";
+import Message from "@/app/auth/_components/Message";
 import { useState } from "react";
 import Link from "next/link";
+import { AuthForm } from "../_components/AuthForm";
 export default function LoginPage() {
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
@@ -35,7 +35,7 @@ export default function LoginPage() {
       .unwrap()
       .then(() => {
         console.log(loginData);
-        router.replace(DASHBOARD_URL.root());
+        router.replace(PROFILE_URL.root());
       })
       .catch((err) => {
         setLoginLoading(false);

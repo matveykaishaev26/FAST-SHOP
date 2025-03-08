@@ -4,7 +4,8 @@ import { SITE_DESCRIPTION, SITE_NAME } from "@/constants/seo.constants";
 import { Roboto } from "next/font/google";
 import { Inter } from "next/font/google";
 import Providers from "./providers";
-
+import MainHeader from "./(root)/_components/Header/MainHeader";
+import { BottomControl } from "./(root)/_components/Header/BottomControl";
 export const metadata: Metadata = {
   title: {
     absolute: SITE_NAME,
