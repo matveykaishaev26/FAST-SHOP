@@ -158,6 +158,8 @@ model Product {
   style           Style?             @relation(fields: [styleId], references: [id])
   styleId         String?            @map("style_id")
   productMaterals ProductMaterials[]
+  Color           Color?             @relation(fields: [colorId], references: [id])
+  colorId         String?
 
   @@unique([title, brandId])
   @@map("product")
@@ -185,15 +187,14 @@ model ProductVariant {
   createdAt              DateTime                 @default(now()) @map("created_at")
   updatedAt              DateTime                 @updatedAt @map("updated_at")
   orderItems             OrderItem[]
-  color                  Color
   price                  Decimal
   images                 String[]
   favorites              UserFavorites[]
   product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId              String?                  @map("product_id")
   ProductVariantQuantity ProductVariantQuantity[]
+  ProductVariantColors   ProductVariantColors[]
 
-  @@unique([productId, color])
   @@map("product_variant")
 }
 
@@ -203,29 +204,49 @@ model ProductVariantQuantity {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   quantity         Int
-  size             String
+  size             Size            @relation(fields: [sizeId], references: [id])
+  sizeId           String          @map("size_id")
   productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
   productVariantId String?         @map("product_variant_id")
 
-  @@unique([productVariantId, size])
+  @@unique([productVariantId, sizeId])
   @@map("product_variant_quantity")
 }
 
-enum Color {
-  BEIGE
-  WHITE
-  BLUE
-  YELLOW
-  GREEN
-  BROWN
-  RED
-  ORANGE
-  PINK
-  GREY
-  SKY
-  PURPLE
-  BLACK
-  MULTI
+model Color {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title                String                 @unique
+  hex                  String                 @unique
+  product              Product[]
+  ProductVariantColors ProductVariantColors[]
+
+  @@map("color")
+}
+
+model Size {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  title                  Float
+  ProductVariantQuantity ProductVariantQuantity[]
+
+  @@map("size")
+}
+
+model ProductVariantColors {
+  id               String         @id @default(cuid())
+  createdAt        DateTime       @default(now()) @map("created_at")
+  updatedAt        DateTime       @updatedAt @map("updated_at")
+  color            Color          @relation(fields: [colorId], references: [id])
+  colorId          String         @map("color_id")
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  productVariantId String         @map("product_variant_id")
+
+  @@map("product_variant_colors")
 }
 
 model UserFavorites {

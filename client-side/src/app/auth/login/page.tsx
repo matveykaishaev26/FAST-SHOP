@@ -6,7 +6,7 @@ import { LoginSchema } from "@/schemas/auth";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DASHBOARD_URL, PUBLIC_URL } from "@/config/url.config";
+import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { useLoginMutation } from "@/features/api/authApi";
 import { useRouter } from "next/navigation";
 import { IApiError } from "@/shared/types/api.interface";
@@ -35,7 +35,7 @@ export default function LoginPage() {
       .unwrap()
       .then(() => {
         console.log(loginData);
-        router.replace(DASHBOARD_URL.root());
+        router.replace(PROFILE_URL.root());
       })
       .catch((err) => {
         setLoginLoading(false);

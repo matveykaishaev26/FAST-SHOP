@@ -1,7 +1,7 @@
 "use client";
 import { useProfile } from "@/hooks/useProfile";
 import Link from "next/link";
-import { DASHBOARD_URL } from "@/config/url.config";
+import { PROFILE_URL } from "@/config/url.config";
 import Image from "next/image";
 import { IUser } from "@/shared/types/user.interface";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
@@ -21,7 +21,7 @@ export default function Header() {
             <Skeleton className={iconStyle} />
           ) : (
             <div>
-              <Link href={DASHBOARD_URL.home()}>
+              <Link href={PROFILE_URL.root()}>
                 <Image
                   className={`${iconStyle} h-9 w-9 rounded-lg`}
                   alt={userData?.name ?? "твое имя"}

@@ -62,6 +62,7 @@ export default {
       spacing: {
         icon: "2.25rem",
         w: "1400px",
+        authForm: "400px",
       },
       maxWidth: {
         page: "1600px", // Кастомный класс max-w-page
@@ -71,6 +72,7 @@ export default {
       },
       screens: {
         page: "1700px",
+        authForm: "400px",
       },
 
       borderRadius: {

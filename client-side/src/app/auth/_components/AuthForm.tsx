@@ -7,7 +7,7 @@ type Props = {
   header: string;
   description?: string;
   isContinueIncluded?: boolean;
-  btnLinkText?: string;
+  btnLinkText?: string; 
   btnLinkHref?: string;
 };
 export function AuthForm({
@@ -19,7 +19,7 @@ export function AuthForm({
   isContinueIncluded,
 }: PropsWithChildren<Props>) {
   return (
-    <Card className="w-[400px]">
+    <Card className="w-full authForm:w-authForm">
       <CardHeader>
         <CardTitle className="text-center text-2xl">{header}</CardTitle>
         {description ? <CardDescription className="text-center">{description}</CardDescription> : ""}

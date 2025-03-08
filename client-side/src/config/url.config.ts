@@ -10,12 +10,16 @@ export const PUBLIC_URL = {
   explorer: (query = "") => PUBLIC_URL.root(`/explorer${query}`),
   product: (id: "") => PUBLIC_URL.root(`/product/${id}`),
   category: (id: "") => PUBLIC_URL.root(`/category/${id}`),
+  catalog: (id: "") => PUBLIC_URL.root(`/catalog${id}`),
+
 };
 
-export const DASHBOARD_URL = {
-  root: (url = "") => `/dashboard${url ? url : ""}`,
-  home: () => DASHBOARD_URL.root("/"),
-  favorites: () => DASHBOARD_URL.root("/favorites"),
+export const PROFILE_URL = {
+  root: (url = "") => `/profile${url ? url : ""}`,
+  home: () => PROFILE_URL.root("/"),
+  favorites: () => PROFILE_URL.root("/favorites"),
+  profile: () => PROFILE_URL.root("/profile"),
+  basket: () => PROFILE_URL.root('/backet')
 };
 export const ADMIN_URL = {
   root: (url = "") => `/admin${url ? url : ""}`,

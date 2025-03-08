@@ -14,5 +14,5 @@ export class CreateProductVariantQuantityDto {
   @IsNotEmpty({
     message: 'Размер обязательно',
   })
-  size: string; // Используем тип number, так как TypeScript использует number для всех чисел, включая float
+  sizeId: string; // Используем тип number, так как TypeScript использует number для всех чисел, включая float
 }

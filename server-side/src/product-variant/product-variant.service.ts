@@ -13,7 +13,6 @@ export class ProductVariantService {
   async create(dto: CreateProductVariantDto) {
     return await this.prisma.productVariant.create({
       data: {
-        color: dto.color,
         price: dto.price,
         productId: dto.productId,
         images: dto.images,

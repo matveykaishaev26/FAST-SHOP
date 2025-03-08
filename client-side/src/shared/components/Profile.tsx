@@ -3,32 +3,37 @@ import { useProfile } from "@/hooks/useProfile";
 import { Skeleton } from "./ui/Skeleton/Skeleton";
 import { IUser } from "../types/user.interface";
 import Link from "next/link";
-import { DASHBOARD_URL } from "@/config/url.config";
+import { PROFILE_URL } from "@/config/url.config";
 import Image from "next/image";
 
 interface IProfileProps {
   className?: string;
 }
+
 export default function Profile({ className }: IProfileProps) {
   const { user, isLoading } = useProfile();
-  const userData = user as IUser;
+
+  if (isLoading) {
+    return (
+      <div className={`flex h-9 w-9 flex-col items-center`}>
+        <Skeleton className={`h-9 w-9 ${className ?? ""}`} />
+        <span className="text-xs text-muted-foreground">Профиль</span>
+      </div>
+    );
+  }
+
   return (
-    <div>
-      {isLoading ? (
-        <Skeleton className={`h-icon w-icon  ${className ? className : ""}`} />
-      ) : (
-        <div>
-          <Link href={DASHBOARD_URL.home()}>
-            <Image
-              className={`h-9 w-9 rounded-lg ${className ? className : ""}`}
-              alt={userData?.name ?? "твое имя"}
-              src={userData?.picture ?? "/images/no-avatar.jpg"}
-              width={50}
-              height={50}
-            />
-          </Link>
-        </div>
-      )}
+    <div className="flex h-9 w-9 flex-col items-center">
+      <Link className={`group flex flex-col items-center  ${className ?? ""}`} href={PROFILE_URL.root()}>
+        <Image
+          className="rounded-lg object-cover"
+          alt={user?.name ?? "твое имя"}
+          width={36}
+          height={36}
+          src={user?.picture && user.picture !== "" ? user.picture : "/images/no-avatar.jpg"}
+        />
+        <span className="text-xs text-muted-foreground group-hover:text-primary">Профиль</span>
+      </Link>
     </div>
   );
 }

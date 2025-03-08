@@ -18,6 +18,9 @@ import { ProductVariantModule } from './product-variant/product-variant.module';
 import { ProductVariantQuantityModule } from './product-variant-quantity/product-variant-quantity.module';
 import { StyleModule } from './style/style.module';
 import { ProductMaterialsModule } from './product-materials/product-materials.module';
+import { ColorModule } from './color/color.module';
+import { ProductVariantColorsModule } from './product-variant-colors/product-variant-colors.module';
+import { SizeModule } from './size/size.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(), // for scheduled tasks
@@ -39,6 +42,9 @@ import { ProductMaterialsModule } from './product-materials/product-materials.mo
     ProductVariantQuantityModule,
     StyleModule,
     ProductMaterialsModule,
+    ColorModule,
+    ProductVariantColorsModule,
+    SizeModule,
   ],
 })
 export class AppModule {}
