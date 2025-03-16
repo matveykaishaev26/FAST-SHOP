@@ -9,7 +9,7 @@ import Nav from "./Nav";
 export default function MainHeader() {
   return (
     <>
-      <header className="border-b bg-background h-[90px]">
+      <header className="z-50 border-b bg-background h-[90px]">
         <div className="sticky top-0   max-w-page h-full m-auto flex items-center  gap-x-4 justify-between px-4 page:p-0 ">
           <Logo />
           <div className="w-full flex gap-x-2">

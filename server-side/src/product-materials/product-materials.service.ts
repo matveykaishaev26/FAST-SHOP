@@ -5,11 +5,9 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class ProductMaterialsService {
   constructor(private prisma: PrismaService) {}
-  async create(dto: CreateProductMaterialsDto) {
-    return await this.prisma.productMaterials.create({
-      data: {
-        ...dto,
-      },
+  async create(dto: CreateProductMaterialsDto[]) {
+    return await this.prisma.productMaterials.createMany({
+      data: dto,
     });
   }
 

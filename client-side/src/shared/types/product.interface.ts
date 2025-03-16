@@ -1,6 +1,6 @@
 import { ICategory } from "./category.interface";
+import { IFilterItem } from "./entity.interface";
 import { IReview } from "./review.interface";
-import { IStore } from "./store.interface";
 
 export interface IProduct {
   id: string;
@@ -10,11 +10,11 @@ export interface IProduct {
   images: string[];
   category: ICategory;
   reviews: IReview[];
-  store: IStore;
 }
 
-export interface IProductInput
-  extends Omit<IProduct, "id" | "reviews" | "store" | "category" | "color"> {
+export interface IProductInput extends Omit<IProduct, "id" | "reviews" | "store" | "category" | "color"> {
   categoryId: string;
   colorId: string;
 }
+
+export interface IGender extends IFilterItem {}

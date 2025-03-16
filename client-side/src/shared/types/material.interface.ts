@@ -1,6 +1,4 @@
-export interface IMaterial {
-  id: string;
-  title: string;
-}
+import { IFilterItem, IProductCount } from "./entity.interface";
 
-export interface ITechnologyInput extends Pick<IMaterial, "title"> {}
+export interface IMaterial extends IFilterItem {}
+

@@ -5,11 +5,9 @@ import { CreateProductVariantColorsDto } from './dto/create-product-variant-colo
 export class ProductVariantColorsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(dto: CreateProductVariantColorsDto) {
-    return await this.prisma.productVariantColors.create({
-      data: {
-        ...dto,
-      },
+  async create(dto: CreateProductVariantColorsDto[]) {
+    return await this.prisma.productVariantColors.createMany({
+      data: dto,
     });
   }
 

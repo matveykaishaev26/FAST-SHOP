@@ -26,12 +26,17 @@ export class ProductVariantController {
     return this.productVariantService.getAll();
   }
 
+  @Get('price-range')
+  async getPriceRange() {
+    return this.productVariantService.getPriceRange();
+  }
+
   @Post()
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() dto: CreateProductVariantDto) {
+  async create(@Body() dto: CreateProductVariantDto[]) {
     return this.productVariantService.create(dto);
   }
 

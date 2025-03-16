@@ -1,4 +1,6 @@
-export interface IBrand {
+import { IProductCount } from "./entity.interface";
+
+export interface IBrand extends IProductCount  {
   id: string;
   title: string;
 }

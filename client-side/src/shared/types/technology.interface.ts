@@ -3,4 +3,3 @@ export interface ITechnology {
   title: string;
 }
 
-export interface ITechnologyInput extends Pick<ITechnology, "title"> {}

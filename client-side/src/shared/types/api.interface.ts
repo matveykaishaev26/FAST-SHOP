@@ -5,3 +5,8 @@ export interface IApiError {
 export interface IRefreshResponse {
   accessToken: string;
 }
+
+
+export interface IPagination {
+  
+}

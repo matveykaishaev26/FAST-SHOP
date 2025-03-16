@@ -13,7 +13,6 @@ import { UserRole } from '@prisma/client';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
-import { CreateMaterialDto } from 'src/material/dto/create-material.dto';
 import { CreateColorDto } from './dto/create-color.dto';
 
 @Controller('colors')
@@ -22,7 +21,7 @@ export class ColorController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  create(@Body() dto: CreateColorDto) {
+  create(@Body() dto: CreateColorDto[]) {
     return this.colorService.create(dto);
   }
 

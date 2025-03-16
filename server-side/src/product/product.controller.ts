@@ -43,6 +43,10 @@ export class ProductController {
   async getMostPopular() {
     return this.productService.getMostPopular();
   }
+  @Get('gender-counts')
+  async getQuantityByGenders() {
+    return this.productService.getGenderCounts();
+  }
 
   @Get('similar/:id')
   async getSimilar(@Param('id') id: string) {
@@ -54,8 +58,7 @@ export class ProductController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
- 
-  async create(@Body() dto: CreateProductDto) {
+  async create(@Body() dto: CreateProductDto[]) {
     return this.productService.create(dto);
   }
 

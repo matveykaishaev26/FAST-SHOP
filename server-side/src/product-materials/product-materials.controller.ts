@@ -22,7 +22,7 @@ export class ProductMaterialsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  createMaterial(@Body() dto: CreateProductMaterialsDto) {
+  createMaterial(@Body() dto: CreateProductMaterialsDto[]) {
     return this.productMaterialsService.create(dto);
   }
 

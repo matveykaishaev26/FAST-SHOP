@@ -37,7 +37,7 @@ export class CategoryController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() dto: CategoryDto) {
+  async create(@Body() dto: CategoryDto[]) {
     return this.categoryService.create(dto);
   }
 

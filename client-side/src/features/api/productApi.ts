@@ -1,6 +1,6 @@
-import { IProduct, IProductInput } from "@/shared/types/product.interface";
+import { IGender, IProduct, IProductInput } from "@/shared/types/product.interface";
 import { api } from "./api";
-
+import { API_URL } from "@/config/api.config";
 export const productApi = api.injectEndpoints({
   endpoints: (build) => ({
     // Получить все продукты
@@ -77,6 +77,13 @@ export const productApi = api.injectEndpoints({
         method: "DELETE",
       }),
     }),
+
+    getGenderCount: build.query<IGender[], void>({
+      query: () => ({
+        url: API_URL.products("/gender-counts"),
+        method: "GET",
+      }),
+    }),
   }),
 });
 
@@ -90,4 +97,5 @@ export const {
   useCreateProductMutation,
   useUpdateProductMutation,
   useDeleteProductMutation,
+  useGetGenderCountQuery,
 } = productApi;

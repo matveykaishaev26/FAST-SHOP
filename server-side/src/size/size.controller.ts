@@ -21,7 +21,7 @@ export class SizeController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  create(@Body() dto: CreateSizeDto) {
+  create(@Body() dto: CreateSizeDto[]) {
     return this.sizeService.create(dto);
   }
 

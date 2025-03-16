@@ -11,4 +11,9 @@ export const API_URL = {
   orders: (url = "") => API_URL.root(`/orders${url}`),
   statistics: (url = "") => API_URL.root(`/statistics${url}`),
   files: (url = "") => API_URL.root(`/files${url}`),
+  materials: (url = "") => API_URL.root(`/materials${url}`),
+  styles: (url = "") => API_URL.root(`/styles${url}`),
+  productVariants: (url = "") => API_URL.root(`/product-variants${url}`),
+  sizes: (url = "") => API_URL.root(`/sizes${url}`),
+
 };

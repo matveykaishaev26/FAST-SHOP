@@ -8,7 +8,13 @@ export const brandApi = api.injectEndpoints({
         method: "GET",
       }),
     }),
+    getAllBrands: build.query<IBrand[], void>({
+      query: () => ({
+        url: `/brands?all=true`,
+        method: "GET",
+      }),
+    }),
   }),
 });
 
-export const { useGetBrandsQuery } = brandApi;
+export const { useGetBrandsQuery, useGetAllBrandsQuery } = brandApi;

@@ -10,11 +10,9 @@ export class ProductVariantQuantityService {
     return await this.prisma.productVariantQuantity.findMany();
   }
 
-  async create(dto: CreateProductVariantQuantityDto) {
-    return await this.prisma.productVariantQuantity.create({
-      data: {
-        ...dto,
-      },
+  async create(dto: CreateProductVariantQuantityDto[]) {
+    return await this.prisma.productVariantQuantity.createMany({
+      data: dto,
     });
   }
 

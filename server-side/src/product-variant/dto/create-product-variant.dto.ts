@@ -1,21 +1,13 @@
-import { Color, Gender, Season } from '@prisma/client';
-import { Decimal } from '@prisma/client/runtime/library';
+
 import { IsNotEmpty, IsOptional, IsEnum, IsDecimal } from 'class-validator';
 export class CreateProductVariantDto {
   @IsNotEmpty({
-    message: 'Размер обязателен',
+    message: 'Цена обязателен',
   })
-  @IsNotEmpty({
-    message: 'Цвет обязателен',
-  })
-  @IsDecimal(
-    { force_decimal: true, decimal_digits: '2' },
-    { message: 'Неправильный ввод цены!' },
-  )
-  price: Decimal;
+  price: number;
 
   @IsNotEmpty({
-    message: 'Размер обязателен',
+    message: 'Id продукта обязателен',
   })
   productId: string;
 

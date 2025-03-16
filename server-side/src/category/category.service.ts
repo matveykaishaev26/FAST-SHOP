@@ -7,7 +7,26 @@ export class CategoryService {
   constructor(private prisma: PrismaService) {}
 
   async getAll() {
-    return await this.prisma.category.findMany();
+    const result = await this.prisma.category.findMany({
+      include: {
+        products: {
+          select: {
+            id: true,
+          },
+        },
+      },
+      orderBy: [
+        {
+          title: 'asc',
+        },
+      ],
+    });
+
+    return result.map((item) => ({
+      id: item.id,
+      title: item.title,
+      productCount: new Set(item.products.map((v) => v.id)).size,
+    }));
   }
   async getById(id: string) {
     const color = await this.prisma.category.findUnique({
@@ -23,11 +42,9 @@ export class CategoryService {
     return color;
   }
 
-  async create(dto: CategoryDto) {
-    return this.prisma.category.create({
-      data: {
-        title: dto.title,
-      },
+  async create(dto: CategoryDto[]) {
+    return this.prisma.category.createMany({
+      data: dto,
     });
   }
 

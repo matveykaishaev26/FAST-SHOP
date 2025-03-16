@@ -5,16 +5,32 @@ import { PrismaService } from 'src/prisma/prisma.service';
 @Injectable()
 export class MaterialService {
   constructor(private prisma: PrismaService) {}
-  async createMaterial(dto: CreateMaterialDto) {
-    return await this.prisma.material.create({
-      data: {
-        ...dto,
-      },
+  async createMaterial(dto: CreateMaterialDto[]) {
+    return await this.prisma.material.createMany({
+      data: dto,
     });
   }
 
   async getAllMaterials() {
-    return await this.prisma.material.findMany();
+    const materials = await this.prisma.material.findMany({
+      include: {
+        productMaterials: {
+          select: {
+            productId: true,
+          },
+        },
+      },
+      orderBy: [
+        {
+          title: 'asc',
+        },
+      ],
+    });
+    return materials.map((item) => ({
+      id: item.id,
+      title: item.title,
+      productCount: new Set(item.productMaterials.map((v) => v.productId)).size, // Количество уникальных товаров
+    }));
   }
 
   async deleteMaterial(id: string) {

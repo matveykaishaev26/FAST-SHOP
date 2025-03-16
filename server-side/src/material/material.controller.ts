@@ -20,13 +20,11 @@ export class MaterialController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  createMaterial(@Body() dto: CreateMaterialDto) {
+  createMaterial(@Body() dto: CreateMaterialDto[]) {
     return this.materialService.createMaterial(dto);
   }
 
   @Get()
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   getAllMaterials() {
     return this.materialService.getAllMaterials();
   }

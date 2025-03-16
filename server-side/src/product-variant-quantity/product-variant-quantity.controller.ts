@@ -32,7 +32,7 @@ export class ProductVariantQuantityController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() dto: CreateProductVariantQuantityDto) {
+  async create(@Body() dto: CreateProductVariantQuantityDto[]) {
     return this.productVariantQuantityService.create(dto);
   }
 

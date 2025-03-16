@@ -24,7 +24,15 @@ export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @Get()
-  async getBrands(@Query('page') page = 1, @Query('limit') limit = 20) {
+  async getBrands(
+    @Query('page') page = 1,
+    @Query('limit') limit = 20,           
+    @Query('all') all?: string,
+  ) {
+    const isAll = all === 'true';
+    if (isAll) {
+      return await this.brandService.getAll();
+    }
     const skip = (page - 1) * limit;
     const brands = await this.brandService.getBrands(skip, +limit);
     return brands;
@@ -39,7 +47,7 @@ export class BrandController {
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Auth()
-  async create(@Body() dto: CreateBrandDto) {
+  async create(@Body() dto: CreateBrandDto[]) {
     return this.brandService.create(dto);
   }
 

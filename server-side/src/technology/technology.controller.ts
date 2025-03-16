@@ -23,12 +23,10 @@ export class TechnologyController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  createTechnology(@Body() dto: CreateTechnologyDto) {
+  createTechnology(@Body() dto: CreateTechnologyDto[]) {
     return this.technologyService.create(dto);
   }
 
-  @UseGuards(JwtAuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN)
   @Get()
   getAllTechnology() {
     return this.technologyService.getAll();

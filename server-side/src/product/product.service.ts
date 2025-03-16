@@ -22,6 +22,31 @@ export class ProductService {
     return product;
   }
 
+  async getGenderCounts() {
+    const result = await this.prisma.product.groupBy({
+      by: ['gender'],
+      _count: {
+        id: true,
+      },
+    });
+
+    // Массив возможных гендеров
+    const genders = [
+      { id: 'MALE', title: 'Мужской' },
+      { id: 'FEMALE', title: 'Женский' },
+      { id: 'UNISEX', title: 'Унисекс' },
+    ];
+
+    // Возвращаем массив объектов, где для каждого гендера подсчитано количество продуктов
+    return genders.map((gender) => {
+      const genderCount = result.find((r) => r.gender === gender.id);
+      return {
+        ...gender,
+        productCount: genderCount ? genderCount._count.id : 0, // Если гендер найден, берем количество, иначе 0
+      };
+    });
+  }
+
   async getAll(searchTerm: string) {
     if (searchTerm) return this.getSearchTermFilter(searchTerm);
 
@@ -125,11 +150,9 @@ export class ProductService {
     return products;
   }
 
-  async create(dto: CreateProductDto) {
-    return await this.prisma.product.create({
-      data: {
-        ...dto,
-      },
+  async create(dto: CreateProductDto[]) {
+    return await this.prisma.product.createMany({
+      data: dto,
     });
   }
 

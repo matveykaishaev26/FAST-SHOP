@@ -22,11 +22,9 @@ export class TechnologyService {
     return color;
   }
 
-  async create(dto: CreateTechnologyDto) {
-    return this.prisma.technology.create({
-      data: {
-        title: dto.title,
-      },
+  async create(dto: CreateTechnologyDto[]) {
+    return this.prisma.technology.createMany({
+      data: dto,
     });
   }
 

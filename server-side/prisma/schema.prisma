@@ -43,7 +43,7 @@ model User {
   emailVerifiedAt DateTime?
 
   name    String @default("Не указано")
-  picture String @default("/uploads/no-user-images.png")
+  picture String @default("/uploads/no-user-image.png")
 
   reviews   Review[]
   role      UserRole        @default(USER)
@@ -107,7 +107,8 @@ model Material {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  title String @unique
+  title            String             @unique
+  productMaterials ProductMaterials[]
 
   @@map("material")
 }
@@ -158,8 +159,6 @@ model Product {
   style           Style?             @relation(fields: [styleId], references: [id])
   styleId         String?            @map("style_id")
   productMaterals ProductMaterials[]
-  Color           Color?             @relation(fields: [colorId], references: [id])
-  colorId         String?
 
   @@unique([title, brandId])
   @@map("product")
@@ -176,7 +175,8 @@ model ProductMaterials {
   productPart ProductPart
   percentage  Decimal?    @db.Decimal(5, 2)
 
-  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  product  Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  material Material @relation(fields: [materialId], references: [id], onDelete: Cascade)
 
   @@unique([productId, productPart, materialId])
   @@map("product_materials")
@@ -187,13 +187,13 @@ model ProductVariant {
   createdAt              DateTime                 @default(now()) @map("created_at")
   updatedAt              DateTime                 @updatedAt @map("updated_at")
   orderItems             OrderItem[]
-  price                  Decimal
+  price                  Int
   images                 String[]
   favorites              UserFavorites[]
   product                Product?                 @relation(fields: [productId], references: [id], onDelete: Cascade)
   productId              String?                  @map("product_id")
-  ProductVariantQuantity ProductVariantQuantity[]
-  ProductVariantColors   ProductVariantColors[]
+  productVariantQuantity ProductVariantQuantity[]
+  productVariantColors   ProductVariantColors[]
 
   @@map("product_variant")
 }
@@ -220,8 +220,7 @@ model Color {
 
   title                String                 @unique
   hex                  String                 @unique
-  product              Product[]
-  ProductVariantColors ProductVariantColors[]
+  productVariantColors ProductVariantColors[]
 
   @@map("color")
 }
@@ -231,8 +230,8 @@ model Size {
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  title                  Float
-  ProductVariantQuantity ProductVariantQuantity[]
+  title                  Float                    @unique
+  productVariantQuantity ProductVariantQuantity[]
 
   @@map("size")
 }

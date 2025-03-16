@@ -1,9 +1,8 @@
 "use client";
-import { FaYandex } from "react-icons/fa";
-import { FaGithub } from "react-icons/fa6";
 import { ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/shared/components/ui/button";
+import Image from "next/image";
 type ContinueWithBtn = {
   label: string;
   icon: ReactNode;
@@ -15,12 +14,37 @@ export function ContinueWith() {
   const btns: ContinueWithBtn[] = [
     {
       label: "Яндекс",
-      icon: <FaYandex className=" text-red-500" />,
+      icon: (
+        <Image
+          className="w-5  h-5 text-foreground"
+          src="/images/yandex-logo.svg"
+          alt="github-mark"
+          width={15}
+          height={15}
+        />
+      ),
       onClick: () => router.replace(`${process.env.SERVER_URL}/auth/yandex`),
     },
     {
       label: "Github",
-      icon: <FaGithub className="" />,
+      icon: (
+        <>
+          <Image
+            className="w-5  h-5 dark:hidden"
+            src="/images/github-mark-black.svg"
+            alt="github-mark"
+            width={15}
+            height={15}
+          />
+          <Image
+            className="w-5 h-5 hidden dark:block"
+            src="/images/github-mark-white.svg"
+            alt="github-mark"
+            width={15}
+            height={15}
+          />
+        </>
+      ),
       onClick: () => router.replace(`${process.env.SERVER_URL}/auth/github`),
     },
   ];

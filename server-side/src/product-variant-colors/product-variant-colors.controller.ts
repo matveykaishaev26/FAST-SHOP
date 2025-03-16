@@ -32,7 +32,7 @@ export class ProductVariantColorsController {
   @HttpCode(200)
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  async create(@Body() dto: CreateProductVariantColorsDto) {
+  async create(@Body() dto: CreateProductVariantColorsDto[]) {
     return this.productVariantColorsService.create(dto);
   }
 
