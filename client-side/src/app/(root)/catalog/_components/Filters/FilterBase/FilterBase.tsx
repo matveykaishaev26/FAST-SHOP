@@ -1,16 +1,19 @@
 "use client";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { useState } from "react";
-import FilterItem from "../FilterItem";
+import { useState, useMemo } from "react";
 import { IFilterItem } from "@/shared/types/entity.interface";
-import OpenFilterBase from "./OpenFilterBase";
-export interface IFilterBaseProps<T> {
+import ToggleFilterList from "./ToggleFilterList";
+import { IFilterProps, IFilters } from "../../../types";
+import FilterListItem from "./FilterListItem";
+import { Input } from "@/shared/components/ui/input";
+
+export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
   data: T[];
   header: string;
   renderItem?: (item: T) => React.ReactNode;
-  isAlphabeticalOrder?: boolean;
   isExpandable?: boolean;
+  filterType: keyof IFilters;
 }
 
 const ITEMS_COUNT = 5;
@@ -20,8 +23,11 @@ export default function FilterBase<T extends IFilterItem>({
   isLoading,
   header,
   renderItem,
-  isAlphabeticalOrder,
+  filterType,
+  filters,
   isExpandable = true,
+  handleCheckboxChange,
+  deleteFilters,
 }: IFilterBaseProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -30,45 +36,65 @@ export default function FilterBase<T extends IFilterItem>({
     setIsOpen((prev) => !prev);
     setSearchTerm("");
   };
-  const filteredItems = data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+
+  const filteredItems = useMemo(() => {
+    return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
+  }, [data, searchTerm]);
+
+  const filtersCount = (filterType && filters && filters[filterType]?.length) || null;
+
+  const renderItems = (items: T[]) => {
+    return renderItem
+      ? items.map(renderItem)
+      : items.map((item) => (
+          <FilterListItem
+            key={item.id}
+            item={item}
+            filterType={filterType}
+            filters={filters}
+            handleCheckboxChange={handleCheckboxChange}
+          />
+        ));
+  };
 
   return (
     <div className="space-y-2">
-      <div className="text-xl font-medium cursor-pointer w-full">{header}</div>
+      <div className="flex items-center gap-x-2 w-full">
+        <span className="text-xl font-medium cursor-pointer">{header}</span>
+        {filtersCount && (
+          <div className="rounded-full bg-red-500 text-xs h-4 w-4 flex items-center justify-center text-background">
+            {filtersCount}
+          </div>
+        )}
+      </div>
       {isLoading ? (
         <Skeleton className="h-[200px] w-full" />
-      ) : isOpen && isExpandable === true ? (
-        <>
-          <OpenFilterBase
-            data={data}
-            searchTerm={searchTerm}
-            filteredItems={filteredItems}
-            isAlphabeticalOrder={isAlphabeticalOrder}
-            renderItem={renderItem}
-            setSearchTerm={setSearchTerm}
-            toggleList={toggleList}
-          />
-        </>
       ) : (
         <>
-          <div className="space-y-2">
-            {renderItem
-              ? data.slice(0, ITEMS_COUNT).map(renderItem)
-              : data.slice(0, ITEMS_COUNT).map((item) => (
-                  <div key={item.title}>
-                    <FilterItem id={item.title}>
-                      <span className="text-[15px]  text-foreground  font-thin">{item.title}</span>
-                      <div className="text-muted-foreground text-xs">({item.productCount})</div>
-                    </FilterItem>
-                  </div>
-                ))}
-          </div>
-          {isExpandable === true && (
-            <div onClick={toggleList} className="text-primary cursor-pointer">
-              Посмотреть все
-            </div>
+          {isExpandable && isOpen && (
+            <Input
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              type="search"
+              placeholder="Хочу найти..."
+            />
           )}
+          <div className={`space-y-2 w-full ${isExpandable ? "max-h-[240px] overflow-auto custom-scrollbar" : ""}`}>
+            {isOpen && filteredItems.length == 0 ? (
+              <div className="text-muted-foreground text-[14px]">Ничего не найдено</div>
+            ) : (
+              renderItems(isOpen ? filteredItems : data.slice(0, ITEMS_COUNT))
+            )}
+          </div>
         </>
+      )}
+      {isExpandable && (
+        <ToggleFilterList
+          title={isOpen ? "Свернуть" : "Посмотреть все"}
+          isFiltersEmpty={!!filtersCount}
+          clearFilters={() => deleteFilters(filterType)}
+          toggleList={toggleList}
+        />
       )}
     </div>
   );

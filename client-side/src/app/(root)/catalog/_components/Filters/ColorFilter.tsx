@@ -2,33 +2,45 @@
 import { useGetColorsQuery } from "@/features/api/colorApi";
 import { IColor } from "@/shared/types/color.interface";
 import FilterBase from "./FilterBase/FilterBase";
-import FilterItem from "./FilterItem";
-export default function ColorFilter() {
+import FilterCheckbox from "./FilterCheckbox";
+import { IFilterProps } from "../../types";
+export default function ColorFilter({ handleCheckboxChange, filters, deleteFilters }: IFilterProps) {
   const { data: colors, isLoading } = useGetColorsQuery();
-  console.log(colors);
+  const filterType = "color";
   return (
     <FilterBase
+      deleteFilters={deleteFilters}
+      filters={filters}
+      handleCheckboxChange={handleCheckboxChange}
       header="Цвет"
       isLoading={isLoading}
+      filterType="color"
       data={colors || []}
       renderItem={(color: IColor) => {
         const isWhite = color.title === "Белый";
         const isBlack = color.title === "Чёрный";
+        const isChecked = filters?.[filterType]?.some((f) => f.id === color.id) ?? false;
+
         return (
-          <FilterItem key={color.title} id={color.title}>
+          <FilterCheckbox
+            checked={isChecked}
+            onChange={(checked) => handleCheckboxChange(filterType, color, checked)}
+            key={color.title}
+            id={color.title}
+          >
             <div className="flex gap-x-2">
               <div
                 className="w-5 h-5  rounded-full border"
                 style={{
                   backgroundColor: color.hex,
-                  borderColor: isWhite || isBlack ? "border" : "transparent", // Чёрная рамка для белого цвета
+                  borderColor: isWhite || isBlack ? "border" : "border-0",
                 }}
               />
               <div className="text-[15px]  text-foreground  font-thin">{color.title}</div>
             </div>
 
             <div className="text-muted-foreground text-xs">({color.productCount})</div>
-          </FilterItem>
+          </FilterCheckbox>
         );
       }}
     />

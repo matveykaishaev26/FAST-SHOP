@@ -32,7 +32,7 @@ export default function Profile({ className }: IProfileProps) {
           height={36}
           src={user?.picture && user.picture !== "" ? user.picture : "/images/no-avatar.jpg"}
         />
-        <span className="text-xs text-muted-foreground group-hover:text-primary">Профиль</span>
+        <span className="text-muted-foreground group-hover:text-primary">Профиль</span>
       </Link>
     </div>
   );

@@ -48,10 +48,10 @@ export default function Nav() {
           }`}
         >
           {item.icon}
-          <div className="text-xs">{item.label}</div>
+          <div className="text-[10px] sm:text-xs">{item.label}</div>
         </Link>
       ))}
-      <Profile className="w-[20px] h-[20px]" />
+      <Profile className="w-[20px] h-[20px] text-[10px] sm:text-xs" />
     </>
   );
 }
