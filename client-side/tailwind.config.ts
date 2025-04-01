@@ -63,6 +63,7 @@ export default {
         icon: "2.25rem",
         w: "1400px",
         authForm: "400px",
+        filtersSheetHeader: '50px'
       },
       maxWidth: {
         page: "1600px", // Кастомный класс max-w-page

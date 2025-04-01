@@ -62,7 +62,7 @@ export default function FilterBase<T extends IFilterItem>({
       <div className="flex items-center gap-x-2 w-full">
         <span className="text-xl font-medium cursor-pointer">{header}</span>
         {filtersCount && (
-          <div className="rounded-full bg-red-500 text-xs h-4 w-4 flex items-center justify-center text-background">
+          <div className="rounded-full bg-red-500 text-xs h-5 w-5 flex items-center justify-center text-background">
             {filtersCount}
           </div>
         )}
@@ -86,15 +86,15 @@ export default function FilterBase<T extends IFilterItem>({
               renderItems(isOpen ? filteredItems : data.slice(0, ITEMS_COUNT))
             )}
           </div>
+          {isExpandable && (
+            <ToggleFilterList
+              title={isOpen ? "Свернуть" : "Посмотреть все"}
+              isFiltersEmpty={!!filtersCount}
+              clearFilters={() => deleteFilters(filterType)}
+              toggleList={toggleList}
+            />
+          )}
         </>
-      )}
-      {isExpandable && (
-        <ToggleFilterList
-          title={isOpen ? "Свернуть" : "Посмотреть все"}
-          isFiltersEmpty={!!filtersCount}
-          clearFilters={() => deleteFilters(filterType)}
-          toggleList={toggleList}
-        />
       )}
     </div>
   );

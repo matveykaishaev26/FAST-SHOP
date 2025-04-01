@@ -1,4 +1,4 @@
-import { ICartItem } from "./cart.interface";
+import { ICartItem } from "./card.interface";
 import { IUser } from "./user.interface";
 
 interface IAmount {

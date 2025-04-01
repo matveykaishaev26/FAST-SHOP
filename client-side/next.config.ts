@@ -17,6 +17,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "avatars.githubusercontent.com",
       },
+      {
+        protocol: "http",
+        hostname: "localhost",
+        port: "5000",
+      },
     ],
   },
   async rewrites() {
@@ -27,6 +32,6 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-};
+};  
 
 export default nextConfig;

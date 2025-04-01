@@ -48,6 +48,11 @@ export class ProductController {
     return this.productService.getGenderCounts();
   }
 
+  @Get('product-cards')
+  async getProductCards(@Query('page') page = 1, @Query('limit') limit = 10) {
+    return this.productService.getProductCards(page, limit);
+  }
+
   @Get('similar/:id')
   async getSimilar(@Param('id') id: string) {
     return this.productService.getSimilar(id);

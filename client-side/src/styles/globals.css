@@ -116,6 +116,22 @@ body {
   .custom-scrollbar::-webkit-scrollbar-thumb:hover {
     background: hsl(var(--accent));
   }
+
+
+
+
+
+
+
+
+  .hide-scrollbar::-webkit-scrollbar {
+    display: none; /* Скрыть скроллбар в Chrome, Safari и Edge */
+  }
+
+  .hide-scrollbar {
+    scrollbar-width: none; /* Скрыть скроллбар в Firefox */
+    -ms-overflow-style: none; /* Скрыть скроллбар в IE и Edge */
+  }
 }
 
 @layer components {

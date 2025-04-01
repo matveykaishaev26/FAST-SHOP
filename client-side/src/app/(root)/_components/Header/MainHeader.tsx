@@ -1,8 +1,7 @@
 import Logo from "@/shared/components/Logo";
 import { Input } from "@/shared/components/ui/input";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
-import { ShoppingCart, ShoppingBag, Search, Heart } from "lucide-react";
-import Profile from "@/shared/components/Profile";
+import { Search } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import Nav from "./Nav";
 

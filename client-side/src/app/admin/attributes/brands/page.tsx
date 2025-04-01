@@ -15,7 +15,7 @@ export default function BrandsList() {
   const page = Number(searchParams.get("page")) || 1;
 
   const header = ["Название"];
-  const { data, isLoading } = useGetBrandsQuery({ page, limit: LIMIT });
+const { data, isLoading } = useGetBrandsQuery({ page, limit: LIMIT });
 
   const totalItems = (data as IGetBrandsResponse)?.total || 0; // Количество всех брендов
 

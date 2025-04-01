@@ -53,7 +53,7 @@ export default function Filters({ className }: IFiltersProps) {
 
   console.log(filters);
   return (
-    <div className={`md:overflow-visible space-y-5 ${className ?? className}`}>
+    <div className={`md:overflow-visible scrollbar-hide    ${className ?? className}`}>
       <FilterChoice
         deletePriceRange={() => {
           setPriceRange(null);
@@ -66,7 +66,7 @@ export default function Filters({ className }: IFiltersProps) {
           setPriceRange(null);
         }}
       />
-
+      <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
       <PriceFilter setPriceRange={setPriceRange} priceRange={priceRange} />
       {FILTER_COMPONENTS.map((Component, index) => (
         <Component
@@ -76,6 +76,8 @@ export default function Filters({ className }: IFiltersProps) {
           handleCheckboxChange={handleCheckboxChange}
         />
       ))}
+      </div>
+      
     </div>
   );
 }

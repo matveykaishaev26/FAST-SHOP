@@ -4,6 +4,7 @@ import "rc-slider/assets/index.css";
 import { Input } from "@/shared/components/ui/input";
 import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
+import { useEffect } from "react";
 
 interface IPriceFilterProps {
   setPriceRange: any;
@@ -14,6 +15,12 @@ const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
 export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterProps) {
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
+
+  useEffect(() => {
+    if (priceRange &&  priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
+      setPriceRange(null);
+    }
+  }, [priceRange]);
 
   return (
     <div className="space-y-2">
@@ -60,24 +67,26 @@ export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterP
                 className="h-[32px]"
                 type="number"
                 value={priceRange ? priceRange[0] : priceRangeData?.minPrice}
-                min={priceRangeData?.minPrice || MIN_DEFAULT}
-                max={priceRangeData?.maxPrice || MAX_DEFAULT}
-                onChange={(e) => {
-                  const newMin = Math.min(Number(e.target.value), priceRange[1]);
-                  setPriceRange([newMin, priceRange[1]]);
-                }}
+                // min={priceRangeData?.minPrice || MIN_DEFAULT}
+                // max={priceRangeData?.maxPrice || MAX_DEFAULT}
+                // onChange={(e) => {
+                //   const newMin = Math.min(Number(e.target.value), priceRange[1]);
+                //   setPriceRange([newMin, priceRange[1]]);
+                // }}
+                readOnly
               />
               <span>до</span>
               <Input
                 className="h-[32px]"
                 type="number"
                 value={priceRange ? priceRange[1] : priceRangeData?.maxPrice}
-                min={priceRangeData?.minPrice || MIN_DEFAULT}
-                max={priceRangeData?.maxPrice || MAX_DEFAULT}
-                onChange={(e) => {
-                  const newMax = Math.max(Number(e.target.value), priceRange[0]);
-                  setPriceRange([priceRange[0], newMax]);
-                }}
+                // min={priceRangeData?.minPrice || MIN_DEFAULT}
+                // max={priceRangeData?.maxPrice || MAX_DEFAULT}
+                // onChange={(e) => {
+                //   const newMax = Math.max(Number(e.target.value), priceRange[0]);
+                //   setPriceRange([priceRange[0], newMax]);
+                // }}
+                readOnly
               />
             </div>
           </>

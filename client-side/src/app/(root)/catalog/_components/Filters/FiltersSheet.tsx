@@ -4,7 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/shared/components/ui/sheet";
 import { SlidersHorizontal } from "lucide-react";
 import Filters from "./Filters";
-
+import { X } from "lucide-react";
 export default function FiltersSheet() {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -30,11 +30,12 @@ export default function FiltersSheet() {
           <SlidersHorizontal />
         </Button>
       </SheetTrigger>
-      <SheetContent aria-describedby={undefined} className="w-full overflow-auto">
-        <SheetHeader>
-          <SheetTitle className="text-2xl">Фильтры</SheetTitle>
-          <Filters />
-        </SheetHeader>
+      <SheetContent aria-describedby={undefined} className="w-full  p-0 overflow-auto hide-scrollbar">
+        <div className="sticky h-[60px] top-0   z-10 bg-background  px-4 flex justify-between items-center">
+          <SheetTitle className="text-2xl shadow-none">Фильтры</SheetTitle>
+          <X onClick={() => setIsOpen((prev) => !prev)} className="w-5 h-5 cursor-pointer text-muted-foreground" />
+        </div>
+        <Filters />
       </SheetContent>
     </Sheet>
   );

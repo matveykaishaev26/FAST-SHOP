@@ -17,7 +17,7 @@ export default function Profile({ className }: IProfileProps) {
     return (
       <div className={`flex h-9 w-9 flex-col items-center`}>
         <Skeleton className={`h-9 w-9 ${className ?? ""}`} />
-        <span className="text-xs text-muted-foreground">Профиль</span>
+        <span className="text-muted-foreground group-hover:text-primary  text-[10px] sm:text-xs">Профиль</span>
       </div>
     );
   }
@@ -32,7 +32,7 @@ export default function Profile({ className }: IProfileProps) {
           height={36}
           src={user?.picture && user.picture !== "" ? user.picture : "/images/no-avatar.jpg"}
         />
-        <span className="text-muted-foreground group-hover:text-primary">Профиль</span>
+        <span className="text-muted-foreground group-hover:text-primary  text-[10px] sm:text-xs">Профиль</span>
       </Link>
     </div>
   );

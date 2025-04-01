@@ -21,15 +21,15 @@ export class ReviewController {
   @UsePipes(new ValidationPipe())
   @HttpCode(200)
   @Auth()
-  @Post(':productVariantId')
+  @Post(':productId')
   async create(
     @CurrentUser('id') userId: string,
-    @Param('productVariantId') productVariantId: string,
+    @Param('productId') productId: string,
 
     @Body() dto: ReviewDto,
   ) {
     console.log(userId);
-    return this.reviewService.create(userId, productVariantId, dto);
+    return this.reviewService.create(userId, productId, dto);
   }
 
   @Auth()
