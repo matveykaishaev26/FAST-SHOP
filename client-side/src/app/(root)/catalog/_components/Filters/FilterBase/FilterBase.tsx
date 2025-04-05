@@ -6,6 +6,10 @@ import ToggleFilterList from "./ToggleFilterList";
 import { IFilterProps, IFilters } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
+import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { toggleFilter } from "@/features/slices/filtersSlice";
 
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
@@ -29,14 +33,36 @@ export default function FilterBase<T extends IFilterItem>({
   handleCheckboxChange,
   deleteFilters,
 }: IFilterBaseProps<T>) {
+  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-
+  const dispatch = useAppDispatch();
   const toggleList = () => {
     setIsOpen((prev) => !prev);
     setSearchTerm("");
   };
 
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const brandParam = searchParams.get(filterType);
+    console.log(brandParam);
+    if (!brandParam || !data?.length) return;
+
+    try {
+      const brands = typeof brandParam === "string" ? brandParam.split(",") : [brandParam];
+      console.log(brands);
+      brands.forEach((brandId) => {
+        const option = data.find((filter) => filter.id === brandId);
+        console.log(option);
+        if (option) {
+          handleCheckboxChange(filterType, option, true);
+          dispatch(toggleFilter({ option: option, filterType: filterType }));
+        }
+      });
+    } catch (error) {
+      console.error("Error parsing brand parameter:", error);
+    }
+  }, [data]);
   const filteredItems = useMemo(() => {
     return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [data, searchTerm]);
@@ -60,9 +86,9 @@ export default function FilterBase<T extends IFilterItem>({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-x-2 w-full">
-        <span className="text-xl font-medium cursor-pointer">{header}</span>
+        <span className="text-xl  font-medium cursor-pointer">{header}</span>
         {filtersCount && (
-          <div className="rounded-full bg-red-500 text-xs h-5 w-5 flex items-center justify-center text-background">
+          <div className="rounded-full select-none bg-red-500 text-xs h-5 w-5 flex items-center justify-center text-background">
             {filtersCount}
           </div>
         )}

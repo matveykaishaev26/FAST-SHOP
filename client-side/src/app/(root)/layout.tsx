@@ -12,7 +12,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <div className="z-50 sticky bottom-0">
         <BottomControl />
       </div>
-      {/* <Footer /> */}
+      <Footer />
     </section>
   );
 }
