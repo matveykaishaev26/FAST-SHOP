@@ -1,6 +1,6 @@
+import { IFilters, IPriceRange } from "@/features/slices/filtersSlice";
 import { Button } from "@/shared/components/ui/button";
 import { X } from "lucide-react";
-import { IFilters, IPriceRange } from "../../types";
 import { useState } from "react";
 interface IFiltersChoice {
   deleteFilters: (filterType: keyof IFilters, itemId: string) => void;

@@ -33,7 +33,6 @@ export const productApi = api.injectEndpoints({
         if (queryArgs.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
           return endpointName;
         }
-        // Для пагинации добавляем номер страницы в ключ
         return `${endpointName}-${queryArgs.page}`;
       },
       merge: (currentCache, newItems, { arg }) => {
@@ -44,7 +43,6 @@ export const productApi = api.injectEndpoints({
         if (currentCache?.items && newItems?.items) {
           const existingIds = new Set(currentCache.items.map((item) => item.id));
           const newUniqueItems = newItems.items.filter((item) => !existingIds.has(item.id));
-
           return {
             ...newItems,
             items: [...currentCache.items, ...newUniqueItems],

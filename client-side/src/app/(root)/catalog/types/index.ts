@@ -1,19 +1,5 @@
-export interface IFilterOption {
-  id: string; 
-  title: string; 
-}
+import { IFilterOption, IFilters } from "@/features/slices/filtersSlice";
 
-
-export type IPriceRange = [number, number] | null;
-export interface IFilters {
-  category?: IFilterOption[];
-  size?: IFilterOption[];
-  color?: IFilterOption[];
-  gender?: IFilterOption[];
-  brand?: IFilterOption[];
-  material?: IFilterOption[];
-  style?: IFilterOption[];
-}
 export interface IHandleCheckboxChange {
   handleCheckboxChange: (filterType: keyof IFilters, option: IFilterOption, isChecked: boolean) => void;
 }

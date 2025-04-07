@@ -3,13 +3,12 @@ import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useState, useMemo } from "react";
 import { IFilterItem } from "@/shared/types/entity.interface";
 import ToggleFilterList from "./ToggleFilterList";
-import { IFilterProps, IFilters } from "../../../types";
+import { IFilterProps} from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
-import { toggleFilter } from "@/features/slices/filtersSlice";
+import { useSearchParams } from "next/navigation";
+import { IFilters } from "@/features/slices/filtersSlice";
 
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
@@ -33,10 +32,8 @@ export default function FilterBase<T extends IFilterItem>({
   handleCheckboxChange,
   deleteFilters,
 }: IFilterBaseProps<T>) {
-  const router = useRouter();
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const dispatch = useAppDispatch();
   const toggleList = () => {
     setIsOpen((prev) => !prev);
     setSearchTerm("");
@@ -44,23 +41,25 @@ export default function FilterBase<T extends IFilterItem>({
 
   const searchParams = useSearchParams();
   useEffect(() => {
-    const brandParam = searchParams.get(filterType);
-    console.log(brandParam);
-    if (!brandParam || !data?.length) return;
+    const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
+    if (isFiltersEmpty) {
+      const param = searchParams.get(filterType);
+      console.log(param);
+      if (!param || !data?.length) return;
 
-    try {
-      const brands = typeof brandParam === "string" ? brandParam.split(",") : [brandParam];
-      console.log(brands);
-      brands.forEach((brandId) => {
-        const option = data.find((filter) => filter.id === brandId);
-        console.log(option);
-        if (option) {
-          handleCheckboxChange(filterType, option, true);
-          dispatch(toggleFilter({ option: option, filterType: filterType }));
-        }
-      });
-    } catch (error) {
-      console.error("Error parsing brand parameter:", error);
+      try {
+        const query = typeof param === "string" ? param.split(",") : [param];
+        console.log(query);
+        query.forEach((queryId) => {
+          const option = data.find((filter) => filter.id === queryId);
+          console.log(option);
+          if (option) {
+            handleCheckboxChange(filterType, option, true);
+          }
+        });
+      } catch (error) {
+        console.error("Error parsing brand parameter:", error);
+      }
     }
   }, [data]);
   const filteredItems = useMemo(() => {

@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import ColorFilter from "./ColorFilter";
 import CategoryFilter from "./CategoryFilter";
 import FilterChoice from "./FilterChoice";
-import { IFilterOption, IFilters, IPriceRange } from "../../types";
 import SizeFilter from "./SizeFilter";
 import StyleFilter from "./StyleFilter";
 import GenderFilter from "./GenderFilter";
@@ -12,6 +11,8 @@ import MaterialFilter from "./MaterialFilter";
 import PriceFilter from "./PriceFilter";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
+import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
+import { clearFilters, IFilterOption, IFilters, IPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
 const FILTER_COMPONENTS = [
   BrandFilter,
   ColorFilter,
@@ -27,35 +28,27 @@ interface IFiltersProps {
 }
 export default function Filters({ className, variant = "desktop" }: IFiltersProps) {
   const pathname = usePathname();
-  const [filters, setFilters] = useState<IFilters>({});
+  const filters = useAppSelector((state) => state.filters);
+  console.log(filters);
   const isMobile = useBreakpointMatch(1024);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
+  const dispatch = useAppDispatch();
   const [priceRange, setPriceRange] = useState<IPriceRange | null>(null);
   const router = useRouter();
   console.log(filters);
   const handleCheckboxChange = (filterType: keyof IFilters, option: IFilterOption, isChecked: boolean) => {
-    setFilters((prevFilters) => {
-      const prevValues = prevFilters[filterType] || [];
-
-      const updatedFilters = {
-        ...prevFilters,
-        [filterType]: isChecked ? [...prevValues, option] : prevValues.filter((item) => item.id !== option.id),
-      };
-      
-      return updatedFilters;
-    });
+    dispatch(toggleFilter({ option, filterType, isChecked }));
   };
 
   const searchParams = useSearchParams();
+
   useEffect(() => {
     const params = new URLSearchParams(searchParams);
-
-    if (Object.keys(filters).length === 0) {
+    const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
+    if (isFiltersEmpty) {
       router.push(pathname);
       return;
     }
-
-    Object.keys(filters).forEach((key) => params.delete(key));
 
     Object.entries(filters).forEach(([key, values]) => {
       if (values.length > 0) {
@@ -68,16 +61,10 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
     if (newUrl !== pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")) {
       router.push(newUrl);
     }
-    
   }, [filters]);
 
-  const deleteFilters = (filterType: keyof IFilters, itemId?: string) => {
-    setFilters((prev) => ({
-      ...prev,
-      [filterType]: itemId
-        ? prev[filterType]?.filter((item) => item.id !== itemId) // Удаляем элемент
-        : [],
-    }));
+  const deleteFilters = (filterType: keyof IFilters, filterId?: string) => {
+    dispatch(clearFilters({ filterType, filterId }));
   };
   if (!shouldShow) return false;
 
@@ -92,7 +79,7 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
           filters={filters}
           deleteFilters={deleteFilters}
           clearFilters={() => {
-            setFilters({});
+            dispatch(clearFilters({}));
             setPriceRange(null);
           }}
         />
@@ -111,4 +98,3 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
     </>
   );
 }
-

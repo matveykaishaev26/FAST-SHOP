@@ -13,6 +13,7 @@ export interface IFilters {
   brand: IFilterOption[];
   material: IFilterOption[];
   style: IFilterOption[];
+  
 }
 
 const initialState: IFilters = {
@@ -28,20 +29,27 @@ export const filtersSlice = createSlice({
   name: "filters",
   initialState,
   reducers: {
-    toggleFilter(state, action: PayloadAction<{ option: IFilterOption; filterType: keyof IFilters }>) {
-      const { option, filterType } = action.payload;
+    toggleFilter(
+      state,
+      action: PayloadAction<{ option: IFilterOption; filterType: keyof IFilters; isChecked: boolean }>
+    ) {
+      const { option, filterType, isChecked } = action.payload;
 
-      const isExist = state[filterType].some((filter) => filter.id === option.id);
-      if (isExist) {
+      if (!isChecked) {
         state[filterType] = state[action.payload.filterType].filter((filter) => filter.id !== action.payload.option.id);
       } else {
         state[filterType].push(option);
       }
     },
-    clearFilters(state) {
-      Object.keys(state).forEach((key) => {
-        state[key as keyof IFilters] = [];
-      });
+    clearFilters(state, action: PayloadAction<{ filterType?: keyof IFilters; filterId?: string }>) {
+      const { filterType, filterId } = action.payload;
+      if (filterType && filterId) {
+        state[filterType] = state[filterType].filter((filter) => filter.id !== filterId);
+      } else if (filterType) state[filterType] = [];
+      else
+        Object.keys(state).forEach((key) => {
+          state[key as keyof IFilters] = [];
+        });
     },
 
     setFilters(state, action: PayloadAction<IFilters>) {
