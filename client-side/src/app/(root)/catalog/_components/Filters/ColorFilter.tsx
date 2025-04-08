@@ -1,9 +1,9 @@
 "use client";
 import { useGetColorsQuery } from "@/features/api/colorApi";
-import { IColor } from "@/shared/types/color.interface";
 import FilterBase from "./FilterBase/FilterBase";
 import FilterCheckbox from "./FilterCheckbox";
 import { IFilterProps } from "../../types";
+import { IColor } from "@/shared/types/color.interface";
 export default function ColorFilter({ handleCheckboxChange, filters, deleteFilters }: IFilterProps) {
   const { data: colors, isLoading } = useGetColorsQuery();
   const filterType = "color";

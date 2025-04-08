@@ -1,20 +1,6 @@
+import { IFilters, IFilterOption, IFilterColor, IPriceRange } from "@/shared/types/filter.interface";
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-export interface IFilterOption {
-  id: string;
-  title: string;
-}
 
-export type IPriceRange = [number, number] | null;
-export interface IFilters {
-  category: IFilterOption[];
-  size: IFilterOption[];
-  color: IFilterOption[];
-  gender: IFilterOption[];
-  brand: IFilterOption[];
-  material: IFilterOption[];
-  style: IFilterOption[];
-  
-}
 
 const initialState: IFilters = {
   category: [],
@@ -24,31 +10,51 @@ const initialState: IFilters = {
   brand: [],
   material: [],
   style: [],
+  priceRange: null,
 };
+
 export const filtersSlice = createSlice({
   name: "filters",
   initialState,
   reducers: {
     toggleFilter(
       state,
-      action: PayloadAction<{ option: IFilterOption; filterType: keyof IFilters; isChecked: boolean }>
+      action: PayloadAction<{
+        option: IFilterOption | IFilterColor;
+        filterType: Exclude<keyof IFilters, "priceRange">;
+        isChecked: boolean;
+      }>
     ) {
       const { option, filterType, isChecked } = action.payload;
-
-      if (!isChecked) {
-        state[filterType] = state[action.payload.filterType].filter((filter) => filter.id !== action.payload.option.id);
+      if (filterType === "color") {
+        if (isChecked) {
+          state[filterType].push(option as IFilterColor);
+        } else {
+          state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
+        }
       } else {
-        state[filterType].push(option);
+        if (isChecked) {
+          state[filterType].push(option);
+        } else {
+          state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
+        }
       }
     },
-    clearFilters(state, action: PayloadAction<{ filterType?: keyof IFilters; filterId?: string }>) {
+    clearFilters(
+      state,
+      action: PayloadAction<{ filterType?: Exclude<keyof IFilters, "priceRange">; filterId?: string }>
+    ) {
       const { filterType, filterId } = action.payload;
       if (filterType && filterId) {
-        state[filterType] = state[filterType].filter((filter) => filter.id !== filterId);
+        if (filterType === "color") {
+          state.color = state.color.filter((filter) => filter.id !== filterId);
+        } else {
+          state[filterType] = state[filterType].filter((filter) => filter.id !== filterId);
+        }
       } else if (filterType) state[filterType] = [];
       else
         Object.keys(state).forEach((key) => {
-          state[key as keyof IFilters] = [];
+          state[key as Exclude<keyof IFilters, "priceRange">] = [];
         });
     },
 
@@ -57,7 +63,16 @@ export const filtersSlice = createSlice({
         state[key as keyof IFilters] = value;
       });
     },
+
+    setPriceRange(state, action: PayloadAction<IPriceRange>) {
+      state.priceRange = action.payload;
+    },
+    clearPriceRange(state) {
+      state.priceRange = null;
+    },
   },
 });
 
-export const { toggleFilter, clearFilters, setFilters } = filtersSlice.actions;
+export const { toggleFilter, clearFilters, setFilters, setPriceRange, clearPriceRange } = filtersSlice.actions;
+
+export default filtersSlice.reducer;

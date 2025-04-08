@@ -1,11 +1,12 @@
+import { IFilters } from "@/shared/types/filter.interface";
 import { isChecked } from "../../../_utils/isChecked";
-import { IFilters, IHandleCheckboxChange } from "../../../types";
+import {  IHandleCheckboxChange } from "../../../types";
 import FilterCheckbox from "../FilterCheckbox";
 import { IFilterItem } from "@/shared/types/entity.interface";
 interface IFilterListItem extends IHandleCheckboxChange {
   item: IFilterItem;
-  filters: IFilters;
-  filterType: keyof IFilters;
+  filters: Omit<IFilters, "priceRange">;
+  filterType: Exclude<keyof IFilters, "priceRange">
 }
 export default function FilterListItem({ item, filters, handleCheckboxChange, filterType }: IFilterListItem) {
   return (

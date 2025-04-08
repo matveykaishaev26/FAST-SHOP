@@ -5,10 +5,11 @@ import { Input } from "@/shared/components/ui/input";
 import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useEffect } from "react";
+import { IPriceRange } from "@/shared/types/filter.interface";
 
 interface IPriceFilterProps {
   setPriceRange: any;
-  priceRange: any;
+  priceRange: IPriceRange;
 }
 
 const MAX_DEFAULT = 32199;
@@ -17,10 +18,17 @@ export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterP
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
 
   useEffect(() => {
-    if (priceRange &&  priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
+    if (
+      priceRangeData &&
+      priceRange &&
+      priceRange[0] === priceRangeData.minPrice &&
+      priceRange[1] === priceRangeData.maxPrice
+    ) {
       setPriceRange(null);
     }
-  }, [priceRange]);
+  }, [priceRangeData]);
+  
+  
 
   return (
     <div className="space-y-2">
@@ -66,7 +74,7 @@ export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterP
               <Input
                 className="h-[32px]"
                 type="number"
-                value={priceRange ? priceRange[0] : priceRangeData?.minPrice}
+                value={(priceRange?.[0] ?? priceRangeData?.minPrice ?? MIN_DEFAULT).toString()}
                 // min={priceRangeData?.minPrice || MIN_DEFAULT}
                 // max={priceRangeData?.maxPrice || MAX_DEFAULT}
                 // onChange={(e) => {
@@ -79,7 +87,7 @@ export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterP
               <Input
                 className="h-[32px]"
                 type="number"
-                value={priceRange ? priceRange[1] : priceRangeData?.maxPrice}
+                value={(priceRange?.[1] ?? priceRangeData?.maxPrice ?? MAX_DEFAULT).toString()}
                 // min={priceRangeData?.minPrice || MIN_DEFAULT}
                 // max={priceRangeData?.maxPrice || MAX_DEFAULT}
                 // onChange={(e) => {

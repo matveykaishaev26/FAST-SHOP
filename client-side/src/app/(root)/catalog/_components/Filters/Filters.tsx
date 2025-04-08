@@ -1,6 +1,6 @@
 "use client";
 import BrandFilter from "./BrandFilter";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ColorFilter from "./ColorFilter";
 import CategoryFilter from "./CategoryFilter";
 import FilterChoice from "./FilterChoice";
@@ -12,7 +12,8 @@ import PriceFilter from "./PriceFilter";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
-import { clearFilters, IFilterOption, IFilters, IPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
+import { clearFilters, setPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
+import { IFilters, IFilterOption } from "@/shared/types/filter.interface";
 const FILTER_COMPONENTS = [
   BrandFilter,
   ColorFilter,
@@ -28,42 +29,57 @@ interface IFiltersProps {
 }
 export default function Filters({ className, variant = "desktop" }: IFiltersProps) {
   const pathname = usePathname();
-  const filters = useAppSelector((state) => state.filters);
+  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
+
   console.log(filters);
+  console.log(print);
   const isMobile = useBreakpointMatch(1024);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const dispatch = useAppDispatch();
-  const [priceRange, setPriceRange] = useState<IPriceRange | null>(null);
   const router = useRouter();
   console.log(filters);
-  const handleCheckboxChange = (filterType: keyof IFilters, option: IFilterOption, isChecked: boolean) => {
+  const handleCheckboxChange = (
+    filterType: Exclude<keyof IFilters, "priceRange">,
+    option: IFilterOption,
+    isChecked: boolean
+  ) => {
     dispatch(toggleFilter({ option, filterType, isChecked }));
   };
 
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
-    if (isFiltersEmpty) {
-      router.push(pathname);
-      return;
-    }
+  // useEffect(() => {
+  //   const params = new URLSearchParams(searchParams);
+  //   const isFiltersEmpty = Object.entries(filters)
+  //     .every(([, value]) => value.length === 0);
+  //   if (isFiltersEmpty) {
+  //     router.push(pathname);
+  //     return;
+  //   }
 
-    Object.entries(filters).forEach(([key, values]) => {
-      if (values.length > 0) {
-        params.set(key, values.map((value: IFilterOption) => value.id).join(","));
-      }
-    });
-    console.log(params);
+  //   Object.entries(filters)
 
-    const newUrl = params.size > 0 ? `?${params.toString()}` : pathname;
-    if (newUrl !== pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")) {
-      router.push(newUrl);
-    }
-  }, [filters]);
+  //     .forEach(([key, values]) => {
+  //       if (values.length > 0) {
+  //         params.set(key, values.map((value: IFilterOption) => value.id).join(","));
+  //       }
+  //     });
+  //   console.log(params);
 
-  const deleteFilters = (filterType: keyof IFilters, filterId?: string) => {
+  //   const newUrl = params.size > 0 ? `?${params.toString()}` : pathname;
+  //   if (newUrl !== pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")) {
+  //     router.push(newUrl);
+  //   }
+  // }, [filters, pathname, searchParams, router]);
+
+  const handlePriceRangeChange = useCallback(
+    (range: [number, number]) => {
+      dispatch(setPriceRange(range));
+    },
+    [dispatch]
+  );
+
+  const deleteFilters = (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
     dispatch(clearFilters({ filterType, filterId }));
   };
   if (!shouldShow) return false;
@@ -73,18 +89,18 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
       <div className={`md:overflow-visible scrollbar-hide    ${className ?? className}`}>
         <FilterChoice
           deletePriceRange={() => {
-            setPriceRange(null);
+            dispatch(setPriceRange(null));
           }}
           priceRange={priceRange}
           filters={filters}
           deleteFilters={deleteFilters}
           clearFilters={() => {
             dispatch(clearFilters({}));
-            setPriceRange(null);
+            dispatch(setPriceRange(null));
           }}
         />
         <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-          <PriceFilter setPriceRange={setPriceRange} priceRange={priceRange} />
+          <PriceFilter setPriceRange={handlePriceRangeChange} priceRange={priceRange} />
           {FILTER_COMPONENTS.map((Component, index) => (
             <Component
               key={variant + index}

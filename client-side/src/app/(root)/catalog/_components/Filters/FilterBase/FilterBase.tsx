@@ -3,12 +3,12 @@ import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useState, useMemo } from "react";
 import { IFilterItem } from "@/shared/types/entity.interface";
 import ToggleFilterList from "./ToggleFilterList";
-import { IFilterProps} from "../../../types";
+import { IFilterProps } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
 import { useSearchParams } from "next/navigation";
-import { IFilters } from "@/features/slices/filtersSlice";
+import { IFilters } from "@/shared/types/filter.interface";
 
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
@@ -16,7 +16,7 @@ export interface IFilterBaseProps<T> extends IFilterProps {
   header: string;
   renderItem?: (item: T) => React.ReactNode;
   isExpandable?: boolean;
-  filterType: keyof IFilters;
+  filterType: Exclude<keyof IFilters, "priceRange">;
 }
 
 const ITEMS_COUNT = 5;
@@ -41,7 +41,11 @@ export default function FilterBase<T extends IFilterItem>({
 
   const searchParams = useSearchParams();
   useEffect(() => {
-    const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
+    // const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
+    const isFiltersEmpty = Object.entries(filters)
+  .every(([, value]) => value.length === 0);
+
+
     if (isFiltersEmpty) {
       const param = searchParams.get(filterType);
       console.log(param);

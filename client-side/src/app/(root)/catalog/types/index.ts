@@ -1,14 +1,10 @@
-import { IFilterOption, IFilters } from "@/features/slices/filtersSlice";
+import { IFilters, IFilterOption } from "@/shared/types/filter.interface";
 
 export interface IHandleCheckboxChange {
-  handleCheckboxChange: (filterType: keyof IFilters, option: IFilterOption, isChecked: boolean) => void;
+  handleCheckboxChange: (   filterType: Exclude<keyof IFilters, "priceRange">, option: IFilterOption, isChecked: boolean) => void;
 }
 
 export interface IFilterProps extends IHandleCheckboxChange {
-  filters: IFilters;
-  deleteFilters: (filterType: keyof IFilters, itemId?: string) => void;
-}
-export interface IFilterProps extends IHandleCheckboxChange {
-  filters: IFilters;
-  deleteFilters: (filterType: keyof IFilters, itemId?: string) => void;
+  filters: Omit<IFilters, "priceRange">;
+  deleteFilters: (   filterType: Exclude<keyof IFilters, "priceRange">, itemId?: string) => void;
 }
