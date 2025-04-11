@@ -9,31 +9,17 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 export default function FiltersSheet() {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
-  // useEffect(() => {
-  //   const handleResize = () => {
-  //     if (window.innerWidth >= 1024) {
-  //       setIsOpen(false);
-  //     }
-  //   };
-
-  //   // Добавляем слушатель изменения размера окна
-  //   window.addEventListener("resize", handleResize);
-
-  //   handleResize();
-
-  //   return () => window.removeEventListener("resize", handleResize);
-  // }, []);
 
   return (
     <>
       {" "}
-      {isMobile && (
-        <Sheet open={isOpen} onOpenChange={setIsOpen}>
-          <SheetTrigger asChild>
-            <Button variant={"outline"}>
-              <SlidersHorizontal />
-            </Button>
-          </SheetTrigger>
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetTrigger asChild>
+          <Button variant={"outline"}>
+            <SlidersHorizontal />
+          </Button>
+        </SheetTrigger>
+        {isMobile && (
           <SheetContent aria-describedby={undefined} className="w-full  p-0 overflow-auto hide-scrollbar">
             <div className="sticky h-[60px] top-0   z-10 bg-background  px-4 flex justify-between items-center">
               <SheetTitle className="text-2xl shadow-none">Фильтры</SheetTitle>
@@ -41,8 +27,8 @@ export default function FiltersSheet() {
             </div>
             <Filters variant="mobile" />
           </SheetContent>
-        </Sheet>
-      )}
+        )}
+      </Sheet>
     </>
   );
 }

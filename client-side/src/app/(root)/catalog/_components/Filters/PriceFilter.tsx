@@ -6,6 +6,7 @@ import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useEffect } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
+import { useSearchParams } from "next/navigation";
 
 interface IPriceFilterProps {
   setPriceRange: any;
@@ -19,16 +20,14 @@ export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterP
 
   useEffect(() => {
     if (
-      priceRangeData &&
       priceRange &&
-      priceRange[0] === priceRangeData.minPrice &&
-      priceRange[1] === priceRangeData.maxPrice
+      priceRange[0] === priceRangeData?.minPrice &&
+      priceRange[1] === priceRangeData?.maxPrice
     ) {
       setPriceRange(null);
     }
-  }, [priceRangeData]);
-  
-  
+  }, [priceRange]);
+ 
 
   return (
     <div className="space-y-2">

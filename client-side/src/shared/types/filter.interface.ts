@@ -23,3 +23,9 @@ export interface IFilters {
   style: IFilterOption[];
   priceRange: IPriceRange;
 }
+
+// export interface temp {
+//   [id: number]: {
+//     title: string;
+//   };
+// }

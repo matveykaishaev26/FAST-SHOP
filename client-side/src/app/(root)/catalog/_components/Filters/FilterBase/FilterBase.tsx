@@ -41,31 +41,22 @@ export default function FilterBase<T extends IFilterItem>({
 
   const searchParams = useSearchParams();
   useEffect(() => {
-    // const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
-    const isFiltersEmpty = Object.entries(filters)
-  .every(([, value]) => value.length === 0);
-
-
-    if (isFiltersEmpty) {
-      const param = searchParams.get(filterType);
-      console.log(param);
-      if (!param || !data?.length) return;
-
+    const param = searchParams.get(filterType);
+    if (param && !filters[filterType].length) {
       try {
-        const query = typeof param === "string" ? param.split(",") : [param];
-        console.log(query);
-        query.forEach((queryId) => {
-          const option = data.find((filter) => filter.id === queryId);
-          console.log(option);
-          if (option) {
+        const queryIds = param.split(",");
+        queryIds.forEach((queryId) => {
+          const option = data.find((item) => item.id === queryId);
+          if (option && !filters[filterType].some((item) => item.id === option.id)) {
             handleCheckboxChange(filterType, option, true);
           }
         });
       } catch (error) {
-        console.error("Error parsing brand parameter:", error);
+        console.error(`Error parsing filter parameter for ${filterType}:`, error);
       }
     }
-  }, [data]);
+  }, [searchParams, filters, data, filterType, handleCheckboxChange]);
+
   const filteredItems = useMemo(() => {
     return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
   }, [data, searchTerm]);
@@ -77,7 +68,7 @@ export default function FilterBase<T extends IFilterItem>({
       ? items.map(renderItem)
       : items.map((item) => (
           <FilterListItem
-            key={item.id}
+          key={`${filterType}-${item.id}`}
             item={item}
             filterType={filterType}
             filters={filters}
@@ -89,7 +80,7 @@ export default function FilterBase<T extends IFilterItem>({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-x-2 w-full">
-        <span className="text-xl  font-medium cursor-pointer">{header}</span>
+        <span className="text-xl  font-medium">{header}</span>
         {filtersCount && (
           <div className="rounded-full select-none bg-red-500 text-xs h-5 w-5 flex items-center justify-center text-background">
             {filtersCount}
@@ -101,7 +92,8 @@ export default function FilterBase<T extends IFilterItem>({
       ) : (
         <>
           {isExpandable && isOpen && (
-            <Input
+              <Input
+                setValue={setSearchTerm}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               type="search"

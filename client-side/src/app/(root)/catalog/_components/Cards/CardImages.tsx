@@ -2,7 +2,6 @@
 import { useState } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { Heart } from "lucide-react";
 import Favorite from "./Favorite";
 interface ICardImagesProps {
   images: string[];
@@ -37,7 +36,6 @@ export default function CardImages({ images, alt, className }: ICardImagesProps)
   const CardImage = () => {
     return (
       <Image
-        // priority
         loading="lazy"
         src={currentImage} // Fallback, если currentImage пустое
         alt={alt}
@@ -53,7 +51,9 @@ export default function CardImages({ images, alt, className }: ICardImagesProps)
   return (
     <>
       <div
-        className={`${defaultClass}  absolute transition-opacity group  hidden lg:block ${className ? className : ""}`}
+        className={`${defaultClass} select-none absolute transition-opacity group  hidden lg:block ${
+          className ? className : ""
+        }`}
         onMouseMove={handleMouseMove}
         onMouseLeave={() => setCurrentImage(images[0])}
       >

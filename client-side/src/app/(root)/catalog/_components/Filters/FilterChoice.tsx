@@ -2,6 +2,7 @@ import { Button } from "@/shared/components/ui/button";
 import { IFilters, IPriceRange, IFilterColor } from "@/shared/types/filter.interface";
 import { X } from "lucide-react";
 import { useState } from "react";
+import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 interface IFiltersChoice {
   deleteFilters: (filterType: Exclude<keyof IFilters, "priceRange">, itemId: string) => void;
   clearFilters: () => void;
@@ -29,12 +30,22 @@ export default function FilterChoice({
 
   const displayedFilters = isOpen ? allFilters : allFilters.slice(0, ITEMS_COUNT);
 
+  const isFiltersEmpty = Object.values(filters).every((values) => values.length === 0);
+  const isPriceRangeEmpty = priceRange === null;
+
+  
+
   return (
     <div className=" bg-background sticky z-50 top-[60px] border-b lg:border-b p-4 lg:p-0 lg:relative lg:z-0 lg:top-0 lg:border-none">
       <div className="bg-background">
         <div className="flex justify-between items-center">
-          <div className="text-[16px] font-medium">Ваш выбор</div>
-          <Button className="text-muted-foreground" variant="outline" onClick={clearFilters}>
+          <div className=" font-medium text-xl">Ваш выбор</div>
+          <Button
+            disabled={isFiltersEmpty && isPriceRangeEmpty}
+            className="text-muted-foreground"
+            variant="outline"
+            onClick={clearFilters}
+          >
             Сбросить
           </Button>
         </div>
@@ -60,13 +71,18 @@ export default function FilterChoice({
                 key={item.id}
               >
                 {item.filterType === "color" && (
-                  <div className="w-4 h-4 rounded-full border mr-1" style={{ backgroundColor: (item as IFilterColor).hex }} />
+                  <div
+                    className="w-4 h-4 rounded-full border mr-1"
+                    style={{ backgroundColor: (item as IFilterColor).hex }}
+                  />
                 )}
 
                 <span>{item.title}</span>
                 <X className="text-muted-foreground ml-1" size={10} />
               </Button>
             ))}
+
+         
         </div>
 
         {allFilters.length > ITEMS_COUNT && (
