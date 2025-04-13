@@ -4,11 +4,12 @@ import FilterBase from "./FilterBase/FilterBase";
 import FilterCheckbox from "./FilterCheckbox";
 import { IFilterProps } from "../../types";
 import { IColor } from "@/shared/types/color.interface";
-export default function ColorFilter({ handleCheckboxChange, filters, deleteFilters }: IFilterProps) {
+export default function ColorFilter({ handleCheckboxChange, filters, deleteFilters, setIsFiltersLoading }: IFilterProps) {
   const { data: colors, isLoading } = useGetColorsQuery();
   const filterType = "color";
   return (
     <FilterBase
+    setIsFiltersLoading={setIsFiltersLoading}
       deleteFilters={deleteFilters}
       filters={filters}
       handleCheckboxChange={handleCheckboxChange}

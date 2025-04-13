@@ -3,7 +3,7 @@ import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useState, useMemo } from "react";
 import { IFilterItem } from "@/shared/types/entity.interface";
 import ToggleFilterList from "./ToggleFilterList";
-import { IFilterProps } from "../../../types";
+import { IFilterProps, typeIsFiltersLoading } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
@@ -30,6 +30,7 @@ export default function FilterBase<T extends IFilterItem>({
   filters,
   isExpandable = true,
   handleCheckboxChange,
+  setIsFiltersLoading,
   deleteFilters,
 }: IFilterBaseProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
@@ -42,20 +43,26 @@ export default function FilterBase<T extends IFilterItem>({
   const searchParams = useSearchParams();
   useEffect(() => {
     const param = searchParams.get(filterType);
-    if (param && !filters[filterType].length) {
-      try {
-        const queryIds = param.split(",");
-        queryIds.forEach((queryId) => {
-          const option = data.find((item) => item.id === queryId);
-          if (option && !filters[filterType].some((item) => item.id === option.id)) {
-            handleCheckboxChange(filterType, option, true);
-          }
+    if (param && !filters[filterType].length && data.length > 0) {
+      const queryIds = param.split(",");
+      const optionsToAdd = queryIds.map((queryId) => data.find((item) => item.id === queryId)).filter(Boolean) as T[];
+
+      const newOptions = optionsToAdd.filter((option) => !filters[filterType].some((item) => item.id === option.id));
+
+      if (newOptions.length > 0) {
+        newOptions.forEach((option) => {
+          handleCheckboxChange(filterType, option, true);
         });
-      } catch (error) {
-        console.error(`Error parsing filter parameter for ${filterType}:`, error);
       }
     }
-  }, [searchParams, filters, data, filterType, handleCheckboxChange]);
+
+    if (data.length > 0) {
+      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
+        ...prev,
+        [filterType]: false,
+      }));
+    }
+  }, [data.length]); 
 
   const filteredItems = useMemo(() => {
     return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -68,7 +75,7 @@ export default function FilterBase<T extends IFilterItem>({
       ? items.map(renderItem)
       : items.map((item) => (
           <FilterListItem
-          key={`${filterType}-${item.id}`}
+            key={`${filterType}-${item.id}`}
             item={item}
             filterType={filterType}
             filters={filters}
@@ -92,8 +99,8 @@ export default function FilterBase<T extends IFilterItem>({
       ) : (
         <>
           {isExpandable && isOpen && (
-              <Input
-                setValue={setSearchTerm}
+            <Input
+              setValue={setSearchTerm}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               type="search"

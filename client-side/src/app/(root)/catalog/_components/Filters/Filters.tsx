@@ -15,7 +15,7 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { clearFilters, setPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
 import { IFilters, IFilterOption, IPriceRange } from "@/shared/types/filter.interface";
 import { Button } from "@/shared/components/ui/button";
-import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
+import { typeIsFiltersLoading } from "../../types";
 const FILTER_COMPONENTS = [
   BrandFilter,
   ColorFilter,
@@ -36,63 +36,36 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
 
   const isMobile = useBreakpointMatch(1024);
-  const [isFiltersLoading, setIsFitlersLoading] = useState<boolean>(true);
-  const [isPriceRangeFilterLoading, setIsPriceRangeFilterLoading] = useState<boolean>(true);
-
+  const [isFiltersLoading, setIsFiltersLoading] = useState<typeIsFiltersLoading>({
+    category: true,
+    size: true,
+    color: true,
+    gender: true,
+    brand: true,
+    material: true,
+    style: true,
+    priceRange: true,
+  });
+  const isAllFiltersLoading = Object.values(isFiltersLoading).every((item) => item === false);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const dispatch = useAppDispatch();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
-  useEffect(() => {
-    updateUrlWithFilters();
-  }, [filters, priceRange]);
+
   const handleCheckboxChange = (
     filterType: Exclude<keyof IFilters, "priceRange">,
     option: IFilterOption,
     isChecked: boolean
   ) => {
-      // setAppFilters((prevFilters) => {
-      //   const prevValues = prevFilters[filterType] || [];
-
-      //   let updatedFilters;
-
-      //   if (isChecked) {
-      //     updatedFilters = prevValues.some((item: IFilterOption | IFilterColor) => item.id === option.id)
-      //       ? prevValues
-      //       : [...prevValues, option];
-      //   } else {
-      //     updatedFilters = prevValues.filter((item: IFilterOption | IFilterColor) => item.id !== option.id);
-      //   }
-      //   return {
-      //     ...prevFilters,
-      //     [filterType]: updatedFilters,
-      //   };
-
-      //   // const updatedFilters = {
-      //   //   ...prevFilters,
-      //   //   [filterType]: isChecked
-      //   //     ? [...prevValues.filter((item: IFilterOption | IFilterColor) => item.id !== option.id), option] // удаляем если уже был, потом добавляем
-      //   //     : prevValues.filter((item: IFilterOption | IFilterColor) => item.id !== option.id),
-      //   // };
-
-      //   // return updatedFilters;
-
-      // });
-
     dispatch(toggleFilter({ option, filterType, isChecked }));
   };
 
   const setParamsInUrl = () => {
     const params = new URLSearchParams(searchParams);
 
-    // Добавим проверку, чтобы не удалять параметры, если фильтры не пустые
-    let hasFilters = false;
-
     Object.entries(filters).forEach(([key, values]) => {
       if (values.length > 0) {
         params.set(key, values.map((value: IFilterOption) => value.id).join(","));
-        hasFilters = true; // Если фильтр не пустой, добавляем флаг
       } else {
         params.delete(key);
       }
@@ -104,13 +77,13 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
       params.delete("price");
     }
 
-    if (hasFilters) {
-      const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
-      const currentUrl = `${pathname}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`;
+    const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
+    const currentUrl = `${pathname}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`;
 
-      if (newUrl !== currentUrl) {
-        router.push(newUrl);
-      }
+    if (newUrl !== currentUrl) {
+      window.history.replaceState(null, '', newUrl)
+      // router.replace(newUrl, undefined, { shallow: true });
+
     }
   };
   useEffect(() => {
@@ -124,12 +97,11 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
   }, []);
 
   useEffect(() => {
-    if (!isMobile) {
+    if (!isMobile && isAllFiltersLoading) {
       setParamsInUrl();
     }
-  }, [filters, priceRange]);
+  }, [filters, priceRange, isAllFiltersLoading]);
 
- 
   const handlePriceRangeChange = useCallback(
     (range: [number, number]) => {
       dispatch(setPriceRange(range));
@@ -149,6 +121,7 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
         deletePriceRange={() => {
           dispatch(setPriceRange(null));
         }}
+        isFiltersLoading={isAllFiltersLoading}
         priceRange={priceRange}
         filters={filters}
         deleteFilters={deleteFilters}
@@ -158,9 +131,14 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
         }}
       />
       <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-        <PriceFilter setPriceRange={handlePriceRangeChange} priceRange={priceRange} />
+        <PriceFilter
+          setIsFiltersLoading={setIsFiltersLoading}
+          setPriceRange={handlePriceRangeChange}
+          priceRange={priceRange}
+        />
         {FILTER_COMPONENTS.map((Component, index) => (
           <Component
+            setIsFiltersLoading={setIsFiltersLoading}
             key={`${variant}-${Component.name}-${index}`}
             filters={filters}
             deleteFilters={deleteFilters}
@@ -169,7 +147,7 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
         ))}
       </div>
       <div className="fixed bottom-0 w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
-        <Button className="w-full uppercase">Применить фильтры</Button>
+        <Button onClick={setParamsInUrl} className="w-full uppercase">Применить фильтры</Button>
       </div>
     </div>
   );

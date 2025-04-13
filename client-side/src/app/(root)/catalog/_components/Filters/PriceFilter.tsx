@@ -7,28 +7,33 @@ import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useEffect } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
 import { useSearchParams } from "next/navigation";
+import { typeIsFiltersLoading } from "../../types";
 
 interface IPriceFilterProps {
   setPriceRange: any;
   priceRange: IPriceRange;
+  setIsFiltersLoading: any;
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ setPriceRange, priceRange }: IPriceFilterProps) {
+export default function PriceFilter({ setPriceRange, priceRange, setIsFiltersLoading }: IPriceFilterProps) {
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
 
   useEffect(() => {
-    if (
-      priceRange &&
-      priceRange[0] === priceRangeData?.minPrice &&
-      priceRange[1] === priceRangeData?.maxPrice
-    ) {
+    if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
       setPriceRange(null);
     }
   }, [priceRange]);
- 
 
+  useEffect(() => {
+    if (!isLoading) {
+      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
+        ...prev,
+        priceRange: false,
+      }));
+    }
+  }, [isLoading]);
   return (
     <div className="space-y-2">
       <div className="text-xl text-left font-medium cursor-pointer w-full">Цена</div>

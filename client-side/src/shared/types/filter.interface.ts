@@ -1,3 +1,4 @@
+export const filterOrder: (keyof IFilters)[] = ["brand", "color", "size", "category", "style", "gender", "material", "priceRange"];
 export interface IFilterItem {
   id: string;
   title: string;
