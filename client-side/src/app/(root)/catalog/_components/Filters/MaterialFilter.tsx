@@ -12,7 +12,7 @@ export default function MaterialFilter({ handleCheckboxChange, filters, deleteFi
       deleteFilters={deleteFilters}
       filters={filters}
       header="Материал"
-      filterType={"material"}
+      filterType={"materialIds"}
       isLoading={isLoading}
       data={materials || []}
     />

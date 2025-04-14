@@ -4,25 +4,29 @@ import "rc-slider/assets/index.css";
 import { Input } from "@/shared/components/ui/input";
 import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
 import { useSearchParams } from "next/navigation";
 import { typeIsFiltersLoading } from "../../types";
-
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { setPriceRange } from "@/features/slices/filtersSlice";
 interface IPriceFilterProps {
-  setPriceRange: any;
   priceRange: IPriceRange;
   setIsFiltersLoading: any;
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ setPriceRange, priceRange, setIsFiltersLoading }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceFilterProps) {
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
-
+  
+  const dispatch = useAppDispatch();
+  const handlePriceRangeChange = (range: [number, number]) => {
+    dispatch(setPriceRange(range));
+  };
   useEffect(() => {
     if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
-      setPriceRange(null);
+      dispatch(setPriceRange(null));
     }
   }, [priceRange]);
 
@@ -36,7 +40,7 @@ export default function PriceFilter({ setPriceRange, priceRange, setIsFiltersLoa
   }, [isLoading]);
   return (
     <div className="space-y-2">
-      <div className="text-xl text-left font-medium cursor-pointer w-full">Цена</div>
+      <div className="text-xl text-left font-medium w-full">Цена</div>
 
       {isLoading ? (
         <Skeleton className="h-[80px] w-full" />
@@ -69,7 +73,7 @@ export default function PriceFilter({ setPriceRange, priceRange, setIsFiltersLoa
               range
               value={priceRange ?? [priceRangeData?.minPrice || MIN_DEFAULT, priceRangeData?.maxPrice || MAX_DEFAULT]}
               onChange={(newRange) => {
-                setPriceRange(newRange as [number, number]);
+                handlePriceRangeChange(newRange as [number, number]);
               }}
               style={{ width: "100%" }}
             />

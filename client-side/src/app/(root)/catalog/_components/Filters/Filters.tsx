@@ -14,8 +14,9 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { clearFilters, setPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
 import { IFilters, IFilterOption, IPriceRange } from "@/shared/types/filter.interface";
-import { Button } from "@/shared/components/ui/button";
+import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
 import { typeIsFiltersLoading } from "../../types";
+import { Button } from "@/shared/components/ui/button";
 const FILTER_COMPONENTS = [
   BrandFilter,
   ColorFilter,
@@ -29,94 +30,55 @@ const FILTER_COMPONENTS = [
 interface IFiltersProps {
   className?: string;
   variant?: "desktop" | "mobile";
+  setIsOpen?: () => void;
+  isFiltersReady: boolean;
+  filters: any;
+  priceRange: any;
 }
 
-export default function Filters({ className, variant = "desktop" }: IFiltersProps) {
+export default function Filters({ className, variant = "desktop", setIsOpen, isFiltersReady, filters, priceRange }: IFiltersProps) {
   const pathname = usePathname();
-  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-
+  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
   const isMobile = useBreakpointMatch(1024);
   const [isFiltersLoading, setIsFiltersLoading] = useState<typeIsFiltersLoading>({
-    category: true,
-    size: true,
-    color: true,
-    gender: true,
-    brand: true,
-    material: true,
-    style: true,
+    categoryIds: true,
+    sizeIds: true, 
+    colorIds: true,
+    genderIds: true,
+    brandIds: true,
+    materialIds: true,
+    styleIds: true,
     priceRange: true,
   });
   const isAllFiltersLoading = Object.values(isFiltersLoading).every((item) => item === false);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const dispatch = useAppDispatch();
-  const router = useRouter();
-  const searchParams = useSearchParams();
 
   const handleCheckboxChange = (
     filterType: Exclude<keyof IFilters, "priceRange">,
     option: IFilterOption,
     isChecked: boolean
   ) => {
-    dispatch(toggleFilter({ option, filterType, isChecked }));
+    dispatch(toggleFilter({ option, filterType, isChecked }));  
   };
 
-  const setParamsInUrl = () => {
-    const params = new URLSearchParams(searchParams);
-
-    Object.entries(filters).forEach(([key, values]) => {
-      if (values.length > 0) {
-        params.set(key, values.map((value: IFilterOption) => value.id).join(","));
-      } else {
-        params.delete(key);
-      }
-    });
-
-    if (priceRange) {
-      params.set("price", priceRange.join("-"));
-    } else {
-      params.delete("price");
-    }
-
-    const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
-    const currentUrl = `${pathname}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`;
-
-    if (newUrl !== currentUrl) {
-      window.history.replaceState(null, '', newUrl)
-      // router.replace(newUrl, undefined, { shallow: true });
-
-    }
-  };
-  useEffect(() => {
-    const priceRangeParam = searchParams.get("price");
-    console.log(priceRangeParam);
-    if (priceRangeParam) {
-      const priceRange = priceRangeParam?.split("-").map((item) => Number(item));
-      console.log(priceRange);
-      dispatch(setPriceRange(priceRange as IPriceRange));
-    }
-  }, []);
+  
 
   useEffect(() => {
-    if (!isMobile && isAllFiltersLoading) {
-      setParamsInUrl();
+    if (isAllFiltersLoading) {
+      updateUrlWithFilters();
     }
   }, [filters, priceRange, isAllFiltersLoading]);
 
-  const handlePriceRangeChange = useCallback(
-    (range: [number, number]) => {
-      dispatch(setPriceRange(range));
-    },
-    [dispatch]
-  );
+    
 
   const deleteFilters = (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
     dispatch(clearFilters({ filterType, filterId }));
   };
 
   if (!shouldShow) return null;
-
   return (
-    <div className={`md:overflow-visible scrollbar-hide ${className || ""}`}>
+    <div className={` relative md:overflow-visible scrollbar-hide ${className || ""}`}>
       <FilterChoice
         deletePriceRange={() => {
           dispatch(setPriceRange(null));
@@ -133,7 +95,6 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
       <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
         <PriceFilter
           setIsFiltersLoading={setIsFiltersLoading}
-          setPriceRange={handlePriceRangeChange}
           priceRange={priceRange}
         />
         {FILTER_COMPONENTS.map((Component, index) => (
@@ -146,9 +107,18 @@ export default function Filters({ className, variant = "desktop" }: IFiltersProp
           />
         ))}
       </div>
-      <div className="fixed bottom-0 w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
-        <Button onClick={setParamsInUrl} className="w-full uppercase">Применить фильтры</Button>
-      </div>
+      {/* <div className="fixed bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
+        <Button
+          onClick={() => {
+            // setParamsInUrl();
+            updateUrlWithFilters();
+            if (setIsOpen) setIsOpen();
+          }}
+          className="w-full uppercase"
+        >
+          Применить фильтры
+        </Button>
+      </div> */}
     </div>
   );
 }

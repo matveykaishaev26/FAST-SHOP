@@ -15,7 +15,7 @@ export default function CategoryFilter({
       setIsFiltersLoading={setIsFiltersLoading}
       deleteFilters={deleteFilters}
       filters={filters}
-      filterType={"category"}
+      filterType={"categoryIds"}
       header="Категория"
       handleCheckboxChange={handleCheckboxChange}
       isLoading={isLoading}

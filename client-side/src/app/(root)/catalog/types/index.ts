@@ -14,4 +14,4 @@ export interface IFilterProps extends IHandleCheckboxChange {
   setIsFiltersLoading:  React.Dispatch<React.SetStateAction<typeIsFiltersLoading>>;
 }
 
-export type typeIsFiltersLoading = Record<string, boolean>;
+export type typeIsFiltersLoading = Record<keyof IFilters, boolean>;

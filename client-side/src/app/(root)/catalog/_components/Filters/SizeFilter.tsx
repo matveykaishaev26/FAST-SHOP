@@ -9,7 +9,7 @@ export default function SizeFilter({ handleCheckboxChange, filters, deleteFilter
     setIsFiltersLoading={setIsFiltersLoading}
       handleCheckboxChange={handleCheckboxChange}
       deleteFilters={deleteFilters}
-      filterType={"size"}
+      filterType={"sizeIds"}
       filters={filters}
       header="Размер"
       isLoading={isLoading}

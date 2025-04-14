@@ -15,7 +15,7 @@ export default function StyleFilter({
       setIsFiltersLoading={setIsFiltersLoading}
       deleteFilters={deleteFilters}
       filters={filters}
-      filterType={"style"}
+      filterType={"styleIds"}
       header="Стиль"
       isLoading={isLoading}
       handleCheckboxChange={handleCheckboxChange}

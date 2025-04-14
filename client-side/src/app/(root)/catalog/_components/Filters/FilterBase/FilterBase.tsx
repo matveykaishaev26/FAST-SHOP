@@ -7,8 +7,9 @@ import { IFilterProps, typeIsFiltersLoading } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
-import { useSearchParams } from "next/navigation";
-import { IFilters } from "@/shared/types/filter.interface";
+import { IFilterOption, IFilters } from "@/shared/types/filter.interface";
+import { setFilterTitle } from "@/features/slices/filtersSlice";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
 
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
@@ -35,34 +36,27 @@ export default function FilterBase<T extends IFilterItem>({
 }: IFilterBaseProps<T>) {
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
+  const dispatch = useAppDispatch();
   const toggleList = () => {
     setIsOpen((prev) => !prev);
     setSearchTerm("");
   };
 
-  const searchParams = useSearchParams();
   useEffect(() => {
-    const param = searchParams.get(filterType);
-    if (param && !filters[filterType].length && data.length > 0) {
-      const queryIds = param.split(",");
-      const optionsToAdd = queryIds.map((queryId) => data.find((item) => item.id === queryId)).filter(Boolean) as T[];
-
-      const newOptions = optionsToAdd.filter((option) => !filters[filterType].some((item) => item.id === option.id));
-
-      if (newOptions.length > 0) {
-        newOptions.forEach((option) => {
-          handleCheckboxChange(filterType, option, true);
+    if (filters[filterType] && Array.isArray(filters[filterType])) {
+      filters[filterType].map((filterFromState) => {
+        const filtersFromResponse = data.filter((filter) => filter.id === filterFromState.id);
+        filtersFromResponse.forEach((item: IFilterItem) => {
+          dispatch(setFilterTitle({ filterType, filterId: item.id, title: item.title }));
         });
-      }
+      });
     }
 
-    if (data.length > 0) {
-      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
-        ...prev,
-        [filterType]: false,
-      }));
-    }
-  }, [data.length]); 
+    setIsFiltersLoading((prev) => ({
+      ...prev,
+      [filterType]: false,
+    }));
+  }, [data.length]);
 
   const filteredItems = useMemo(() => {
     return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));

@@ -11,7 +11,7 @@ export default function GenderFilter({ handleCheckboxChange, filters, deleteFilt
     setIsFiltersLoading={setIsFiltersLoading}
       deleteFilters={deleteFilters}
       filters={filters}
-      filterType={"gender"}
+      filterType={"genderIds"}
       isExpandable={false}
       header="Пол"
       isLoading={isLoading}

@@ -6,7 +6,7 @@ import { IFilterProps } from "../../types";
 import { IColor } from "@/shared/types/color.interface";
 export default function ColorFilter({ handleCheckboxChange, filters, deleteFilters, setIsFiltersLoading }: IFilterProps) {
   const { data: colors, isLoading } = useGetColorsQuery();
-  const filterType = "color";
+  const filterType = "colorIds";
   return (
     <FilterBase
     setIsFiltersLoading={setIsFiltersLoading}
@@ -15,7 +15,7 @@ export default function ColorFilter({ handleCheckboxChange, filters, deleteFilte
       handleCheckboxChange={handleCheckboxChange}
       header="Цвет"
       isLoading={isLoading}
-      filterType="color"
+      filterType={filterType}
       data={colors || []}
       renderItem={(color: IColor) => {
         const isWhite = color.title === "Белый";

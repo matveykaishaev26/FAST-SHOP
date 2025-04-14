@@ -1,4 +1,12 @@
-export const filterOrder: (keyof IFilters)[] = ["brand", "color", "size", "category", "style", "gender", "material", "priceRange"];
+export const filtersOrder: Exclude<keyof IFilters, "priceRange">[] = [
+  "brandIds",
+  "colorIds",
+  "sizeIds",
+  "categoryIds",
+  "styleIds",
+  "genderIds",
+  "materialIds",
+];
 export interface IFilterItem {
   id: string;
   title: string;
@@ -6,22 +14,22 @@ export interface IFilterItem {
 
 export interface IFilterOption {
   id: string;
-  title: string;
+  title?: string;
 }
 
 export interface IFilterColor extends IFilterOption {
-  hex: string;
+  hex?: string;
 }
 export type IPriceRange = [number, number] | null;
 
 export interface IFilters {
-  category: IFilterOption[];
-  size: IFilterOption[];
-  color: IFilterColor[];
-  gender: IFilterOption[];
-  brand: IFilterOption[];
-  material: IFilterOption[];
-  style: IFilterOption[];
+  categoryIds: IFilterOption[];
+  sizeIds: IFilterOption[];
+  colorIds: IFilterColor[];
+  genderIds: IFilterOption[];
+  brandIds: IFilterOption[];
+  materialIds: IFilterOption[];
+  styleIds: IFilterOption[];
   priceRange: IPriceRange;
 }
 

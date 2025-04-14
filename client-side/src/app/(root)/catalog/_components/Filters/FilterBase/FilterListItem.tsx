@@ -10,15 +10,15 @@ interface IFilterListItem extends IHandleCheckboxChange {
   filterType: Exclude<keyof IFilters, "priceRange">
 }
 export default function FilterListItem({ item, filters, handleCheckboxChange, filterType }: IFilterListItem) {
-  const handleChange = useCallback((checked: boolean) => {
-    handleCheckboxChange(filterType, item, checked);
-  }, [filterType, item, handleCheckboxChange]);
+  // const handleChange = useCallback((checked: boolean) => {
+  //   handleCheckboxChange(filterType, item, checked);
+  // }, [filterType, item, handleCheckboxChange]);
   return (
     <div key={item.title}>
       <FilterCheckbox
         id={item.id}
         checked={isChecked(filters, filterType, item.id)}
-        onChange={handleChange}
+        onChange={(checked) =>  handleCheckboxChange(filterType, item, checked)}
       >
         <span className="text-[15px] text-foreground font-thin">{item.title}</span>
         <div className="text-muted-foreground text-xs">({item.productCount})</div>

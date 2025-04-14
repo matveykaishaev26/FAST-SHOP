@@ -71,7 +71,7 @@ export default function FilterChoice({
                   variant="secondary"
                   key={item.id}
                 >
-                  {item.filterType === "color" && (
+                  {item.filterType === "colorIds" && (
                     <div
                       className="w-4 h-4 rounded-full border mr-1"
                       style={{ backgroundColor: (item as IFilterColor).hex }}

@@ -11,7 +11,7 @@ export default function BrandFilter({ handleCheckboxChange, filters, deleteFilte
       setIsFiltersLoading={setIsFiltersLoading}
       deleteFilters={deleteFilters}
       filters={filters}
-      filterType={"brand"}
+      filterType={"brandIds"}
       header="Бренд"
       handleCheckboxChange={handleCheckboxChange}
       isLoading={isLoading}

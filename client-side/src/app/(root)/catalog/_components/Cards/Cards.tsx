@@ -1,4 +1,3 @@
-
 "use client";
 import { useGetProductCardsQuery } from "@/features/api/productApi";
 import { ICardItem } from "@/shared/types/card.interface";
@@ -13,36 +12,51 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useEffect, useState } from "react";
 import CardsSkeleton from "./CardsSkeleton";
+import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
+import { filtersOrder } from "@/shared/types/filter.interface";
+import { setFilterId, setPriceRange } from "@/features/slices/filtersSlice";
 const LIMIT = 20;
 
-export default function Cards() {
+interface ICardsProps {
+  isFiltersReady: boolean;
+  setCardsCount: React.Dispatch<React.SetStateAction<string>>;
+}
+export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
   const isMobile = useBreakpointMatch(768);
-  const [isLocalFetching, setIsLocalFetching] = useState<boolean>(false);
-  const { data, isLoading, isFetching, error } = useGetProductCardsQuery({
-    page: page,
-    limit: LIMIT,
-    mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
-  });
-
+  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
+  const [isNewPageFetching, setIsNewPageFetching] = useState<boolean>(false);
+  const { data, isLoading, isFetching, error } = useGetProductCardsQuery(
+    {
+      page: page,
+      limit: LIMIT,
+      mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
+      filters: { priceRange, ...filters },
+    },
+    {
+      skip: !isFiltersReady,
+    }
+  );
   const { items, totalCount, totalPages, currentPage } = data || {};
 
   const loadMore = () => {
     if (currentPage) {
-      setIsLocalFetching(true);
+      setIsNewPageFetching(true);
       router.push(`/catalog/?page=${currentPage + 1}`, { scroll: false });
     }
   };
-
+  useEffect(() => {
+    if (totalCount) setCardsCount(totalCount.toString());
+  }, [data]);
   useEffect(() => {
     if (isFetching === false) {
-      setIsLocalFetching(false);
+      setIsNewPageFetching(false);
     }
   }, [isFetching]);
 
-  if (isLoading) {
+  if (isLoading || !isFiltersReady || (isFetching && !isMobile)) {
     return <CardsSkeleton count={LIMIT} />;
   }
 
@@ -88,16 +102,15 @@ export default function Cards() {
           ))}
       </div>
       <div className="hidden md:block">
-        <PaginationControl disabled={isLocalFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
+        <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
       </div>
-      {/* {isLocalFetching && <CardsSkeleton count={LIMIT} />} */}
 
       {items.length !== totalCount && (
         <Button
           onClick={loadMore}
           className="block uppercase md:hidden border-primary text-primary hover:text-primary w-full"
           variant={"outline"}
-          disabled={isLocalFetching}
+          disabled={isNewPageFetching}
         >
           Загрузить еще
         </Button>
