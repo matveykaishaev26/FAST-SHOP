@@ -75,14 +75,17 @@ export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
           items.map((product: ICardItem) => (
             <Card
               key={product.id}
-              className="overflow-hidden relative rounded-none border-none shadow-none group/heart group  transition duration-300 hover:m-0"
+              className=" relative rounded-none border-none shadow-none    transition duration-300 hover:m-0"
             >
               <CardContent className="p-0">
                 <div className="">
-                  <div className="z-10 cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/heart-light opacity-0 group-hover/heart:opacity-100">
-                    <Heart className="text-muted-foreground group-hover/heart-light:text-primary" size={18} />
-                  </div>
-                  <CardImages className="" images={product.images} alt={product.title} />
+                  <CardImages
+                    productVariantId={product.id}
+                    sizes={product.sizes}
+                    className=""
+                    images={product.images}
+                    alt={product.title}
+                  />
                 </div>
                 <div className="">
                   <p className="text-md font-medium mt-2   sm:text-xl">{product.price} ₽</p>

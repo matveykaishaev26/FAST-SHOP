@@ -122,8 +122,6 @@ body {
 
 
 
-
-
   .hide-scrollbar::-webkit-scrollbar {
     display: none; /* Скрыть скроллбар в Chrome, Safari и Edge */
   }
@@ -137,6 +135,7 @@ body {
 @layer components {
 }
 body {
+  scrollbar-gutter: stable; 
   font-family: var(--font-roboto), sans-serif;
 }
 @layer base {

@@ -21,7 +21,7 @@ const baseQuery = fetchBaseQuery({
 
 export const api = createApi({
   reducerPath: "api",
-  tagTypes: ["Product"],
+  tagTypes: ["Product", 'UserFavorites'],
   baseQuery: async (args, api, extraOptions) => {
     const result = await baseQuery(args, api, extraOptions);
 

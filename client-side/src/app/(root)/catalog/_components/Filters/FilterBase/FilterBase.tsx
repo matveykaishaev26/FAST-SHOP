@@ -7,10 +7,10 @@ import { IFilterProps, typeIsFiltersLoading } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
-import { IFilterOption, IFilters } from "@/shared/types/filter.interface";
-import { setFilterTitle } from "@/features/slices/filtersSlice";
+import { IFilters } from "@/shared/types/filter.interface";
+// import { setFilterTitle } from "@/features/slices/filtersSlice";
+import { updateFilterTitles } from "@/features/slices/filtersSlice";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
-
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
   data: T[];
@@ -43,13 +43,16 @@ export default function FilterBase<T extends IFilterItem>({
   };
 
   useEffect(() => {
-    if (filters[filterType] && Array.isArray(filters[filterType])) {
-      filters[filterType].map((filterFromState) => {
-        const filtersFromResponse = data.filter((filter) => filter.id === filterFromState.id);
-        filtersFromResponse.forEach((item: IFilterItem) => {
-          dispatch(setFilterTitle({ filterType, filterId: item.id, title: item.title }));
-        });
-      });
+    const itemsToUpdate = data
+      .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        ...(filterType === "colorIds" && { hex: (item as any).hex }),
+      }));
+
+    if (itemsToUpdate.length > 0) {
+      dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
     }
 
     setIsFiltersLoading((prev) => ({

@@ -7,18 +7,18 @@ export const filtersOrder: Exclude<keyof IFilters, "priceRange">[] = [
   "genderIds",
   "materialIds",
 ];
-export interface IFilterItem {
+// export interface IFilterItem {
+//   id: string;
+//   title: string;
+// }
+
+export interface IFilterOption {
   id: string;
   title: string;
 }
 
-export interface IFilterOption {
-  id: string;
-  title?: string;
-}
-
 export interface IFilterColor extends IFilterOption {
-  hex?: string;
+  hex: string;
 }
 export type IPriceRange = [number, number] | null;
 

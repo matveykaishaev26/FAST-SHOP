@@ -1,7 +1,7 @@
 export interface ICardItem {
-  id: number;
+  id: string;
   title: string;
-  sizes: string[];
+  sizes: { title: string; quantity: number }[];
   price: number;
   brand: string;
   images: string[];
@@ -9,5 +9,5 @@ export interface ICardItem {
   rating: {
     value: number | string;
     count: number;
-  }
+  };
 }

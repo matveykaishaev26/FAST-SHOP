@@ -15,5 +15,5 @@ export const API_URL = {
   styles: (url = "") => API_URL.root(`/styles${url}`),
   productVariants: (url = "") => API_URL.root(`/product-variants${url}`),
   sizes: (url = "") => API_URL.root(`/sizes${url}`),
-
+  userFavorites: (url = "") => API_URL.root(`/user-favorites${url}`),
 };

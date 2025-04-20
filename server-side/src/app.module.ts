@@ -21,6 +21,7 @@ import { ProductMaterialsModule } from './product-materials/product-materials.mo
 import { ColorModule } from './color/color.module';
 import { ProductVariantColorsModule } from './product-variant-colors/product-variant-colors.module';
 import { SizeModule } from './size/size.module';
+import { UserFavoritesModule } from './user-favorites/user-favorites.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(), // for scheduled tasks
@@ -45,6 +46,7 @@ import { SizeModule } from './size/size.module';
     ColorModule,
     ProductVariantColorsModule,
     SizeModule,
+    UserFavoritesModule,
   ],
 })
 export class AppModule {}

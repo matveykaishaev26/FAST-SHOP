@@ -32,7 +32,6 @@ export const filtersSlice = createSlice({
           state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
         }
       } else {
-   
         if (isChecked) {
           state[filterType].push(option);
         } else {
@@ -50,24 +49,47 @@ export const filtersSlice = createSlice({
       const { filterType, filterId } = action.payload;
       const exists = state[filterType].some((item) => item.id === filterId);
       if (!exists) {
-        state[filterType].push({ id: filterId});
+        if (filterType === "colorIds") state[filterType].push({ id: filterId, title: "", hex: "" });
+        else state[filterType].push({ id: filterId, title: "" });
       }
     },
-    setFilterTitle(
+    // setFilterTitle(
+    //   state,
+    //   action: PayloadAction<{
+    //     filterType: Exclude<keyof IFilters, "priceRange">;
+    //     filterId: string;
+    //     title: string;
+    //     hex?: string;
+    //   }>
+    // ) {
+    //   const { filterType, filterId, title, hex } = action.payload;
+    //   const items = state[filterType];
+    //   const item = items.find((item) => item.id === filterId);
+
+    //   if (item) {
+    //     item.title = title;
+    //     if (hex && filterType === "colorIds") {
+    //       (item as IFilterColor).hex = hex;
+    //     }
+    //   }
+    // },
+    updateFilterTitles: (
       state,
       action: PayloadAction<{
         filterType: Exclude<keyof IFilters, "priceRange">;
-        filterId: string;
-        title: string;
+        items: { id: string; title: string; hex?: string }[];
       }>
-    ) {
-      const { filterType, filterId, title } = action.payload;
-
-      const target = state[filterType].filter((item) => item.id === filterId);
-        if (target) {
-          target[0].title = title;
+    ) => {
+      const { filterType, items } = action.payload;
+      items.forEach(({ id, title, hex }) => {
+        const item = state[filterType].find((x) => x.id === id);
+        if (item) {
+          item.title = title;
+          if (hex && filterType === "colorIds") {
+            (item as IFilterColor).hex = hex;
+          }
         }
-      
+      });
     },
     clearFilters(
       state,
@@ -102,7 +124,15 @@ export const filtersSlice = createSlice({
   },
 });
 
-export const { toggleFilter, clearFilters, setFilters, setPriceRange, clearPriceRange, setFilterTitle, setFilterId } =
-  filtersSlice.actions;
+export const {
+  toggleFilter,
+  clearFilters,
+  setFilters,
+  setPriceRange,
+  clearPriceRange,
+  // setFilterTitle,
+  setFilterId,
+  updateFilterTitles,
+} = filtersSlice.actions;
 
 export default filtersSlice.reducer;

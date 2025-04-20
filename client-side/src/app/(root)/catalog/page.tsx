@@ -12,7 +12,6 @@ export default function Catalog() {
   const [isFiltersReady, setIsFiltersReady] = useState(false);
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
   const [cardsCount, setCardsCount] = useState<string>("");
-  console.log(filters)
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   useEffect(() => {
@@ -34,10 +33,10 @@ export default function Catalog() {
     setIsFiltersReady(true);
   }, []);
   return (
-    <div className="h-full">
+    <div className=" h-full">
       <h2 className="text-2xl font-medium  mb-10 sm:text-4xl">
         <span className="text-2xl  font-medium tracking-widest sm:text-4xl">КАТАЛОГ</span>
-        <span className="text-[16px] text-muted-foreground"> {cardsCount !== "" && cardsCount + " товаров"} </span>
+        <span className="text-[12px] text-muted-foreground sm:text-[16px]"> {cardsCount !== "" && cardsCount + " товаров"} </span>
       </h2>
       <div className="w-full flex flex-row gap-x-20">
         <Filters

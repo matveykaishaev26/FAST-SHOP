@@ -176,17 +176,99 @@ export class ProductService {
     });
   }
 
-  async getProductCards(page: number = 1, limit: number = 10) {
+  async addToFavorite(userId: string, productVariantId: string) {
+    const existing = await this.prisma.userFavorites.findFirst({
+      where: {
+        userId,
+        productVariantId,
+      },
+    });
+
+    if (existing) {
+      // Если уже есть — можно либо вернуть ошибку, либо удалить (toggle)
+      await this.prisma.userFavorites.deleteMany({
+        where: {
+          userId,
+          productVariantId,
+        },
+      });
+    }
+    await this.prisma.userFavorites.create({
+      data: {
+        userId,
+        productVariantId,
+      },
+    });
+    return { message: 'Добавлено в избранное' };
+  }
+
+  async getProductCards(
+    page: number = 1,
+    limit: number = 10,
+    filters: {
+      brandIds?: string[];
+      materialIds?: string[];
+      genderIds?: string[];
+      styleIds?: string[];
+      categoryIds?: string[];
+      sizeIds?: string[];
+      colorIds?: string[];
+      priceRange?: number[];
+    } = {},
+  ) {
     const skip = (page - 1) * limit;
     const take = Number(limit);
-    const totalCount = await this.prisma.productVariant.count(); // Всего брендов
+
+    const hasValidPriceRange =
+      Array.isArray(filters.priceRange) &&
+      filters.priceRange.length === 2 &&
+      filters.priceRange.every((v) => typeof v === 'number' && !isNaN(v));
+
+    // console.log(filters);
+
+    const where: any = {
+      ...(filters.brandIds?.length && {
+        product: { brandId: { in: filters.brandIds } },
+      }),
+      ...(filters.materialIds?.length && {
+        product: { materialId: { in: filters.materialIds } },
+      }),
+      ...(filters.genderIds?.length && {
+        product: { genderId: { in: filters.genderIds } },
+      }),
+      ...(filters.styleIds?.length && {
+        product: { styleId: { in: filters.styleIds } },
+      }),
+      ...(filters.categoryIds?.length && {
+        product: { categoryId: { in: filters.categoryIds } },
+      }),
+      ...(filters.sizeIds?.length && {
+        productVariantQuantity: {
+          some: { sizeId: { in: filters.sizeIds } },
+        },
+      }),
+      ...(filters.colorIds?.length && {
+        productVariantColors: {
+          some: { colorId: { in: filters.colorIds } },
+        },
+      }),
+      ...(hasValidPriceRange && {
+        price: {
+          gte: filters.priceRange[0],
+          lte: filters.priceRange[1],
+        },
+      }),
+    };
+
+    const totalCount = await this.prisma.productVariant.count({ where });
+
     const totalPages = Math.ceil(totalCount / take);
     const currentPage = Math.max(1, Math.min(page, totalPages));
 
     const products = await this.prisma.productVariant.findMany({
+      where,
       skip,
       take,
-
       select: {
         id: true,
         images: true,
@@ -194,7 +276,9 @@ export class ProductService {
         product: {
           select: {
             title: true,
-            brand: true,
+            brand: {
+              select: { title: true },
+            },
             _count: {
               select: {
                 reviews: true,
@@ -209,12 +293,13 @@ export class ProductService {
         },
         productVariantQuantity: {
           select: {
-            size: { select: { title: true } }, // Учитываем вложенность size
+            size: { select: { title: true } },
+            quantity: true,
           },
         },
         productVariantColors: {
           select: {
-            color: { select: { title: true } }, // Учитываем вложенность color
+            color: { select: { title: true } },
           },
         },
       },
@@ -222,28 +307,27 @@ export class ProductService {
 
     return {
       totalCount,
-      totalPages: Math.ceil(totalCount / take),
-      currentPage: currentPage,
+      totalPages,
+      currentPage,
       items: products.map((product) => ({
         id: product.id,
         title: product.product.title,
         brand: product.product.brand.title,
         images: product.images,
         price: product.price,
-        sizes: product.productVariantQuantity.map(
-          (variant) => variant.size.title,
-        ),
-        colors: product.productVariantColors.map(
-          (variant) => variant.color.title,
-        ),
+        sizes: product.productVariantQuantity.map((v) => ({
+          title: v.size.title,
+          quantity: v.quantity,
+        })),
+        colors: product.productVariantColors.map((v) => v.color.title),
         rating: {
           value:
             product.product.reviews.length !== 0
               ? (
-                  product.product.reviews.reduce((acc, review) => {
-                    acc += review.rating;
-                    return acc;
-                  }, 0) / product.product.reviews.length
+                  product.product.reviews.reduce(
+                    (acc, review) => acc + review.rating,
+                    0,
+                  ) / product.product.reviews.length
                 ).toFixed(2)
               : 'Нет отзывов',
           count: product.product.reviews.length,

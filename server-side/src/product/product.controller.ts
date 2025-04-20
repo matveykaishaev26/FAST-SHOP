@@ -19,6 +19,8 @@ import { UserRole } from '@prisma/client';
 import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/auth/guards/roles.guard';
 import { Roles } from 'src/auth/decorators/roles.decorator';
+import { Auth } from 'src/auth/decorators/auth.decorator';
+import { CurrentUser } from 'src/user/decorators/user.decorator';
 @Controller('products')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
@@ -48,9 +50,51 @@ export class ProductController {
     return this.productService.getGenderCounts();
   }
 
+  @Auth()
+  @Post('add-to-favorite')
+  async addToFavorite(
+    @CurrentUser('id') userId: string,
+    @Param('productVariantId') productVariantId: string,
+  ) {
+    return this.productService.addToFavorite(userId, productVariantId);
+  }
+  
   @Get('product-cards')
-  async getProductCards(@Query('page') page = 1, @Query('limit') limit = 10) {
-    return this.productService.getProductCards(page, limit);
+  async getProductCards(
+    @Query('page') page = 1,
+    @Query('limit') limit = 10,
+    @Query('brandIds') brandIds?: string[] | string,
+    @Query('materialIds') materialIds?: string[] | string,
+    @Query('genderIds') genderIds?: string[] | string,
+    @Query('styleIds') styleIds?: string[] | string,
+    @Query('categoryIds') categoryIds?: string[] | string,
+    @Query('sizeIds') sizeIds?: string[] | string,
+    @Query('colorIds') colorIds?: string[] | string,
+    @Query('priceRange') priceRange?: string,
+  ) {
+    function toArray(param?: string[] | string): string[] {
+      return Array.isArray(param) ? param : param ? [param] : [];
+    }
+
+    let parsedPriceRange: number[] | undefined;
+    console.log(priceRange);
+    if (priceRange) {
+      const [min, max] = priceRange.split('-').map(Number);
+      if (!isNaN(min) && !isNaN(max)) {
+        parsedPriceRange = [min, max];
+      }
+    }
+
+    return this.productService.getProductCards(Number(page), Number(limit), {
+      brandIds: toArray(brandIds),
+      materialIds: toArray(materialIds),
+      genderIds: toArray(genderIds),
+      styleIds: toArray(styleIds),
+      categoryIds: toArray(categoryIds),
+      sizeIds: toArray(sizeIds),
+      colorIds: toArray(colorIds),
+      priceRange: parsedPriceRange,
+    });
   }
 
   @Get('similar/:id')
