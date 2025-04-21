@@ -19,7 +19,7 @@ export const PROFILE_URL = {
   home: () => PROFILE_URL.root("/"),
   favorites: () => PROFILE_URL.root("/favorites"),
   profile: () => PROFILE_URL.root("/profile"),
-  basket: () => PROFILE_URL.root('/backet')
+basket: () => PROFILE_URL.root('/basket')
 };
 export const ADMIN_URL = {
   root: (url = "") => `/admin${url ? url : ""}`,

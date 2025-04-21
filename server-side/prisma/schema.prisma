@@ -232,6 +232,7 @@ model Size {
 
   title                  Float                    @unique
   productVariantQuantity ProductVariantQuantity[]
+  userFavorites          UserFavorites[]
 
   @@map("size")
 }
@@ -256,7 +257,10 @@ model UserFavorites {
   productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
   productVariantId String?         @map("product_variant_id")
 
-  @@unique([userId, productVariantId])
+  size   Size?   @relation(fields: [sizeId], references: [id])
+  sizeId String? @map("size_id")
+
+  @@unique([userId, productVariantId, sizeId])
   @@map("user_favorites")
 }
 

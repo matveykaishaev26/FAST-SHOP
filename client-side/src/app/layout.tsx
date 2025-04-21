@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html suppressHydrationWarning lang="ru">
-      <body className={`${roboto.variable} ${inter.variable}`}>
+      <body  className={`${roboto.variable} scrollbar-gutter-stable  ${inter.variable}`}>
         <Providers>{children}</Providers>
       </body>
     </html>

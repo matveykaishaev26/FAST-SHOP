@@ -1,6 +1,4 @@
-import { IFilterItem, IProductCount } from "./entity.interface";
+import { IFilterItem } from "./filter.interface";
 export interface IColor extends IFilterItem {
-  id: string;
-  title: string;
   hex: string;
 }

@@ -1,4 +1,5 @@
-import { IFilterItem } from "./entity.interface";
+import { IFilterItem } from "./filter.interface";
 
-export interface ISize extends IFilterItem {}
-
+export interface ISize extends IFilterItem {
+  quantity: number;
+}

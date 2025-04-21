@@ -1,17 +1,20 @@
+import { IFilters } from "@/shared/types/filter.interface";
 import { isChecked } from "../../../_utils/isChecked";
-import { IFilters, IHandleCheckboxChange } from "../../../types";
+import { IHandleCheckboxChange } from "../../../types";
 import FilterCheckbox from "../FilterCheckbox";
-import { IFilterItem } from "@/shared/types/entity.interface";
+import { IFilterItem } from "@/shared/types/filter.interface";
 interface IFilterListItem extends IHandleCheckboxChange {
   item: IFilterItem;
-  filters: IFilters;
-  filterType: keyof IFilters;
+  filters: Omit<IFilters, "priceRange">;
+  filterType: Exclude<keyof IFilters, "priceRange">;
 }
 export default function FilterListItem({ item, filters, handleCheckboxChange, filterType }: IFilterListItem) {
+
   return (
     <div key={item.title}>
       <FilterCheckbox
         id={item.id}
+        className={`${item.productCount === 0 && "opacity-50 select-none"}`}
         checked={isChecked(filters, filterType, item.id)}
         onChange={(checked) => handleCheckboxChange(filterType, item, checked)}
       >

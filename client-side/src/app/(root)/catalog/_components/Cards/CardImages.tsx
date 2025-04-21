@@ -1,17 +1,60 @@
 "use client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { Heart } from "lucide-react";
 import Favorite from "./Favorite";
+import { ISize } from "@/shared/types/size.interface";
+
 interface ICardImagesProps {
   images: string[];
   alt: string;
   className?: string;
+  sizes: ISize[];
+  productVariantId: string;
+  activeSize: any;
+  setActiveSize: any;
 }
-export default function CardImages({ images, alt, className }: ICardImagesProps) {
-  const [currentImage, setCurrentImage] = useState(images[0] || "/images/chel.webp");
-  const [prevImage, setPrevImage] = useState<string | null>(null);
+
+const DEFAULT_FALLBACK_IMAGE = "/images/default-product.webp"; // Добавьте этот файл в ваш проект
+
+export default function CardImages({
+  images,
+  alt,
+  className,
+  sizes,
+  productVariantId,
+  activeSize,
+  setActiveSize,
+}: ICardImagesProps) {
+  const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isFavorited, setIsFavorited] = useState(false);
+  const handleMouseMove = useCallback(
+    (e: React.MouseEvent) => {
+      if (isDialogOpen) return;
+
+      const container = e.currentTarget.getBoundingClientRect();
+      const x = e.clientX - container.left;
+      const index = Math.floor((x / container.width) * images.length);
+
+      setCurrentImage(images[index]?.trim() || images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
+    },
+    [images, isDialogOpen]
+  );
+
+  const handleMouseLeave = useCallback(() => {
+    setCurrentImage(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
+  }, [images]);
+
+  const setIsOpen = useCallback(
+    (state: boolean) => {
+      setIsDialogOpen(state);
+      if (!state) {
+        setCurrentImage(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
+      }
+    },
+    [images]
+  );
 
   if (!images.length || !images.some((img) => img.trim() !== "")) {
     return (
@@ -21,45 +64,45 @@ export default function CardImages({ images, alt, className }: ICardImagesProps)
     );
   }
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    const container = e.currentTarget.getBoundingClientRect();
-    const x = e.clientX - container.left;
-    const width = container.width;
+  const CardImage = () => (
+    <Image
+      loading="lazy"
+      src={currentImage}
+      alt={alt}
+      fill
+        className="object-cover cursor-pointer pointer-events-none"
+      onError={(e) => {
+        (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
+        (e.target as HTMLImageElement).classList.add("opacity-80");
+      }}
+    />
+  );
 
-    const index = Math.floor((x / width) * images.length);
-    const newImage = images[index] || "/placeholder.jpg";
-    setPrevImage(currentImage);
-    setCurrentImage(newImage);
-  };
-
-  const defaultClass = "relative aspect-[9/12] cursor-pointer  w-full  transition-opacity duration-200";
-
-  const CardImage = () => {
-    return (
-      <Image
-        // priority
-        loading="lazy"
-        src={currentImage} // Fallback, если currentImage пустое
-        alt={alt}
-        fill
-        className={`object-cover  cursor-pointer pointer-events-none  ${prevImage ? "animate-fadeOut" : ""}`}
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = "/placeholder.jpg"; // Fallback при ошибке загрузки
-        }}
-      />
-    );
-  };
+  const defaultClass = "relative aspect-[9/12] cursor-pointer w-full transition-opacity duration-200";
 
   return (
     <>
       <div
-        className={`${defaultClass}  absolute transition-opacity group  hidden lg:block ${className ? className : ""}`}
+        className={`${defaultClass} select-none absolute transition-opacity group group/favorite hidden lg:block ${
+          className || ""
+        }`}
         onMouseMove={handleMouseMove}
-        onMouseLeave={() => setCurrentImage(images[0])}
+        onMouseLeave={handleMouseLeave}
       >
-        <Favorite />
+        <div className="pointer-events-auto">
+          <Favorite
+            activeSize={activeSize}
+            setActiveSize={setActiveSize}
+            isFavorited={isFavorited}
+            setIsFavorited={setIsFavorited}
+            productVariantId={productVariantId}
+            sizes={sizes}
+            setIsDialogOpen={setIsOpen}
+            isDialogOpen={isDialogOpen}
+          />
+        </div>
         <CardImage />
-        <div className="absolute z-50 bottom-6 left-1/2 -translate-x-1/2 hidden items-center justify-center gap-x-1 lg:flex opacity-0 group-hover:opacity-100">
+        <div className="absolute z-10 bottom-6 left-1/2 -translate-x-1/2 hidden items-center justify-center gap-x-1 lg:flex opacity-0 group-hover:opacity-100">
           {images.map((image, index) => (
             <div
               key={index}
@@ -70,8 +113,17 @@ export default function CardImages({ images, alt, className }: ICardImagesProps)
           ))}
         </div>
       </div>
-      <div className={`${defaultClass}  block lg:hidden`}>
-        <Favorite />
+      <div className={`${defaultClass} block lg:hidden`}>
+        <Favorite
+           activeSize={activeSize}
+           setActiveSize={setActiveSize}
+          isFavorited={isFavorited}
+          setIsFavorited={setIsFavorited}
+          productVariantId={productVariantId}
+          setIsDialogOpen={setIsOpen}
+          isDialogOpen={isDialogOpen}
+          sizes={sizes}
+        />
         <CardImage />
       </div>
     </>

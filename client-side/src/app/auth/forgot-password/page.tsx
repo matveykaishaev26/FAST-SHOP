@@ -49,7 +49,7 @@ export default function ForgotPasswordPage() {
               <ForgotPasswordFields isPending={sendIsLoading} form={form} />
               {error && <Message type={"error"} message={(error as IApiError).data.message} />}
 
-              <Button disabled={sendIsLoading} type="submit" className="w-full">
+              <Button disabled={sendIsLoading } type="submit" className="w-full">
                 Отправить ссылку
               </Button>
             </>

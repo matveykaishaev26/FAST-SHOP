@@ -24,8 +24,8 @@ export function AuthForm({
         <CardTitle className="text-center text-2xl">{header}</CardTitle>
         {description ? <CardDescription className="text-center">{description}</CardDescription> : ""}
       </CardHeader>
-      <CardContent>{children}</CardContent>
-      <CardFooter className="flex flex-col gap-4">
+      <CardContent className="p-4">{children}</CardContent>
+      <CardFooter className="flex flex-col gap-4 p-4">
         {isContinueIncluded && <ContinueWith />}
         {btnLinkHref && btnLinkText && (
           <Link className={"text-center"} href={btnLinkHref}>

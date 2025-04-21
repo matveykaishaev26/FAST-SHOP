@@ -2,8 +2,10 @@ import { IGender, IProduct, IProductInput } from "@/shared/types/product.interfa
 import { api } from "./api";
 import { API_URL } from "@/config/api.config";
 import { ICardItem } from "@/shared/types/card.interface";
+import { serializeFiltersForQuery } from "@/shared/utils/serializeFiltersForQuery";
+import { IFilters } from "@/shared/types/filter.interface";
 
-interface ICardsResponse {
+export interface ICardsResponse {
   items: ICardItem[];
   totalCount: number;
   currentPage: number;
@@ -22,13 +24,17 @@ export const productApi = api.injectEndpoints({
       {
         page: number;
         limit: number;
+        filters: IFilters;
         mode: CARDS_RESPONSE_MODE;
       }
     >({
-      query: ({ page, limit }) => ({
-        url: API_URL.products(`/product-cards?page=${page}&limit=${limit}`),
-        method: "GET",
-      }),
+      query: ({ page, limit, filters }) => {
+        const filterQuery = serializeFiltersForQuery(filters);
+        return {
+          url: API_URL.products(`/product-cards?page=${page}&limit=${limit}&${filterQuery}`),
+          method: "GET",
+        };
+      },
       serializeQueryArgs: ({ endpointName, queryArgs }) => {
         if (queryArgs.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
           return endpointName;
@@ -52,8 +58,10 @@ export const productApi = api.injectEndpoints({
         return newItems;
       },
       forceRefetch({ currentArg, previousArg }) {
+        if (!previousArg) return true;
         if (currentArg?.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
-          return currentArg.page !== previousArg?.page;
+          return currentArg.page !== previousArg?.page || 
+                 JSON.stringify(currentArg.filters) !== JSON.stringify(previousArg.filters);
         }
         return true;
       },
@@ -76,15 +84,7 @@ export const productApi = api.injectEndpoints({
 });
 
 export const {
-  // useGetAllProductsQuery,
-  // useGetProductsByStoreIdQuery,
-  // useGetProductByIdQuery,
-  // useGetProductsByCategoryQuery,
-  // useGetMostPopularProductsQuery,
-  // useGetMostSimilarProductsQuery,
-  // useCreateProductMutation,
-  // useUpdateProductMutation,
-  // useDeleteProductMutation,
+
   useGetGenderCountQuery,
   useGetProductCardsQuery,
 } = productApi;

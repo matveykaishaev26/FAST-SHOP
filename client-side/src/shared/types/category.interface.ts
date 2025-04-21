@@ -1,4 +1,4 @@
-import { IFilterItem } from "./entity.interface";
+import { IFilterItem } from "./filter.interface";
 
 export interface ICategory extends IFilterItem {}
 

@@ -1,6 +1,6 @@
-import { IProductCount } from "./entity.interface";
+import { IFilterItem } from "./filter.interface";
 
-export interface IBrand extends IProductCount  {
+export interface IBrand extends IFilterItem {
   id: string;
   title: string;
 }

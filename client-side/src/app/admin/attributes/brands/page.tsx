@@ -19,9 +19,7 @@ const { data, isLoading } = useGetBrandsQuery({ page, limit: LIMIT });
 
   const totalItems = (data as IGetBrandsResponse)?.total || 0; // Количество всех брендов
 
-  useEffect(() => {
-    console.log(data);
-  }, [data, isLoading]);
+
 
   return (
     <div className="space-y-4">

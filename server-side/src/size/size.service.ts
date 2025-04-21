@@ -34,6 +34,7 @@ export class SizeService {
     return result.map((item) => ({
       id: item.id,
       title: item.title.toString(),
+
       productCount: new Set(
         item.productVariantQuantity.map((v) => v.productVariant.id),
       ).size, // Количество уникальных товаров

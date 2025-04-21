@@ -1,6 +1,6 @@
 "use client";
 import BrandFilter from "./BrandFilter";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ColorFilter from "./ColorFilter";
 import CategoryFilter from "./CategoryFilter";
 import FilterChoice from "./FilterChoice";
@@ -12,7 +12,11 @@ import PriceFilter from "./PriceFilter";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
-import { clearFilters, IFilterOption, IFilters, IPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
+import { clearFilters, setPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
+import { IFilters, IFilterOption, IPriceRange } from "@/shared/types/filter.interface";
+import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
+import { typeIsFiltersLoading } from "../../types";
+import { Button } from "@/shared/components/ui/button";
 const FILTER_COMPONENTS = [
   BrandFilter,
   ColorFilter,
@@ -22,79 +26,99 @@ const FILTER_COMPONENTS = [
   GenderFilter,
   MaterialFilter,
 ];
+
 interface IFiltersProps {
   className?: string;
   variant?: "desktop" | "mobile";
+  setIsOpen?: () => void;
+  isFiltersReady: boolean;
+  filters: any;
+  priceRange: any;
 }
-export default function Filters({ className, variant = "desktop" }: IFiltersProps) {
+
+export default function Filters({ className, variant = "desktop", setIsOpen, isFiltersReady, filters, priceRange }: IFiltersProps) {
   const pathname = usePathname();
-  const filters = useAppSelector((state) => state.filters);
-  console.log(filters);
+  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
   const isMobile = useBreakpointMatch(1024);
+  const [isFiltersLoading, setIsFiltersLoading] = useState<typeIsFiltersLoading>({
+    categoryIds: true,
+    sizeIds: true, 
+    colorIds: true,
+    genderIds: true,
+    brandIds: true,
+    materialIds: true,
+    styleIds: true,
+    priceRange: true,
+  });
+  const isAllFiltersLoading = Object.values(isFiltersLoading).every((item) => item === false);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const dispatch = useAppDispatch();
-  const [priceRange, setPriceRange] = useState<IPriceRange | null>(null);
-  const router = useRouter();
-  console.log(filters);
-  const handleCheckboxChange = (filterType: keyof IFilters, option: IFilterOption, isChecked: boolean) => {
-    dispatch(toggleFilter({ option, filterType, isChecked }));
+
+  const handleCheckboxChange = (
+    filterType: Exclude<keyof IFilters, "priceRange">,
+    option: IFilterOption,
+    isChecked: boolean
+  ) => {
+    dispatch(toggleFilter({ option, filterType, isChecked }));  
   };
 
-  const searchParams = useSearchParams();
+  
 
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
-    const isFiltersEmpty = Object.values(filters).every((value) => value.length === 0);
-    if (isFiltersEmpty) {
-      router.push(pathname);
-      return;
+    if (isAllFiltersLoading) {
+      updateUrlWithFilters();
     }
+  }, [filters, priceRange, isAllFiltersLoading]);
 
-    Object.entries(filters).forEach(([key, values]) => {
-      if (values.length > 0) {
-        params.set(key, values.map((value: IFilterOption) => value.id).join(","));
-      }
-    });
-    console.log(params);
+    
 
-    const newUrl = params.size > 0 ? `?${params.toString()}` : pathname;
-    if (newUrl !== pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "")) {
-      router.push(newUrl);
-    }
-  }, [filters]);
-
-  const deleteFilters = (filterType: keyof IFilters, filterId?: string) => {
+  const deleteFilters = (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
     dispatch(clearFilters({ filterType, filterId }));
   };
-  if (!shouldShow) return false;
 
+  if (!shouldShow) return null;
   return (
-    <>
-      <div className={`md:overflow-visible scrollbar-hide    ${className ?? className}`}>
-        <FilterChoice
-          deletePriceRange={() => {
-            setPriceRange(null);
-          }}
+    <div className={` relative md:overflow-visible scrollbar-hide ${className || ""}`}>
+      <FilterChoice
+        deletePriceRange={() => {
+          dispatch(setPriceRange(null));
+        }}
+        isFiltersLoading={isAllFiltersLoading}
+        priceRange={priceRange}
+        filters={filters}
+        deleteFilters={deleteFilters}
+        clearFilters={() => {
+          dispatch(clearFilters({}));
+          dispatch(setPriceRange(null));
+        }}
+      />
+      <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
+        <PriceFilter
+          setIsFiltersLoading={setIsFiltersLoading}
           priceRange={priceRange}
-          filters={filters}
-          deleteFilters={deleteFilters}
-          clearFilters={() => {
-            dispatch(clearFilters({}));
-            setPriceRange(null);
-          }}
         />
-        <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-          <PriceFilter setPriceRange={setPriceRange} priceRange={priceRange} />
-          {FILTER_COMPONENTS.map((Component, index) => (
-            <Component
-              key={variant + index}
-              filters={filters}
-              deleteFilters={deleteFilters}
-              handleCheckboxChange={handleCheckboxChange}
-            />
-          ))}
-        </div>
+        {FILTER_COMPONENTS.map((Component, index) => (
+          <Component
+            setIsFiltersLoading={setIsFiltersLoading}
+            key={`${variant}-${Component.name}-${index}`}
+            filters={filters}
+            deleteFilters={deleteFilters}
+            handleCheckboxChange={handleCheckboxChange}
+          />
+        ))}
       </div>
-    </>
+      {/* <div className="fixed bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
+        <Button
+          onClick={() => {
+            // setParamsInUrl();
+            updateUrlWithFilters();
+            if (setIsOpen) setIsOpen();
+          }}
+          className="w-full uppercase"
+        >
+          Применить фильтры
+        </Button>
+      </div> */}
+    </div>
   );
 }
