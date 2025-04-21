@@ -293,7 +293,7 @@ export class ProductService {
         },
         productVariantQuantity: {
           select: {
-            size: { select: { title: true } },
+            size: { select: { title: true, id: true } },
             quantity: true,
           },
         },
@@ -316,6 +316,7 @@ export class ProductService {
         images: product.images,
         price: product.price,
         sizes: product.productVariantQuantity.map((v) => ({
+          id: v.size.id,
           title: v.size.title,
           quantity: v.quantity,
         })),

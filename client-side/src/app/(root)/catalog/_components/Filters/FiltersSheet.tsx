@@ -6,7 +6,6 @@ import { SlidersHorizontal } from "lucide-react";
 import Filters from "./Filters";
 import { X } from "lucide-react";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
-import { useAppSelector } from "@/hooks/useAppDispatch";
 import { useSearchParams } from "next/navigation";
 import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
 interface IFiltersSheetProps {
@@ -18,7 +17,6 @@ export default function FiltersSheet({filters, priceRange, isFiltersReady}: IFil
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
   const [filtersCount, setFiltersCount] = useState(0);
-  // const isEmpty = Object.values(filters).every((values) => values.length === 0) && priceRange === null;
   const allFiltersCount =
     Object.values(filters).reduce((acc, arr) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
 
@@ -46,7 +44,7 @@ export default function FiltersSheet({filters, priceRange, isFiltersReady}: IFil
         <SheetTrigger asChild>
           <Button className="relative" variant={"outline"}>
             {filtersCount > 0 && (
-              <div className="absolute h-4 w-4 bg-red-500 rounded-full -right-1 -top-1 text-xs flex justify-center items-center text-background">
+              <div className="absolute h-4 w-4 bg-destructive rounded-full -right-1 -top-1 text-xs flex justify-center items-center text-background">
                 {allFiltersCount ? allFiltersCount : filtersCount}
               </div>
             )}

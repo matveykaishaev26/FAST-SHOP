@@ -1,5 +1,5 @@
 import { ICategory } from "./category.interface";
-import { IFilterItem } from "./entity.interface";
+import { IFilterItem } from "./filter.interface";
 import { IReview } from "./review.interface";
 
 export interface IProduct {

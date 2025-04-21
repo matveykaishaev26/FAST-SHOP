@@ -2,7 +2,7 @@ import { IFilters } from "@/shared/types/filter.interface";
 import { isChecked } from "../../../_utils/isChecked";
 import { IHandleCheckboxChange } from "../../../types";
 import FilterCheckbox from "../FilterCheckbox";
-import { IFilterItem } from "@/shared/types/entity.interface";
+import { IFilterItem } from "@/shared/types/filter.interface";
 interface IFilterListItem extends IHandleCheckboxChange {
   item: IFilterItem;
   filters: Omit<IFilters, "priceRange">;

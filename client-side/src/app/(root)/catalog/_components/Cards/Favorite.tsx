@@ -4,75 +4,92 @@ import { useRouter } from "next13-progressbar";
 import { PUBLIC_URL } from "@/config/url.config";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
-import { useState } from "react";
-import { useToggleUserFavoritesMutation } from "@/features/api/userFavoritesApi";
+import { useAddToUserFavoritesMutation, useDeleteUserFavoritesMutation } from "@/features/api/userFavoritesApi";
+import { ISize } from "@/shared/types/size.interface";
+import toast from "react-hot-toast";
+import { Toaster } from "react-hot-toast";
 
 interface IFavoriteProps {
   className?: string;
-  onMouseEnter?: () => void;
-  onMouseLeave?: () => void;
   setIsDialogOpen?: (open: boolean) => void;
   isDialogOpen?: boolean;
-  sizes: { title: string; quantity: number }[];
+  sizes: ISize[];
   productVariantId: string;
   isFavorited: boolean;
   setIsFavorited: React.Dispatch<React.SetStateAction<boolean>>;
+  activeSize: any;
+  setActiveSize: any;
 }
 
 export default function Favorite({
   className,
-  onMouseEnter,
-  onMouseLeave,
   sizes,
   setIsDialogOpen = () => {},
   isDialogOpen = false,
   productVariantId,
   isFavorited,
   setIsFavorited,
+  activeSize,
+  setActiveSize,
 }: IFavoriteProps) {
   const token = getAccessToken();
   const router = useRouter();
-  const [mutate, { isLoading, isSuccess, error, data }] = useToggleUserFavoritesMutation(); // Updated hook name
-  const [activeSize, setActiveSize] = useState<string>("");
+  const [addMutate] = useAddToUserFavoritesMutation(); // Updated hook name
+  const [deleteMutate] = useDeleteUserFavoritesMutation(); // Updated hook name
+
+  // const [activeSize, setActiveSize] = useState<string>("");
   const handleAddToFavorite = async () => {
     if (activeSize) {
       try {
-        await mutate({ productVariantId });
-        setIsFavorited(true);
+        await addMutate({ productVariantId, sizeId: activeSize });
+        setIsFavorited((prev) => !prev);
+
         setIsDialogOpen(false);
+        toast.success("Товар добавлен в избранное!", {
+          position: "bottom-right",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
       } catch (e) {
         console.error("Ошибка добавления в избранное", e);
         setIsFavorited(false);
-
       }
     }
   };
-  
+  console.log(activeSize);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div
         onClick={(e) => {
           e.stopPropagation();
+
           if (!token) {
             router.push(PUBLIC_URL.auth("login"));
             return;
           }
-          setIsDialogOpen(true);
+
+          if (isFavorited) {
+            // удаление без диалога
+            deleteMutate({ productVariantId, sizeId: activeSize }) // или sizeId нужно передавать явно как prop
+              .unwrap()
+              .then(() => setIsFavorited(false));
+          } else {
+            setIsDialogOpen(true); // показать выбор размера
+          }
         }}
-        onMouseEnter={onMouseEnter}
-        onMouseLeave={onMouseLeave}
         className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
           className ? className : ""
-        } ${isFavorited  ? "lg:opacity-100" : ""}`}
+        } ${isFavorited ? "lg:opacity-100" : ""}`}
       >
-      <Heart
-  className={`transition-colors ${
-    isFavorited ? "text-primary" : "text-muted-foreground"
-  } group-hover/favorite-light:text-primary`}
-  size={18}
-/>
-
+        <Heart
+          className={`transition-colors ${
+            isFavorited ? "text-primary" : "text-muted-foreground"
+          } group-hover/favorite-light:text-primary`}
+          size={18}
+        />
       </div>
 
       <DialogContent className="sm:max-w-[450px] z-50 h-auto max-w-full">
@@ -83,20 +100,15 @@ export default function Favorite({
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
           {sizes.map((size) => (
             <div
-              onClick={() => setActiveSize(size.title)}
+              onClick={() => setActiveSize(size.id)}
               key={size.title}
               className={`border rounded-lg flex justify-center items-center cursor-pointer select-none transition hover:border-primary aspect-square ${
                 size.quantity < 0 ? "opacity-50 pointer-events-none" : ""
-              } ${activeSize === size.title && "border-primary"}`}
+              } ${activeSize === size.id && "border-primary"}`}
             >
               {size.title}
             </div>
           ))}
-        </div>
-
-        <div className="mt-4">
-          {isLoading && <p>Загрузка...</p>}
-          {isSuccess && <p>Добавлено в избранное!</p>}
         </div>
 
         <DialogFooter>

@@ -11,6 +11,11 @@ export const filtersOrder: Exclude<keyof IFilters, "priceRange">[] = [
 //   id: string;
 //   title: string;
 // }
+export interface IFilterItem {
+  title: string;
+  id: string;
+  productCount: number;
+}
 
 export interface IFilterOption {
   id: string;

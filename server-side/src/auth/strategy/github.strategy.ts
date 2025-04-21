@@ -41,7 +41,7 @@ export class GithubStrategy extends PassportStrategy(Strategy, 'github') {
     const user = {
       providerAccountId: id,
       email,
-      name: displayName,
+      name: displayName || 'Unknown',
       picture: photos[0]?.value,  // убедимся, что фото существует
       provider,
     };

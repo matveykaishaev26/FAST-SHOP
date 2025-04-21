@@ -5,6 +5,10 @@ import Link from "next/link";
 import { ReactNode } from "react";
 import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { usePathname } from "next/navigation";
+import { useGetFavoritesCountQuery } from "@/features/api/userFavoritesApi";
+import { IGetFavoritesCount } from "@/features/api/userFavoritesApi";
+import { getAccessToken } from "@/services/auth/auth-token.service";
+import ItemsCount from "@/shared/components/ItemsCount";
 interface INavItems {
   label: string;
   icon: ReactNode;
@@ -12,7 +16,12 @@ interface INavItems {
 }
 
 export default function Nav() {
+  const token = getAccessToken();
+  const { data, isLoading } = useGetFavoritesCountQuery(undefined, {
+    skip: !token,
+  });
   const pathname = usePathname();
+
   const navItems: INavItems[] = [
     {
       label: "Главная",
@@ -28,7 +37,14 @@ export default function Nav() {
       label: "Избранное",
       href: PROFILE_URL.favorites(),
 
-      icon: <Heart size={20} />,
+      icon: (
+        <div className="relative">
+          <Heart size={20} />
+          <div className="absolute  bottom-2 left-5 ">
+            {token  && (data as IGetFavoritesCount)?.favoritesCount > 0 && <ItemsCount count={(data as IGetFavoritesCount)?.favoritesCount} size={"sm"} />}
+          </div>
+        </div>
+      ),
     },
     {
       label: "Корзина",

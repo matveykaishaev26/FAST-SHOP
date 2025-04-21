@@ -1,16 +1,16 @@
 "use client";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useState, useMemo } from "react";
-import { IFilterItem } from "@/shared/types/entity.interface";
+import { IFilterItem } from "@/shared/types/filter.interface";
 import ToggleFilterList from "./ToggleFilterList";
-import { IFilterProps, typeIsFiltersLoading } from "../../../types";
+import { IFilterProps } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
 import { useEffect } from "react";
 import { IFilters } from "@/shared/types/filter.interface";
-// import { setFilterTitle } from "@/features/slices/filtersSlice";
 import { updateFilterTitles } from "@/features/slices/filtersSlice";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
+import ItemsCount from "@/shared/components/ItemsCount";
 export interface IFilterBaseProps<T> extends IFilterProps {
   isLoading: boolean;
   data: T[];
@@ -85,11 +85,7 @@ export default function FilterBase<T extends IFilterItem>({
     <div className="space-y-2">
       <div className="flex items-center gap-x-2 w-full">
         <span className="text-xl  font-medium">{header}</span>
-        {filtersCount && (
-          <div className="rounded-full select-none bg-red-500 text-xs h-5 w-5 flex items-center justify-center text-background">
-            {filtersCount}
-          </div>
-        )}
+        {filtersCount && <ItemsCount count={filtersCount} size={"md"} />}
       </div>
       {isLoading ? (
         <Skeleton className="h-[200px] w-full" />

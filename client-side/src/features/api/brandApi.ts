@@ -1,6 +1,6 @@
 import { IBrandPagination, IGetBrandsResponse } from "@/shared/types/brand.interface";
 import { api } from "./api";
-import { IFilterItem } from "@/shared/types/entity.interface";
+import { IFilterItem } from "@/shared/types/filter.interface";
 export const brandApi = api.injectEndpoints({
   endpoints: (build) => ({
     getBrands: build.query<IGetBrandsResponse, IBrandPagination>({

@@ -8,10 +8,11 @@ import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { setFilterId, setPriceRange } from "@/features/slices/filtersSlice";
+import PageHeader from "../_components/PageHeader";
 export default function Catalog() {
   const [isFiltersReady, setIsFiltersReady] = useState(false);
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-  const [cardsCount, setCardsCount] = useState<string>("");
+  const [cardsCount, setCardsCount] = useState<number>(0);
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   useEffect(() => {
@@ -34,10 +35,7 @@ export default function Catalog() {
   }, []);
   return (
     <div className=" h-full">
-      <h2 className="text-2xl font-medium  mb-10 sm:text-4xl">
-        <span className="text-2xl  font-medium tracking-widest sm:text-4xl">КАТАЛОГ</span>
-        <span className="text-[12px] text-muted-foreground sm:text-[16px]"> {cardsCount !== "" && cardsCount + " товаров"} </span>
-      </h2>
+      <PageHeader header="Каталог" cardsCount={cardsCount} />
       <div className="w-full flex flex-row gap-x-20">
         <Filters
           filters={isFiltersReady && filters}

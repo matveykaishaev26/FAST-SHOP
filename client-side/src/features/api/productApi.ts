@@ -5,7 +5,7 @@ import { ICardItem } from "@/shared/types/card.interface";
 import { serializeFiltersForQuery } from "@/shared/utils/serializeFiltersForQuery";
 import { IFilters } from "@/shared/types/filter.interface";
 
-interface ICardsResponse {
+export interface ICardsResponse {
   items: ICardItem[];
   totalCount: number;
   currentPage: number;
@@ -84,15 +84,7 @@ export const productApi = api.injectEndpoints({
 });
 
 export const {
-  // useGetAllProductsQuery,
-  // useGetProductsByStoreIdQuery,
-  // useGetProductByIdQuery,
-  // useGetProductsByCategoryQuery,
-  // useGetMostPopularProductsQuery,
-  // useGetMostSimilarProductsQuery,
-  // useCreateProductMutation,
-  // useUpdateProductMutation,
-  // useDeleteProductMutation,
+
   useGetGenderCountQuery,
   useGetProductCardsQuery,
 } = productApi;

@@ -9,17 +9,26 @@ interface ICardImagesProps {
   images: string[];
   alt: string;
   className?: string;
-  sizes: { title: string; quantity: number }[];
+  sizes: ISize[];
   productVariantId: string;
+  activeSize: any;
+  setActiveSize: any;
 }
 
 const DEFAULT_FALLBACK_IMAGE = "/images/default-product.webp"; // Добавьте этот файл в ваш проект
 
-export default function CardImages({ images, alt, className, sizes, productVariantId }: ICardImagesProps) {
+export default function CardImages({
+  images,
+  alt,
+  className,
+  sizes,
+  productVariantId,
+  activeSize,
+  setActiveSize,
+}: ICardImagesProps) {
   const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
-  
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       if (isDialogOpen) return;
@@ -61,7 +70,7 @@ export default function CardImages({ images, alt, className, sizes, productVaria
       src={currentImage}
       alt={alt}
       fill
-      className="object-cover cursor-pointer pointer-events-none"
+        className="object-cover cursor-pointer pointer-events-none"
       onError={(e) => {
         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
         (e.target as HTMLImageElement).classList.add("opacity-80");
@@ -81,7 +90,16 @@ export default function CardImages({ images, alt, className, sizes, productVaria
         onMouseLeave={handleMouseLeave}
       >
         <div className="pointer-events-auto">
-          <Favorite isFavorited={isFavorited} setIsFavorited={setIsFavorited} productVariantId={productVariantId} sizes={sizes} setIsDialogOpen={setIsOpen} isDialogOpen={isDialogOpen} />
+          <Favorite
+            activeSize={activeSize}
+            setActiveSize={setActiveSize}
+            isFavorited={isFavorited}
+            setIsFavorited={setIsFavorited}
+            productVariantId={productVariantId}
+            sizes={sizes}
+            setIsDialogOpen={setIsOpen}
+            isDialogOpen={isDialogOpen}
+          />
         </div>
         <CardImage />
         <div className="absolute z-10 bottom-6 left-1/2 -translate-x-1/2 hidden items-center justify-center gap-x-1 lg:flex opacity-0 group-hover:opacity-100">
@@ -96,7 +114,16 @@ export default function CardImages({ images, alt, className, sizes, productVaria
         </div>
       </div>
       <div className={`${defaultClass} block lg:hidden`}>
-        <Favorite  isFavorited={isFavorited} setIsFavorited={setIsFavorited} productVariantId={productVariantId} setIsDialogOpen={setIsOpen} isDialogOpen={isDialogOpen} sizes={sizes} />
+        <Favorite
+           activeSize={activeSize}
+           setActiveSize={setActiveSize}
+          isFavorited={isFavorited}
+          setIsFavorited={setIsFavorited}
+          productVariantId={productVariantId}
+          setIsDialogOpen={setIsOpen}
+          isDialogOpen={isDialogOpen}
+          sizes={sizes}
+        />
         <CardImage />
       </div>
     </>

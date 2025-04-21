@@ -1,7 +1,8 @@
+import { ISize } from "./size.interface";
 export interface ICardItem {
   id: string;
   title: string;
-  sizes: { title: string; quantity: number }[];
+  sizes: ISize[];
   price: number;
   brand: string;
   images: string[];
