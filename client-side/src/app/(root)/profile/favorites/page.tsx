@@ -7,6 +7,8 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import CardsSkeleton from "../../catalog/_components/Cards/CardsSkeleton";
 import PaginationControl from "@/shared/components/ui/PaginationControl";
 import { useState } from "react";
+import PageHeader from "../../_components/PageHeader";
+import { IUserFavoriteItem } from "@/shared/types/card.interface";
 
 const LIMIT = 20;
 
@@ -38,18 +40,15 @@ export default function Favorites() {
   }
   return (
     <div className="h-full">
-      <h2 className="text-2xl font-medium  mb-10 sm:text-4xl">
-        <span className="text-2xl uppercase font-medium tracking-widest sm:text-4xl">ИЗБРАННОЕ</span>
-        <div className="w-full flex flex-row gap-x-20">
-          
-        </div>
-        <div className="grid  grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6  mb-10">
-          {items && items.map((product: ICardItem) => <Card key={product.id} product={product} />)}
-        </div>
-        <div className="hidden md:block">
-          <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
-        </div>
-      </h2>
+      <PageHeader header="Избранное" />
+
+      <div className="w-full flex flex-row gap-x-20"></div>
+      <div className="grid  grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6  mb-10">
+        {items && items.map((product: IUserFavoriteItem) => <Card key={product.id} variant="favorite" product={product} />)}
+      </div>
+      <div className="hidden md:block">
+        <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
+      </div>
     </div>
   );
 }

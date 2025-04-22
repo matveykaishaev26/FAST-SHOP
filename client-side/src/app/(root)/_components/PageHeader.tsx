@@ -9,7 +9,7 @@ export default function PageHeader({ header, cardsCount }: IPageHeader) {
       <span className="text-2xl uppercase font-medium tracking-widest sm:text-4xl">{header}</span>
       <span className="text-[12px] text-muted-foreground sm:text-[16px]">
         {" "}
-        {cardsCount !== 0  && cardsCount + " товаров"}{" "}
+        {cardsCount !== 0 && cardsCount !== undefined  && cardsCount + " товаров"}{" "}
       </span>
     </h1>
   );

@@ -13,6 +13,7 @@ interface ICardImagesProps {
   productVariantId: string;
   activeSize: any;
   setActiveSize: any;
+  variant?: "catalog" | "favorite";
 }
 
 const DEFAULT_FALLBACK_IMAGE = "/images/default-product.webp"; // Добавьте этот файл в ваш проект
@@ -25,6 +26,7 @@ export default function CardImages({
   productVariantId,
   activeSize,
   setActiveSize,
+  variant
 }: ICardImagesProps) {
   const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -70,7 +72,7 @@ export default function CardImages({
       src={currentImage}
       alt={alt}
       fill
-        className="object-cover cursor-pointer pointer-events-none"
+      className="object-cover cursor-pointer pointer-events-none"
       onError={(e) => {
         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
         (e.target as HTMLImageElement).classList.add("opacity-80");
@@ -91,6 +93,7 @@ export default function CardImages({
       >
         <div className="pointer-events-auto">
           <Favorite
+            variant={variant}
             activeSize={activeSize}
             setActiveSize={setActiveSize}
             isFavorited={isFavorited}
@@ -99,6 +102,7 @@ export default function CardImages({
             sizes={sizes}
             setIsDialogOpen={setIsOpen}
             isDialogOpen={isDialogOpen}
+
           />
         </div>
         <CardImage />
@@ -115,8 +119,8 @@ export default function CardImages({
       </div>
       <div className={`${defaultClass} block lg:hidden`}>
         <Favorite
-           activeSize={activeSize}
-           setActiveSize={setActiveSize}
+          activeSize={activeSize}
+          setActiveSize={setActiveSize}
           isFavorited={isFavorited}
           setIsFavorited={setIsFavorited}
           productVariantId={productVariantId}

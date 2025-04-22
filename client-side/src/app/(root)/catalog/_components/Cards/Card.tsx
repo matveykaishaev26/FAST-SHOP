@@ -5,9 +5,10 @@ import { Button } from "@/shared/components/ui/button";
 import { useState } from "react";
 
 interface ICardProps {
-  product: ICardItem;
+  product: ICardItem ;
+  variant?: "catalog" | "favorite";
 }
-export default function Card({ product }: ICardProps) {
+export default function Card({ product, variant = 'catalog' }: ICardProps) {
   const [activeSize, setActiveSize] = useState<string>("");
 
   return (
@@ -18,6 +19,7 @@ export default function Card({ product }: ICardProps) {
       <CardContent className="p-0">
         <div className="">
           <CardImages
+            variant={variant}
             activeSize={activeSize}
             setActiveSize={setActiveSize}
             productVariantId={product.id}

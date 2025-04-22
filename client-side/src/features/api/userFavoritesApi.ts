@@ -1,7 +1,9 @@
 import { api } from "./api";
 import { API_URL } from "@/config/api.config";
-import { CARDS_RESPONSE_MODE, ICardsResponse } from "./productApi";
+import { CARDS_RESPONSE_MODE } from "./productApi";
 import { ISize } from "@/shared/types/size.interface";
+import { IUserFavoriteItem } from "@/shared/types/card.interface";
+import { IPaginatedResponse } from "@/shared/types/pagination.interface";
 
 export interface IUserFavorites {
   productVariantId: string;
@@ -12,19 +14,6 @@ export interface IGetFavoritesCount {
   favoritesCount: number;
 }
 
-export interface IUserFavoriteItem {
-  id: string;
-  title: string;
-  sizes: ISize;
-  price: number;
-  brand: string;
-  images: string[];
-  colors: string[];
-  rating: {
-    value: number | string;
-    count: number;
-  };
-}
 
 export interface IFavoritesResponse {
   items: IUserFavoriteItem[];
@@ -131,7 +120,7 @@ export const userFavoritesApi = api.injectEndpoints({
     }),
 
     getFavoritesCards: build.query<
-      IFavoritesResponse,
+      IPaginatedResponse<IUserFavoriteItem>,
       {
         page: number;
         limit: number;
@@ -189,5 +178,5 @@ export const {
   useAddToUserFavoritesMutation,
   useDeleteUserFavoritesMutation,
   useGetFavoritesCountQuery,
-  useGetFavoritesCardsQuery
+  useGetFavoritesCardsQuery,
 } = userFavoritesApi;

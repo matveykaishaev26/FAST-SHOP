@@ -4,13 +4,7 @@ import { API_URL } from "@/config/api.config";
 import { ICardItem } from "@/shared/types/card.interface";
 import { serializeFiltersForQuery } from "@/shared/utils/serializeFiltersForQuery";
 import { IFilters } from "@/shared/types/filter.interface";
-
-export interface ICardsResponse {
-  items: ICardItem[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-}
+import { IPaginatedResponse } from "@/shared/types/pagination.interface";
 
 export enum CARDS_RESPONSE_MODE {
   PAGINATION = "pagination",
@@ -20,7 +14,7 @@ export enum CARDS_RESPONSE_MODE {
 export const productApi = api.injectEndpoints({
   endpoints: (build) => ({
     getProductCards: build.query<
-      ICardsResponse,
+      IPaginatedResponse<ICardItem>,
       {
         page: number;
         limit: number;
@@ -60,8 +54,10 @@ export const productApi = api.injectEndpoints({
       forceRefetch({ currentArg, previousArg }) {
         if (!previousArg) return true;
         if (currentArg?.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
-          return currentArg.page !== previousArg?.page || 
-                 JSON.stringify(currentArg.filters) !== JSON.stringify(previousArg.filters);
+          return (
+            currentArg.page !== previousArg?.page ||
+            JSON.stringify(currentArg.filters) !== JSON.stringify(previousArg.filters)
+          );
         }
         return true;
       },
@@ -83,8 +79,4 @@ export const productApi = api.injectEndpoints({
   }),
 });
 
-export const {
-
-  useGetGenderCountQuery,
-  useGetProductCardsQuery,
-} = productApi;
+export const { useGetGenderCountQuery, useGetProductCardsQuery } = productApi;

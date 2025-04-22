@@ -19,6 +19,7 @@ interface IFavoriteProps {
   setIsFavorited: React.Dispatch<React.SetStateAction<boolean>>;
   activeSize: any;
   setActiveSize: any;
+  variant?: "catalog" | "favorite";
 }
 
 export default function Favorite({
@@ -31,6 +32,7 @@ export default function Favorite({
   setIsFavorited,
   activeSize,
   setActiveSize,
+  variant = "catalog",
 }: IFavoriteProps) {
   const token = getAccessToken();
   const router = useRouter();
@@ -77,16 +79,16 @@ export default function Favorite({
               .unwrap()
               .then(() => setIsFavorited(false));
           } else {
-            setIsDialogOpen(true); // показать выбор размера
+            if (variant === "catalog") setIsDialogOpen(true); // показать выбор размера
           }
         }}
         className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
           className ? className : ""
-        } ${isFavorited ? "lg:opacity-100" : ""}`}
+        } ${isFavorited || variant == "favorite" ? "lg:opacity-100" : ""}`}
       >
         <Heart
           className={`transition-colors ${
-            isFavorited ? "text-primary" : "text-muted-foreground"
+            isFavorited || variant == "favorite" ? "text-primary" : "text-muted-foreground"
           } group-hover/favorite-light:text-primary`}
           size={18}
         />
