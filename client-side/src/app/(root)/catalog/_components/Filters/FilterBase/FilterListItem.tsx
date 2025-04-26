@@ -13,15 +13,10 @@ interface IFilterListItem {
   filterType: Exclude<keyof IFilters, "priceRange">;
   renderItem?: any;
 }
-export default function  FilterListItem({ item, filters, filterType, renderItem }: IFilterListItem) {
+export default function FilterListItem({ item, filters, filterType, renderItem }: IFilterListItem) {
   const dispatch = useAppDispatch();
 
   const isChecked = filters[filterType]?.some((f) => f.id === item.id);
-  useEffect(() => {
-    if (isChecked) {
-      dispatch(updateFilterTitles({ filterType, items: [item] }));
-    }
-  }, [isChecked, dispatch, filterType, item]);
 
   const handleCheckboxChange = (
     filterType: Exclude<keyof IFilters, "priceRange">,
@@ -48,8 +43,6 @@ export default function  FilterListItem({ item, filters, filterType, renderItem 
             <div className="text-muted-foreground text-xs">({item.productCount})</div>
           </>
         )}
-        {/* <span className="text-[15px] text-foreground font-thin">{item.title}</span>
-        <div className="text-muted-foreground text-xs">({item.productCount})</div> */}
       </FilterCheckbox>
     </div>
   );

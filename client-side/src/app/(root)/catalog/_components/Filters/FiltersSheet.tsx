@@ -8,19 +8,18 @@ import { X } from "lucide-react";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { useSearchParams } from "next/navigation";
 import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
-import { useAppSelector } from "@/hooks/useAppDispatch";
-import FiltersProvider from "./FiltersProvider";
 interface IFiltersSheetProps {
-  url: Record<string, string | string[]>;
+  filters: Omit<IFilters, "priceRange">;
+  priceRange: IPriceRange;
+  isFiltersReady: boolean;
 }
-export default function FiltersSheet() {
-  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-
+export default function FiltersSheet({ filters, priceRange, isFiltersReady }: IFiltersSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
   const [filtersCount, setFiltersCount] = useState(0);
+  
   const allFiltersCount =
-    Object.values(filters as IFilters).reduce((acc, arr) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
+    Object.values(filters).reduce((acc, arr) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
 
   const searchParams = useSearchParams();
   useEffect(() => {
@@ -59,7 +58,11 @@ export default function FiltersSheet() {
               <SheetTitle className="text-2xl shadow-none">Фильтры</SheetTitle>
               <X onClick={() => setIsOpen((prev) => !prev)} className="w-5 h-5 cursor-pointer text-muted-foreground" />
             </div>
-            <Filters setIsOpen={() => setIsOpen((prev) => !prev)} variant="mobile" />
+            <Filters
+              isFiltersReady={isFiltersReady}
+              setIsOpen={() => setIsOpen((prev) => !prev)}
+              variant="mobile"
+            />
           </SheetContent>
         )}
       </Sheet>

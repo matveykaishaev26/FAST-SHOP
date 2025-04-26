@@ -30,6 +30,7 @@ export default function FilterBase<T extends IFilterItem>({
   filters,
   isExpandable = true,
   deleteFilters,
+  setIsFiltersLoading,
 }: // handleCheckboxChange,
 // setIsFiltersLoading,
 // deleteFilters,
@@ -47,6 +48,11 @@ IFilterBaseProps<T>) {
     if (itemsToUpdate.length > 0) {
       dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
     }
+
+    setIsFiltersLoading((prev) => ({
+      ...prev,
+      [filterType]: false,
+    }));
   }, [data.length]);
 
   console.log(filters);
@@ -67,13 +73,7 @@ IFilterBaseProps<T>) {
     return renderItem
       ? items.map(renderItem)
       : items.map((item) => (
-          <FilterListItem
-            key={`${filterType}-${item.id}`}
-            item={item}
-            filterType={filterType}
-            filters={filters}
-            // handleCheckboxChange={handleCheckboxChange}
-          />
+          <FilterListItem key={`${filterType}-${item.id}`} item={item} filterType={filterType} filters={filters} />
         ));
   };
 

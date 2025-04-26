@@ -8,6 +8,7 @@ import { useEffect, useState } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
+import { typeIsFiltersLoading } from "../../types";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
   setIsFiltersLoading: any;
@@ -35,9 +36,18 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
       dispatch(setPriceRange(null));
     }
   }, [priceRange]);
+  useEffect(() => {
+    if (!isLoading) {
+      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
+        ...prev,
+        priceRange: false,
+      }));
+    }
+  }, [isLoading]);
   const handleAfterChange = (range: [number, number]) => {
     dispatch(setPriceRange(range));
   };
+  
 
   return (
     <div className="space-y-2">
