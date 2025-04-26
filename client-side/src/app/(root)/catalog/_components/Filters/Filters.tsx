@@ -1,89 +1,100 @@
-"use client";
-import BrandFilter from "./BrandFilter";
+// "use client";
 import { useCallback, useEffect, useState } from "react";
 import ColorFilter from "./ColorFilter";
-import CategoryFilter from "./CategoryFilter";
 import FilterChoice from "./FilterChoice";
-import SizeFilter from "./SizeFilter";
-import StyleFilter from "./StyleFilter";
-import GenderFilter from "./GenderFilter";
-import MaterialFilter from "./MaterialFilter";
+
 import PriceFilter from "./PriceFilter";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
-import { clearFilters, setPriceRange, toggleFilter } from "@/features/slices/filtersSlice";
-import { IFilters, IFilterOption, IPriceRange } from "@/shared/types/filter.interface";
+import { clearFilters, setPriceRange } from "@/features/slices/filtersSlice";
+import { IFilters, IFilterOption, IPriceRange, IFilterItem } from "@/shared/types/filter.interface";
 import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
-import { typeIsFiltersLoading } from "../../types";
-import { Button } from "@/shared/components/ui/button";
-const FILTER_COMPONENTS = [
-  BrandFilter,
-  ColorFilter,
-  SizeFilter,
-  CategoryFilter,
-  StyleFilter,
-  GenderFilter,
-  MaterialFilter,
-];
+import { useGetAllBrandsQuery } from "@/features/api/brandApi";
+import { useGetCategoriesQuery } from "@/features/api/categoryApi";
+import { useGetSizesQuery } from "@/features/api/sizeApi";
+import FilterBase from "./FilterBase/FilterBase";
+import { useGetGenderCountQuery } from "@/features/api/productApi";
+import { useGetMaterialsQuery } from "@/features/api/materialApi";
+import { useGetStylesQuery } from "@/features/api/styleApi";
 
+interface IFilterComponent {
+  header: string;
+  filterType: Exclude<keyof IFilters, "priceRange">;
+  data: IFilterItem[] | undefined;
+  isExpandable?: boolean;
+}
 interface IFiltersProps {
   className?: string;
   variant?: "desktop" | "mobile";
   setIsOpen?: () => void;
-  isFiltersReady: boolean;
-  filters: any;
-  priceRange: any;
+  // isFiltersReady: boolean;
+  // filters: any;
+  // priceRange: any;
 }
 
-export default function Filters({ className, variant = "desktop", setIsOpen, isFiltersReady, filters, priceRange }: IFiltersProps) {
-  const pathname = usePathname();
-  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
-  const isMobile = useBreakpointMatch(1024);
-  const [isFiltersLoading, setIsFiltersLoading] = useState<typeIsFiltersLoading>({
-    categoryIds: true,
-    sizeIds: true, 
-    colorIds: true,
-    genderIds: true,
-    brandIds: true,
-    materialIds: true,
-    styleIds: true,
-    priceRange: true,
-  });
-  const isAllFiltersLoading = Object.values(isFiltersLoading).every((item) => item === false);
-  const shouldShow = variant === "desktop" ? !isMobile : isMobile;
+export default function Filters({ className, variant = "desktop", setIsOpen }: IFiltersProps) {
+  const { data: brands, error } = useGetAllBrandsQuery();
+  const { data: categories } = useGetCategoriesQuery();
+  const { data: sizes } = useGetSizesQuery();
+  const { data: genders } = useGetGenderCountQuery();
+  const { data: styles } = useGetStylesQuery();
+
+  const { data: materials } = useGetMaterialsQuery();
   const dispatch = useAppDispatch();
+  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
 
-  const handleCheckboxChange = (
-    filterType: Exclude<keyof IFilters, "priceRange">,
-    option: IFilterOption,
-    isChecked: boolean
-  ) => {
-    dispatch(toggleFilter({ option, filterType, isChecked }));  
-  };
-
-  
+  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
 
   useEffect(() => {
-    if (isAllFiltersLoading) {
-      updateUrlWithFilters();
-    }
-  }, [filters, priceRange, isAllFiltersLoading]);
+    updateUrlWithFilters();
+  }, [filters, priceRange]);
 
-    
+  const filtersComponents: IFilterComponent[] = [
+    {
+      header: "Бренды",
+      filterType: "brandIds",
+      data: brands,
+    },
+    {
+      header: "Категории",
+      filterType: "categoryIds",
+      data: categories,
+    },
+    {
+      header: "Размеры",
+      filterType: "sizeIds",
+      data: sizes,
+    },
+    {
+      header: "Пол",
+      filterType: "genderIds",
+      data: genders,
+      isExpandable: false,
+    },
+
+    {
+      header: "Материалы",
+      filterType: "materialIds",
+      data: materials,
+    },
+
+    {
+      header: "Стили",
+      filterType: "styleIds",
+      data: styles,
+    },
+  ];
 
   const deleteFilters = (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
     dispatch(clearFilters({ filterType, filterId }));
   };
-
-  if (!shouldShow) return null;
   return (
     <div className={` relative md:overflow-visible scrollbar-hide ${className || ""}`}>
       <FilterChoice
         deletePriceRange={() => {
           dispatch(setPriceRange(null));
         }}
-        isFiltersLoading={isAllFiltersLoading}
         priceRange={priceRange}
         filters={filters}
         deleteFilters={deleteFilters}
@@ -93,32 +104,32 @@ export default function Filters({ className, variant = "desktop", setIsOpen, isF
         }}
       />
       <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-        <PriceFilter
-          setIsFiltersLoading={setIsFiltersLoading}
-          priceRange={priceRange}
-        />
-        {FILTER_COMPONENTS.map((Component, index) => (
-          <Component
-            setIsFiltersLoading={setIsFiltersLoading}
-            key={`${variant}-${Component.name}-${index}`}
+        <PriceFilter setIsFiltersLoading={true} priceRange={priceRange} />
+
+        {filtersComponents.slice(0, filtersComponents.length / 2 - 1).map((item) => (
+          <FilterBase
             filters={filters}
             deleteFilters={deleteFilters}
-            handleCheckboxChange={handleCheckboxChange}
+            isExpandable={item.isExpandable}
+            filterType={item.filterType}
+            key={item.header}
+            data={item.data || []}
+            header={item.header}
+          />
+        ))}
+        <ColorFilter deleteFilters={deleteFilters} filters={filters} />
+        {filtersComponents.slice(filtersComponents.length / 2 - 1, filtersComponents.length).map((item) => (
+          <FilterBase
+            filters={filters}
+            deleteFilters={deleteFilters}
+            isExpandable={item.isExpandable}
+            filterType={item.filterType}
+            key={item.header}
+            data={item.data || []}
+            header={item.header}
           />
         ))}
       </div>
-      {/* <div className="fixed bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
-        <Button
-          onClick={() => {
-            // setParamsInUrl();
-            updateUrlWithFilters();
-            if (setIsOpen) setIsOpen();
-          }}
-          className="w-full uppercase"
-        >
-          Применить фильтры
-        </Button>
-      </div> */}
     </div>
   );
 }

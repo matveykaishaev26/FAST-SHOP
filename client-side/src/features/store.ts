@@ -1,20 +1,45 @@
-import { configureStore } from "@reduxjs/toolkit";
+// store.ts
+import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { api } from "./api/api";
 import { filtersSlice } from "./slices/filtersSlice";
+import { createWrapper, HYDRATE } from "next-redux-wrapper";
 
-export const store = () => {
-  return configureStore({
-    reducer: {
-      [api.reducerPath]: api.reducer,
-      filters: filtersSlice.reducer,
-    },
-    middleware: (getDefaultMiddleware) => 
-      getDefaultMiddleware().concat(api.middleware),
-    devTools: process.env.NODE_ENV !== "production",
-  });
+// Все редьюсеры
+const rootReducer = combineReducers({
+  [api.reducerPath]: api.reducer,
+  filters: filtersSlice.reducer,
+});
+
+// Обёртка с HYDRATE
+const reducer = (state: any, action: any) => {
+  if (action.type === HYDRATE) {
+    return {
+      ...state,
+      ...action.payload,
+      // ⚠️ аккуратно с дубликатами, можно сохранить вложенные состояния:
+      filters: {
+        ...state.filters,
+        ...action.payload.filters,
+      },
+    };
+  }
+
+  return rootReducer(state, action);
 };
 
-// Типы для TypeScript
-export type AppStore = ReturnType<typeof store>;
+// Фабрика стора
+export const makeStore = (state?: any) =>
+  configureStore({
+    reducer,
+    preloadedState: state,
+    middleware: (getDefaultMiddleware) =>
+      getDefaultMiddleware().concat(api.middleware),
+  });
+
+// Типы
+export type AppStore = ReturnType<typeof makeStore>;
 export type RootState = ReturnType<AppStore["getState"]>;
 export type AppDispatch = AppStore["dispatch"];
+
+// Обёртка
+export const wrapper = createWrapper<AppStore>(makeStore);

@@ -14,9 +14,9 @@ import Card from "./Card";
 const LIMIT = 20;
 
 interface ICardsProps {
-  setCardsCount?: React.Dispatch<React.SetStateAction<number>>;
+  setCardsCount: React.Dispatch<React.SetStateAction<number>>;
 }
-export default function Cards({  setCardsCount }: ICardsProps) {
+export default function CardsItems({  setCardsCount }: ICardsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
@@ -42,7 +42,7 @@ export default function Cards({  setCardsCount }: ICardsProps) {
     }
   };
   useEffect(() => {
-    if (totalCount && setCardsCount) setCardsCount(totalCount);
+    if (totalCount) setCardsCount(totalCount);
   }, [data]);
   useEffect(() => {
     if (isFetching === false) {

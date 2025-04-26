@@ -8,10 +8,10 @@ export interface IHandleCheckboxChange {
   ) => void;
 }
 
-export interface IFilterProps extends IHandleCheckboxChange {
+export interface IFilterProps {
   filters: Omit<IFilters, "priceRange">;
   deleteFilters: (filterType: Exclude<keyof IFilters, "priceRange">, itemId?: string) => void;
-  setIsFiltersLoading:  React.Dispatch<React.SetStateAction<typeIsFiltersLoading>>;
+  // setIsFiltersLoading:  React.Dispatch<React.SetStateAction<typeIsFiltersLoading>>;
 }
 
 export type typeIsFiltersLoading = Record<keyof IFilters, boolean>;

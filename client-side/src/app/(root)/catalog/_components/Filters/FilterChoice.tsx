@@ -9,7 +9,6 @@ interface IFiltersChoice {
   filters: Omit<IFilters, "priceRange">;
   priceRange: IPriceRange;
   deletePriceRange: () => void;
-  isFiltersLoading: boolean;
 }
 
 const ITEMS_COUNT = 10;
@@ -20,13 +19,12 @@ export default function FilterChoice({
   filters,
   priceRange,
   deletePriceRange,
-  isFiltersLoading,
 }: IFiltersChoice) {
   const [isOpen, setIsOpen] = useState(false);
 
   const allFilters = Object.entries(filters).flatMap(([filterType, values]) => {
     if (!Array.isArray(values)) return [];
-
+    if (values.some((item) => item.title === "")) return [];  
     return values.map((value) => ({ ...value, filterType: filterType as Exclude<keyof IFilters, "priceRange"> }));
   });
 
@@ -41,7 +39,7 @@ export default function FilterChoice({
         <div className="flex justify-between items-center">
           <div className=" font-medium text-xl">Ваш выбор</div>
           <Button
-            disabled={(isFiltersEmpty && isPriceRangeEmpty) || !isFiltersLoading}
+            disabled={isFiltersEmpty && isPriceRangeEmpty}
             className="text-muted-foreground select-none"
             variant="outline"
             onClick={clearFilters}
@@ -49,44 +47,38 @@ export default function FilterChoice({
             Сбросить
           </Button>
         </div>
-        {isFiltersLoading ? (
-          <div
-            className={`max-h-[300px]  hide-scrollbar  overflow-auto flex flex-wrap gap-1 ${
-              priceRange?.length === 2 || allFilters.length > 0 ? "mt-2" : ""
-            }`}
-          >
-             
-            {priceRange && (
-              <Button onClick={deletePriceRange} className="text-xs h-8 px-2" variant="secondary" key={priceRange[0]}>
-                <span>{`${priceRange[0]}₽ - ${priceRange[1]}₽`}</span>
+        <div
+          className={`max-h-[300px]  hide-scrollbar  overflow-auto flex flex-wrap gap-1 ${
+            priceRange?.length === 2 || allFilters.length > 0 ? "mt-2" : ""
+          }`}
+        >
+          {priceRange && (
+            <Button onClick={deletePriceRange} className="text-xs h-8 px-2" variant="secondary" key={priceRange[0]}>
+              <span>{`${priceRange[0]}₽ - ${priceRange[1]}₽`}</span>
+              <X className="text-muted-foreground ml-1" size={10} />
+            </Button>
+          )}
+
+          {displayedFilters &&
+            displayedFilters.map((item) => (
+              <Button
+                onClick={() => deleteFilters(item.filterType, item.id)}
+                className="text-xs h-8 px-2"
+                variant="secondary"
+                key={item.id}
+              >
+                {item.filterType === "colorIds" && (
+                  <div
+                    className="w-4 h-4 rounded-full border mr-1"
+                    style={{ backgroundColor: (item as IFilterColor).hex }}
+                  />
+                )}
+
+                <span>{item.title}</span>
                 <X className="text-muted-foreground ml-1" size={10} />
               </Button>
-            )}
-
-            {displayedFilters &&
-              displayedFilters.map((item) => (
-                <Button
-                  onClick={() => deleteFilters(item.filterType, item.id)}
-                  className="text-xs h-8 px-2"
-                  variant="secondary"
-                  key={item.id}
-                >
-                  {item.filterType === "colorIds" && (
-                    <div
-                      className="w-4 h-4 rounded-full border mr-1"
-                      style={{ backgroundColor: (item as IFilterColor).hex }}
-                    />
-                  )}
-
-                  <span>{item.title}</span>
-                  <X className="text-muted-foreground ml-1" size={10} />
-                </Button>
-              ))}
-          </div>
-        ) : (
-          <Skeleton className="h-8 mt-2 w-full" />
-        )}
-
+            ))}
+        </div>
         {allFilters.length > ITEMS_COUNT && (
           <div className="text-primary text-base cursor-pointer mt-2" onClick={() => setIsOpen((prev) => !prev)}>
             {isOpen ? "Свернуть" : "Посмотреть все"}

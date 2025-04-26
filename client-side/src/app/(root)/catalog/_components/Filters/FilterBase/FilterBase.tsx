@@ -1,18 +1,17 @@
 "use client";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { IFilterItem } from "@/shared/types/filter.interface";
 import ToggleFilterList from "./ToggleFilterList";
 import { IFilterProps } from "../../../types";
 import FilterListItem from "./FilterListItem";
 import { Input } from "@/shared/components/ui/input";
-import { useEffect } from "react";
 import { IFilters } from "@/shared/types/filter.interface";
-import { updateFilterTitles } from "@/features/slices/filtersSlice";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
 import ItemsCount from "@/shared/components/ItemsCount";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { updateFilterTitles } from "@/features/slices/filtersSlice";
 export interface IFilterBaseProps<T> extends IFilterProps {
-  isLoading: boolean;
+  isLoading?: boolean;
   data: T[];
   header: string;
   renderItem?: (item: T) => React.ReactNode;
@@ -30,18 +29,12 @@ export default function FilterBase<T extends IFilterItem>({
   filterType,
   filters,
   isExpandable = true,
-  handleCheckboxChange,
-  setIsFiltersLoading,
   deleteFilters,
-}: IFilterBaseProps<T>) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [isOpen, setIsOpen] = useState(false);
+}: // handleCheckboxChange,
+// setIsFiltersLoading,
+// deleteFilters,
+IFilterBaseProps<T>) {
   const dispatch = useAppDispatch();
-  const toggleList = () => {
-    setIsOpen((prev) => !prev);
-    setSearchTerm("");
-  };
-
   useEffect(() => {
     const itemsToUpdate = data
       .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
@@ -54,12 +47,15 @@ export default function FilterBase<T extends IFilterItem>({
     if (itemsToUpdate.length > 0) {
       dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
     }
-
-    setIsFiltersLoading((prev) => ({
-      ...prev,
-      [filterType]: false,
-    }));
   }, [data.length]);
+
+  console.log(filters);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isOpen, setIsOpen] = useState(false);
+  const toggleList = () => {
+    setIsOpen((prev) => !prev);
+    setSearchTerm("");
+  };
 
   const filteredItems = useMemo(() => {
     return data.filter((item) => item.title.toLowerCase().includes(searchTerm.toLowerCase()));
@@ -76,7 +72,7 @@ export default function FilterBase<T extends IFilterItem>({
             item={item}
             filterType={filterType}
             filters={filters}
-            handleCheckboxChange={handleCheckboxChange}
+            // handleCheckboxChange={handleCheckboxChange}
           />
         ));
   };

@@ -4,10 +4,8 @@ import "rc-slider/assets/index.css";
 import { Input } from "@/shared/components/ui/input";
 import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { useCallback, useEffect } from "react";
+import {  useEffect } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
-import { useSearchParams } from "next/navigation";
-import { typeIsFiltersLoading } from "../../types";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
 interface IPriceFilterProps {
@@ -30,14 +28,7 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
     }
   }, [priceRange]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
-        ...prev,
-        priceRange: false,
-      }));
-    }
-  }, [isLoading]);
+
   return (
     <div className="space-y-2">
       <div className="text-xl text-left font-medium w-full">Цена</div>
