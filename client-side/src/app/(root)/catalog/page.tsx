@@ -6,27 +6,29 @@ import PageHeader from "../_components/PageHeader";
 import FiltersClient from "./_components/Filters/FiltersClient";
 import FiltersProvider from "./_components/Filters/FiltersProvider";
 import SortSelect from "./_components/SortSelect";
+import CatalogProvider from "./CatalogProvider";
 
 type Props = {
   searchParams: Record<string, string | string[]>;
 };
 export default function Catalog({ searchParams }: Props) {
+  // return (
+  //   <div className=" h-full">
+  //     <PageHeader header="Каталог" />
+  //     <div className="w-full flex flex-row gap-x-20">
+  //       <FiltersProvider searchParams={searchParams} />
+  //       <div className="w-full ">
+  //         <div className="flex justify-between items-center  mb-4">
+  //           <SortSelect />
+  //           <div className="block lg:hidden">
+  //             {/* <FiltersSheet searchParams={searchParams} /> */}
+  //           </div>
+  //         </div>
+  //         <div className="w-full"><Cards /></div>
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
 
-  return (
-    <div className=" h-full">
-      <PageHeader header="Каталог" />
-      <div className="w-full flex flex-row gap-x-20">
-        <FiltersProvider searchParams={searchParams} />
-        <div className="w-full ">
-          <div className="flex justify-between items-center  mb-4">
-            <SortSelect />
-            <div className="block lg:hidden">
-              {/* <FiltersSheet searchParams={searchParams} /> */}
-            </div>
-          </div>
-          <div className="w-full"><Cards /></div>
-        </div>
-      </div>
-    </div>
-  );
+  return <CatalogProvider searchParams={searchParams} />;
 }

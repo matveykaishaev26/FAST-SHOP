@@ -9,30 +9,28 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useEffect, useState } from "react";
 import CardsSkeleton from "./CardsSkeleton";
-import {useAppSelector } from "@/hooks/useAppDispatch";
+import { useAppSelector } from "@/hooks/useAppDispatch";
 import Card from "./Card";
 const LIMIT = 20;
 
 interface ICardsProps {
-  setCardsCount?: React.Dispatch<React.SetStateAction<number>>;
+  // isFiltersReady: boolean;
+  // setCardsCount: React.Dispatch<React.SetStateAction<number>>;
 }
-export default function Cards({  setCardsCount }: ICardsProps) {
+export default function Cards({}: ICardsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
   const isMobile = useBreakpointMatch(768);
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
   const [isNewPageFetching, setIsNewPageFetching] = useState<boolean>(false);
-  
-  const { data, isLoading, isFetching, error } = useGetProductCardsQuery(
-    {
-      page: page,
-      limit: LIMIT,
-      mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
-      filters: { priceRange, ...filters },
-    },
-   
-  );
+
+  const { data, isLoading, isFetching, error } = useGetProductCardsQuery({
+    page: page,
+    limit: LIMIT,
+    mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
+    filters: { priceRange, ...filters },
+  });
   const { items, totalCount, totalPages, currentPage } = data || {};
 
   const loadMore = () => {
@@ -41,16 +39,16 @@ export default function Cards({  setCardsCount }: ICardsProps) {
       router.push(`/catalog/?page=${currentPage + 1}`, { scroll: false });
     }
   };
-  useEffect(() => {
-    if (totalCount && setCardsCount) setCardsCount(totalCount);
-  }, [data]);
+  // useEffect(() => {
+  //   if (totalCount) setCardsCount(totalCount);
+  // }, [data]);
   useEffect(() => {
     if (isFetching === false) {
       setIsNewPageFetching(false);
     }
   }, [isFetching]);
 
-  if (isLoading  || (isFetching && !isMobile)) {
+  if (isLoading || (isFetching && !isMobile)) {
     return <CardsSkeleton count={LIMIT} />;
   }
 
@@ -67,9 +65,11 @@ export default function Cards({  setCardsCount }: ICardsProps) {
       <div className="grid  grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6  mb-10">
         {items && items.map((product: ICardItem) => <Card key={product.id} product={product} />)}
       </div>
-      <div className="hidden md:block">
-        <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
-      </div>
+      {totalPages && totalPages >= 2 && (
+        <div className="hidden md:block">
+          <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
+        </div>
+      )}
 
       {items.length !== totalCount && (
         <Button
