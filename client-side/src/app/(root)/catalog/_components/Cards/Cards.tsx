@@ -9,7 +9,7 @@ import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useEffect, useState } from "react";
 import CardsSkeleton from "./CardsSkeleton";
-import {useAppSelector } from "@/hooks/useAppDispatch";
+import { useAppSelector } from "@/hooks/useAppDispatch";
 import Card from "./Card";
 const LIMIT = 20;
 
@@ -24,7 +24,7 @@ export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
   const isMobile = useBreakpointMatch(768);
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
   const [isNewPageFetching, setIsNewPageFetching] = useState<boolean>(false);
-  
+
   const { data, isLoading, isFetching, error } = useGetProductCardsQuery(
     {
       page: page,

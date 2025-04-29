@@ -66,7 +66,8 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
       updateUrlWithFilters();
     }
   }, [filters, priceRange, isAllFiltersLoading]);
-
+  const isMobile = useBreakpointMatch(1024);
+  const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const filtersComponents: IFilterComponent[] = [
     {
       header: "Бренды",
@@ -112,6 +113,7 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
   const deleteFilters = (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
     dispatch(clearFilters({ filterType, filterId }));
   };
+  if (!shouldShow) return null;
   return (
     <div className={` relative md:overflow-visible scrollbar-hide ${className || ""}`}>
       <FilterChoice

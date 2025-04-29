@@ -81,7 +81,7 @@ IFilterBaseProps<T>) {
     <div className="space-y-2">
       <div className="flex items-center gap-x-2 w-full">
         <span className="text-xl  font-medium">{header}</span>
-        {filtersCount && <ItemsCount count={filtersCount} size={"md"} />}
+        {filtersCount && !isLoading && <ItemsCount count={filtersCount} size={"md"} />}
       </div>
       {isLoading ? (
         <Skeleton className="h-[200px] w-full" />
