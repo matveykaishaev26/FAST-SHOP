@@ -2,13 +2,13 @@ import { Card as CardUI, CardContent, CardFooter } from "@/shared/components/ui/
 import { ICardItem } from "@/shared/types/card.interface";
 import CardImages from "./CardImages";
 import { Button } from "@/shared/components/ui/button";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 interface ICardProps {
-  product: ICardItem ;
+  product: ICardItem;
   variant?: "catalog" | "favorite";
 }
-export default function Card({ product, variant = 'catalog' }: ICardProps) {
+export default function Card({ product, variant = "catalog" }: ICardProps) {
   const [activeSize, setActiveSize] = useState<string>("");
 
   return (

@@ -10,7 +10,6 @@ const rootReducer = combineReducers({
   filters: filtersSlice.reducer,
 });
 
-// Обёртка с HYDRATE
 const reducer = (state: any, action: any) => {
   if (action.type === HYDRATE) {
     return {

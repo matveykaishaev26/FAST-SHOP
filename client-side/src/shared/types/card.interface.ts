@@ -28,7 +28,7 @@ export interface IBaseItem {
 }
 
 
-export interface IUserFavoriteItem extends IBaseItem {
+export interface IFavoriteCardItem extends IBaseItem {
   size: ISize;
 }
 

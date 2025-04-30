@@ -7,7 +7,7 @@ import { makeStore } from "@/features/store";
 import { ThemeProvider as NextThemesProvider } from "next-themes";
 
 export default function Providers({ children }: PropsWithChildren) {
-  const store = makeStore()
+  const store = makeStore();
   return (
     <Provider store={store}>
       <NextThemesProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>

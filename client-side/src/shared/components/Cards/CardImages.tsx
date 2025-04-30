@@ -1,5 +1,5 @@
 "use client";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import Image from "next/image";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { ISize } from "@/shared/types/size.interface";
@@ -26,7 +26,7 @@ export default function CardImages({
   productVariantId,
   activeSize,
   setActiveSize,
-  variant
+  variant,
 }: ICardImagesProps) {
   const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -79,9 +79,12 @@ export default function CardImages({
       }}
     />
   );
-
   const defaultClass = "relative aspect-[9/12] cursor-pointer w-full transition-opacity duration-200";
-
+  useEffect(() => {
+    if (variant === "favorite") {
+      console.log(activeSize);
+    }
+  }, []);
   return (
     <>
       <div
@@ -102,10 +105,12 @@ export default function CardImages({
             sizes={sizes}
             setIsDialogOpen={setIsOpen}
             isDialogOpen={isDialogOpen}
-
           />
         </div>
         <CardImage />
+        {variant === "favorite" && (
+          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize}</div>
+        )}
         <div className="absolute z-10 bottom-6 left-1/2 -translate-x-1/2 hidden items-center justify-center gap-x-1 lg:flex opacity-0 group-hover:opacity-100">
           {images.map((image, index) => (
             <div
@@ -128,6 +133,10 @@ export default function CardImages({
           isDialogOpen={isDialogOpen}
           sizes={sizes}
         />
+        {variant === "favorite" && (
+          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize}</div>
+        )}
+
         <CardImage />
       </div>
     </>

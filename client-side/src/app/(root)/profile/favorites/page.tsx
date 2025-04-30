@@ -1,6 +1,5 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import Card from "../../catalog/_components/CatalogCards/Card";
 import { useGetFavoritesCardsQuery } from "@/features/api/userFavoritesApi";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
@@ -8,7 +7,8 @@ import CardsSkeleton from "../../catalog/_components/CatalogCards/CardsSkeleton"
 import PaginationControl from "@/shared/components/ui/PaginationControl";
 import { use, useState } from "react";
 import PageHeader from "../../_components/PageHeader";
-import { IUserFavoriteItem } from "@/shared/types/card.interface";
+import { IFavoriteCardItem } from "@/shared/types/card.interface";
+import Card from "@/shared/components/Cards/Card";
 
 const LIMIT = 20;
 
@@ -28,6 +28,7 @@ export default function Favorites({ searchParams }: { searchParams: Promise<{ pa
     limit: LIMIT,
     mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
   });
+  console.log(data)
 
   const { items, totalCount, totalPages, currentPage } = data || {};
 
@@ -49,7 +50,7 @@ export default function Favorites({ searchParams }: { searchParams: Promise<{ pa
       <div className="w-full flex flex-row gap-x-20"></div>
       <div className="grid  grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6  mb-10">
         {items &&
-          items.map((product: IUserFavoriteItem) => <Card key={product.id} variant="favorite" product={product} />)}
+          items.map((product: IFavoriteCardItem) => <Card key={product.id} variant="favorite" product={product} />)}
       </div>
       <div className="hidden md:block">
         <PaginationControl disabled={isNewPageFetching} page={currentPage ?? 1} totalPages={totalPages ?? 1} />
