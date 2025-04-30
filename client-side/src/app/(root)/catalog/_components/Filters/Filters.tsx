@@ -1,4 +1,4 @@
-// "use client";
+"use client";
 import { useCallback, useEffect, useState } from "react";
 import ColorFilter from "./ColorFilter";
 import FilterChoice from "./FilterChoice";
@@ -18,6 +18,7 @@ import { useGetGenderCountQuery } from "@/features/api/productApi";
 import { useGetMaterialsQuery } from "@/features/api/materialApi";
 import { useGetStylesQuery } from "@/features/api/styleApi";
 import { typeIsFiltersLoading } from "../../types";
+import { useGetFiltersFromUrl } from "@/hooks/useGetFiltersFromUrl";
 
 interface IFilterComponent {
   header: string;
@@ -30,22 +31,22 @@ interface IFiltersProps {
   className?: string;
   variant?: "desktop" | "mobile";
   setIsOpen?: () => void;
-  isFiltersReady: boolean;
+  filtersData?: any;
+  // isFiltersReady: boolean;
   // filters: any;
   // priceRange: any;
 }
 
-export default function Filters({ className, variant = "desktop", setIsOpen }: IFiltersProps) {
-  const { data: brands, error, isLoading: isBrandsLoading } = useGetAllBrandsQuery();
-  const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
-  const { data: sizes, isLoading: isSizesLoading } = useGetSizesQuery();
-  const { data: genders, isLoading: isGendersLoading } = useGetGenderCountQuery();
-  const { data: styles, isLoading: isStylesLoading } = useGetStylesQuery();
+export default function Filters({ className, variant = "desktop", filtersData }: IFiltersProps) {
+  // const { data: brands, error, isLoading: isBrandsLoading } = useGetAllBrandsQuery();
+  // const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
+  // const { data: sizes, isLoading: isSizesLoading } = useGetSizesQuery();
+  // const { data: genders, isLoading: isGendersLoading } = useGetGenderCountQuery();
+  // const { data: styles, isLoading: isStylesLoading } = useGetStylesQuery();
 
-  const { data: materials, isLoading: isMaterialsLoading } = useGetMaterialsQuery();
+  // const { data: materials, isLoading: isMaterialsLoading } = useGetMaterialsQuery();
   const dispatch = useAppDispatch();
   const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-
   const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
   const [isFiltersLoading, setIsFiltersLoading] = useState<typeIsFiltersLoading>({
     categoryIds: true,
@@ -61,52 +62,52 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
   console.log(isFiltersLoading);
 
   const isAllFiltersLoading = Object.values(isFiltersLoading).every((item) => item === false);
+  useGetFiltersFromUrl();
+
   useEffect(() => {
-    if (isAllFiltersLoading) {
-      updateUrlWithFilters();
-    }
-  }, [filters, priceRange, isAllFiltersLoading]);
+    updateUrlWithFilters();
+  }, [filters, priceRange]);
   const isMobile = useBreakpointMatch(1024);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
   const filtersComponents: IFilterComponent[] = [
     {
       header: "Бренды",
       filterType: "brandIds",
-      data: brands,
-      isLoading: isBrandsLoading,
+      data: filtersData.brands,
+      isLoading: false,
     },
     {
       header: "Категории",
       filterType: "categoryIds",
-      data: categories,
-      isLoading: isCategoriesLoading,
+      data: filtersData.categories,
+      isLoading: false,
     },
     {
       header: "Размеры",
       filterType: "sizeIds",
-      data: sizes,
-      isLoading: isSizesLoading,
+      data: filtersData.sizes,
+      isLoading: false,
     },
     {
       header: "Пол",
       filterType: "genderIds",
-      data: genders,
+      data: filtersData.genders,
       isExpandable: false,
-      isLoading: isGendersLoading,
+      isLoading: false,
     },
 
     {
       header: "Материалы",
       filterType: "materialIds",
-      data: materials,
-      isLoading: isMaterialsLoading,
+      data: filtersData.materials,
+      isLoading: false,
     },
 
     {
       header: "Стили",
       filterType: "styleIds",
-      data: styles,
-      isLoading: isStylesLoading,
+      data: filtersData.styles,
+      isLoading: false,
     },
   ];
 
@@ -117,7 +118,7 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
   return (
     <div className={` relative md:overflow-visible scrollbar-hide ${className || ""}`}>
       <FilterChoice
-        isAllFiltersLoading={isAllFiltersLoading}
+        isAllFiltersLoading={true}
         deletePriceRange={() => {
           dispatch(setPriceRange(null));
         }}
@@ -130,7 +131,11 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
         }}
       />
       <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-        <PriceFilter setIsFiltersLoading={setIsFiltersLoading} priceRange={priceRange} />
+        <PriceFilter
+          setIsFiltersLoading={setIsFiltersLoading}
+          priceRange={priceRange}
+          priceRangeData={filtersData.priceRange}
+        />
 
         {filtersComponents.slice(0, filtersComponents.length / 2 - 1).map((item) => (
           <FilterBase
@@ -145,7 +150,12 @@ export default function Filters({ className, variant = "desktop", setIsOpen }: I
             header={item.header}
           />
         ))}
-        <ColorFilter deleteFilters={deleteFilters} filters={filters} setIsFiltersLoading={setIsFiltersLoading} />
+        <ColorFilter
+          data={filtersData.colors}
+          deleteFilters={deleteFilters}
+          filters={filters}
+          setIsFiltersLoading={setIsFiltersLoading}
+        />
         {filtersComponents.slice(filtersComponents.length / 2 - 1, filtersComponents.length).map((item) => (
           <FilterBase
             isLoading={item.isLoading}

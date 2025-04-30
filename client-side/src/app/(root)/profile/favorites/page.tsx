@@ -1,10 +1,10 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
-import Card from "../../catalog/_components/Cards/Card";
+import Card from "../../catalog/_components/CatalogCards/Card";
 import { useGetFavoritesCardsQuery } from "@/features/api/userFavoritesApi";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
-import CardsSkeleton from "../../catalog/_components/Cards/CardsSkeleton";
+import CardsSkeleton from "../../catalog/_components/CatalogCards/CardsSkeleton";
 import PaginationControl from "@/shared/components/ui/PaginationControl";
 import { use, useState } from "react";
 import PageHeader from "../../_components/PageHeader";

@@ -14,10 +14,9 @@ import Card from "./Card";
 const LIMIT = 20;
 
 interface ICardsProps {
-  isFiltersReady: boolean;
-  setCardsCount: React.Dispatch<React.SetStateAction<number>>;
+  setCardsCount?: React.Dispatch<React.SetStateAction<number>>;
 }
-export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
+export default function CatalogCards({  setCardsCount }: ICardsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
@@ -32,9 +31,7 @@ export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
       mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
       filters: { priceRange, ...filters },
     },
-    {
-      skip: !isFiltersReady,
-    }
+    
   );
   const { items, totalCount, totalPages, currentPage } = data || {};
 
@@ -44,16 +41,16 @@ export default function Cards({ isFiltersReady, setCardsCount }: ICardsProps) {
       router.push(`/catalog/?page=${currentPage + 1}`, { scroll: false });
     }
   };
-  useEffect(() => {
-    if (totalCount) setCardsCount(totalCount);
-  }, [data]);
+  // useEffect(() => {
+  //   if (totalCount) setCardsCount(totalCount);
+  // }, [data]);
   useEffect(() => {
     if (isFetching === false) {
       setIsNewPageFetching(false);
     }
   }, [isFetching]);
 
-  if (isLoading || !isFiltersReady || (isFetching && !isMobile)) {
+  if (isLoading || (isFetching && !isMobile)) {
     return <CardsSkeleton count={LIMIT} />;
   }
 

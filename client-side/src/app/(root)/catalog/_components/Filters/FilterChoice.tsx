@@ -54,13 +54,6 @@ export default function FilterChoice({
             priceRange?.length === 2 || allFilters.length > 0 ? "mt-2" : ""
           }`}
         >
-          {priceRange && (
-            <Button onClick={deletePriceRange} className="text-xs h-8 px-2" variant="secondary" key={priceRange[0]}>
-              <span>{`${priceRange[0]}₽ - ${priceRange[1]}₽`}</span>
-              <X className="text-muted-foreground ml-1" size={10} />
-            </Button>
-          )}
-
           {isAllFiltersLoading ? (
             <div
               className={`max-h-[300px]  hide-scrollbar  overflow-auto flex flex-wrap gap-1 ${
@@ -107,3 +100,5 @@ export default function FilterChoice({
     </div>
   );
 }
+
+

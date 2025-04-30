@@ -16,7 +16,6 @@ const reducer = (state: any, action: any) => {
     return {
       ...state,
       ...action.payload,
-      // ⚠️ аккуратно с дубликатами, можно сохранить вложенные состояния:
       filters: {
         ...state.filters,
         ...action.payload.filters,
