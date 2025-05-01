@@ -71,6 +71,8 @@ export class ProductController {
     @Query('sizeIds') sizeIds?: string[] | string,
     @Query('colorIds') colorIds?: string[] | string,
     @Query('priceRange') priceRange?: string,
+    @Query('sortType') sortType?: string,
+
   ) {
     function toArray(param?: string[] | string): string[] {
       return Array.isArray(param) ? param : param ? [param] : [];
@@ -94,6 +96,7 @@ export class ProductController {
       sizeIds: toArray(sizeIds),
       colorIds: toArray(colorIds),
       priceRange: parsedPriceRange,
+      sortType: sortType
     });
   }
 
