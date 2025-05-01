@@ -12,22 +12,20 @@ import { typeIsFiltersLoading } from "../../types";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
   setIsFiltersLoading: any;
-  priceRangeData: any;
+
+  // priceRangeData: any;
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ priceRange, setIsFiltersLoading, priceRangeData }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceFilterProps) {
+  const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
   const [localRange, setLocalRange] = useState<[number, number]>(
     priceRange
       ? [priceRange[0], priceRange[1]]
-      : [
-          priceRangeData?.minPrice ?? MIN_DEFAULT,
-          priceRangeData?.maxPrice ?? MAX_DEFAULT
-        ]
+      : [priceRangeData?.minPrice ?? MIN_DEFAULT, priceRangeData?.maxPrice ?? MAX_DEFAULT]
   );
-  
-  
+
   const dispatch = useAppDispatch();
   const handlePriceRangeChange = (range: [number, number]) => {
     dispatch(setPriceRange(range));
@@ -46,13 +44,13 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading, priceRang
     }
   }, [priceRange]);
   useEffect(() => {
-    if (!true) {
+    if (!isLoading) {
       setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
         ...prev,
         priceRange: false,
       }));
     }
-  }, []);
+  }, [priceRangeData]);
   const handleAfterChange = (range: [number, number]) => {
     dispatch(setPriceRange(range));
   };
@@ -61,7 +59,7 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading, priceRang
     <div className="space-y-2">
       <div className="text-xl text-left font-medium w-full">Цена</div>
 
-      {false ? (
+      {isLoading ? (
         <Skeleton className="h-[80px] w-full" />
       ) : (
         priceRangeData && (

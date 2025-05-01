@@ -35,6 +35,9 @@ export default function FilterChoice({
   const isFiltersEmpty = Object.values(filters).every((values) => values.length === 0);
   const isPriceRangeEmpty = priceRange === null;
 
+  // if (Object.entries(filters).some(([, values]) => values.some((item) => item.title === ""))) {
+  //   return null;
+  // }
   return (
     <div className=" bg-background sticky z-50 top-[60px] border-b lg:border-b p-4 lg:p-0 lg:relative lg:z-0 lg:top-0 lg:border-none">
       <div className="bg-background">
@@ -50,9 +53,7 @@ export default function FilterChoice({
           </Button>
         </div>
         <div
-          className={`max-h-[300px]  hide-scrollbar  overflow-auto flex flex-wrap gap-1 ${
-            priceRange?.length === 2 || allFilters.length > 0 ? "mt-2" : ""
-          }`}
+          className={`max-h-[300px]  hide-scrollbar  overflow-auto flex flex-wrap gap-1`}
         >
           {isAllFiltersLoading ? (
             <div
@@ -100,5 +101,3 @@ export default function FilterChoice({
     </div>
   );
 }
-
-

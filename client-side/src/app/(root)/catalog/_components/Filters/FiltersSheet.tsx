@@ -10,9 +10,9 @@ import { useSearchParams } from "next/navigation";
 import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
 import { useAppSelector } from "@/hooks/useAppDispatch";
 interface IFiltersSheetProps {
-  filtersData: any;
+  // filtersData: any;
 }
-export default function FiltersSheet({filtersData  }: IFiltersSheetProps) {
+export default function FiltersSheet({  }: IFiltersSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
   const [filtersCount, setFiltersCount] = useState(0);
@@ -38,6 +38,10 @@ export default function FiltersSheet({filtersData  }: IFiltersSheetProps) {
     setFiltersCount(count);
   }, [filters, priceRange, searchParams]);
 
+  if (!isMobile) {
+    return null;
+  }
+
   return (
     <div>
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
@@ -58,7 +62,6 @@ export default function FiltersSheet({filtersData  }: IFiltersSheetProps) {
               <X onClick={() => setIsOpen((prev) => !prev)} className="w-5 h-5 cursor-pointer text-muted-foreground" />
             </div>
             <Filters
-              filtersData={filtersData}
               // isFiltersReady={isFiltersReady}
               setIsOpen={() => setIsOpen((prev) => !prev)}
               variant="mobile"

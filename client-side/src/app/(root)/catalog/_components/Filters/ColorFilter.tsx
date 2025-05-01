@@ -6,10 +6,9 @@ import { IFilterProps } from "../../types";
 import { IColor } from "@/shared/types/color.interface";
 import FilterListItem from "./FilterBase/FilterListItem";
 interface IFilterFolorProps extends IFilterProps {
-  data: any;
 }
-export default function ColorFilter({ filters, deleteFilters, setIsFiltersLoading, data }: IFilterFolorProps) {
-  // const { data: colors, isLoading } = useGetColorsQuery();
+export default function ColorFilter({ filters, deleteFilters, setIsFiltersLoading }: IFilterFolorProps) {
+  const { data: colors, isLoading } = useGetColorsQuery();
   const filterType = "colorIds";
   return (
     <FilterBase
@@ -17,9 +16,9 @@ export default function ColorFilter({ filters, deleteFilters, setIsFiltersLoadin
       deleteFilters={deleteFilters}
       filters={filters}
       header="Цвет"
-      isLoading={false}
+      isLoading={isLoading}
       filterType={filterType}
-      data={data || []}
+      data={colors || []}
       renderItem={(color: IColor) => {
         const isWhite = color.title === "Белый";
         const isBlack = color.title === "Чёрный";

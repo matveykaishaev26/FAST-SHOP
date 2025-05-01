@@ -1,12 +1,13 @@
 import { filtersOrder } from "@/shared/types/filter.interface";
 import { useSearchParams } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useAppDispatch } from "./useAppDispatch";
 import { setFilterId, setPriceRange } from "@/features/slices/filtersSlice";
 
 export const useGetFiltersFromUrl = () => {
   const searchParams = useSearchParams();
   const dispatch = useAppDispatch();
+  const [isFiltersReady, setIsFiltersReady] = useState(false);
 
   useEffect(() => {
     filtersOrder.map((filterType) => {
@@ -24,5 +25,8 @@ export const useGetFiltersFromUrl = () => {
       const max = parseInt(maxStr);
       if (min && max) dispatch(setPriceRange([min, max]));
     }
+    setIsFiltersReady(true)
   }, []);
+
+  return {isFiltersReady}
 };

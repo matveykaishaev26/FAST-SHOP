@@ -35,25 +35,25 @@ export default function FilterBase<T extends IFilterItem>({
 // setIsFiltersLoading,
 // deleteFilters,
 IFilterBaseProps<T>) {
-  // const dispatch = useAppDispatch();
-  // useEffect(() => {
-  //   const itemsToUpdate = data
-  //     .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
-  //     .map((item) => ({
-  //       id: item.id,
-  //       title: item.title,
-  //       ...(filterType === "colorIds" && { hex: (item as any).hex }),
-  //     }));
+  const dispatch = useAppDispatch();
+  useEffect(() => {
+    const itemsToUpdate = data
+      .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
+      .map((item) => ({
+        id: item.id,
+        title: item.title,
+        ...(filterType === "colorIds" && { hex: (item as any).hex }),
+      }));
 
-  //   if (itemsToUpdate.length > 0) {
-  //     dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
-  //   }
+    if (itemsToUpdate.length > 0) {
+      dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
+    }
 
-  //   setIsFiltersLoading((prev) => ({
-  //     ...prev,
-  //     [filterType]: false,
-  //   }));
-  // }, [data.length]);
+    setIsFiltersLoading((prev) => ({
+      ...prev,
+      [filterType]: false,
+    }));
+  }, [data.length]);
 
   console.log(filters);
   const [searchTerm, setSearchTerm] = useState("");
