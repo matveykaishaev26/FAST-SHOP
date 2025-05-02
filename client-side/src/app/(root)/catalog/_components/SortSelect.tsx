@@ -20,7 +20,7 @@ export default function SortSelect() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const currentSort = searchParams.get("sortType") || "";
+  const currentSort = searchParams.get("sortType") || SORT_TYPE.BY_RATING;
   const setSortType = (sortType: SORT_TYPE) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("sortType", sortType);

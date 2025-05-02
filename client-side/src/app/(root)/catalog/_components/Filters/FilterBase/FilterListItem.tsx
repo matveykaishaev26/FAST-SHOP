@@ -1,46 +1,71 @@
-import { IFilterOption, IFilters } from "@/shared/types/filter.interface";
-import { isChecked } from "../../../_utils/isChecked";
-import { IHandleCheckboxChange } from "../../../types";
-import FilterCheckbox from "../FilterCheckbox";
-import { IFilterItem } from "@/shared/types/filter.interface";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
-import { toggleFilter, updateFilterTitles } from "@/features/slices/filtersSlice";
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { toggleFilter } from "@/features/slices/filtersSlice";
+import FilterCheckbox from "../FilterCheckbox";
+import { IFilterItem, IFilterOption, IFilters } from "@/shared/types/filter.interface";
 
 interface IFilterListItem {
   item: IFilterItem;
   filters: Omit<IFilters, "priceRange">;
   filterType: Exclude<keyof IFilters, "priceRange">;
   renderItem?: any;
+  variant?: "desktop" | "mobile";
 }
 
-export default function FilterListItem({
-  item,
-  filters,
-  filterType,
-  renderItem,
-}: IFilterListItem) {
+export default function FilterListItem({ item, filterType, renderItem, variant = "desktop" }: IFilterListItem) {
   const dispatch = useAppDispatch();
-
-  const isChecked = filters[filterType]?.some((f) => f.id === item.id);
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
 
-  const handleCheckboxChange = (
-    filterType: Exclude<keyof IFilters, "priceRange">,
-    option: IFilterOption,
-    isChecked: boolean
-  ) => {
-    dispatch(toggleFilter({ option, filterType, isChecked }));
+  const [localChecked, setLocalChecked] = useState(false);
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const paramValue = params.get(filterType);
+    const ids = paramValue ? paramValue.split(",") : [];
+    console.log(ids);
 
-    // Обновляем параметры URL с page=1
-    // const searchParams = new URLSearchParams(window.location.search);
-    // searchParams.delete('page'); // Удаляем параметр 'page'
-    
-    // // Обновляем URL без параметра 'page'
-    // window.history.pushState({}, '', '?' + searchParams.toString());
+    if (ids.includes(item.id)) {
+      console.log(item.id);
+      dispatch(toggleFilter({ option: item, filterType, isChecked: true }));
+    }
+  }, []); // пустой массив зависимостей = только при первом рендере
+
+  // Синхронизация localChecked с URL
+  useEffect(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    const paramValue = params.get(filterType); // строка: "id1,id2"
+    const ids = paramValue ? paramValue.split(",") : [];
+    setLocalChecked(ids.includes(item.id));
+  }, [searchParams, item.id, filterType]);
+
+  const handleCheckboxChange = (checked: boolean) => {
+    setLocalChecked(checked); // моментальная реакция UI
+
+    const params = new URLSearchParams(searchParams.toString());
+    const paramValue = params.get(filterType);
+    const currentValues = paramValue ? paramValue.split(",") : [];
+
+    let newValues: string[];
+    if (checked) {
+      newValues = [...new Set([...currentValues, item.id])];
+    } else {
+      newValues = currentValues.filter((id) => id !== item.id);
+    }
+
+    dispatch(toggleFilter({ option: item, filterType, isChecked: checked }));
+
+    params.delete(filterType);
+    if (newValues.length > 0) {
+      params.set(filterType, newValues.join(","));
+    }
+
+    if (variant === "desktop") {
+      params.delete("page");
+
+      router.push(pathname + "?" + params.toString(), { scroll: false });
+    }
   };
 
   return (
@@ -48,8 +73,8 @@ export default function FilterListItem({
       <FilterCheckbox
         id={item.id}
         className={`${item.productCount === 0 && "opacity-50 select-none"}`}
-        checked={isChecked} // ✅ используем переменную, а не функцию
-        onChange={(checked) => handleCheckboxChange(filterType, item, checked)}
+        checked={localChecked}
+        onChange={handleCheckboxChange}
       >
         {renderItem ? (
           <>{renderItem}</>

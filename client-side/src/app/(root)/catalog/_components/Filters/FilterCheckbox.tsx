@@ -5,7 +5,7 @@ interface IFilterCheckboxProps extends PropsWithChildren {
   className?: string;
   id: string;
   onChange: (checked: boolean) => void;
-  checked: boolean;
+  checked?: boolean;
 }
 
 export default function FilterCheckbox({ children, className, id, onChange, checked }: IFilterCheckboxProps) {

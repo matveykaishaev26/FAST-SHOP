@@ -3,7 +3,6 @@ import CatalogCards from "./_components/CatalogCards/CatalogCards";
 import Filters from "./_components/Filters/Filters";
 import FiltersSheet from "./_components/Filters/FiltersSheet";
 import SortSelect from "./_components/SortSelect";
-import CatalogProvider from "./CatalogProvider";
 type Props = {
   searchParams: Record<string, string | string[]>;
 };

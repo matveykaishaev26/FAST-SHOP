@@ -17,6 +17,7 @@ export interface IFilterBaseProps<T> extends IFilterProps {
   renderItem?: (item: T) => React.ReactNode;
   isExpandable?: boolean;
   filterType: Exclude<keyof IFilters, "priceRange">;
+  variant?: "desktop" | "mobile";
 }
 
 const ITEMS_COUNT = 5;
@@ -30,32 +31,33 @@ export default function FilterBase<T extends IFilterItem>({
   filters,
   isExpandable = true,
   deleteFilters,
-  setIsFiltersLoading,
+  variant
+  // setIsFiltersLoading,
 }: // handleCheckboxChange,
 // setIsFiltersLoading,
 // deleteFilters,
 IFilterBaseProps<T>) {
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    const itemsToUpdate = data
-      .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
-      .map((item) => ({
-        id: item.id,
-        title: item.title,
-        ...(filterType === "colorIds" && { hex: (item as any).hex }),
-      }));
+  // useEffect(() => {
+  //   const itemsToUpdate = data
+  //     .filter((item) => filters[filterType]?.some((f) => f.id === item.id))
+  //     .map((item) => ({
+  //       id: item.id,
+  //       title: item.title,
+  //       ...(filterType === "colorIds" && { hex: (item as any).hex }),
+  //     }));
 
-    if (itemsToUpdate.length > 0) {
-      dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
-    }
+  //   if (itemsToUpdate.length > 0) {
+  //     dispatch(updateFilterTitles({ filterType, items: itemsToUpdate }));
+  //   }
 
-    setIsFiltersLoading((prev) => ({
-      ...prev,
-      [filterType]: false,
-    }));
-  }, [data.length]);
+  //   setIsFiltersLoading((prev) => ({
+  //     ...prev,
+  //     [filterType]: false,
+  //   }));
+  // }, [data.length]);
 
-  console.log(filters);
+  // console.log(filters);
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const toggleList = () => {
@@ -73,7 +75,7 @@ IFilterBaseProps<T>) {
     return renderItem
       ? items.map(renderItem)
       : items.map((item) => (
-          <FilterListItem key={`${filterType}-${item.id}`} item={item} filterType={filterType} filters={filters} />
+          <FilterListItem  variant={variant} key={`${filterType}-${item.id}`} item={item} filterType={filterType} filters={filters} />
         ));
   };
 

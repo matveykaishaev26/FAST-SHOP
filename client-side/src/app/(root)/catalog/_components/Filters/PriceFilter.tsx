@@ -9,16 +9,18 @@ import { IPriceRange } from "@/shared/types/filter.interface";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
 import { typeIsFiltersLoading } from "../../types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
-  setIsFiltersLoading: any;
 
-  // priceRangeData: any;
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange }: IPriceFilterProps) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
   const [localRange, setLocalRange] = useState<[number, number]>(
     priceRange
@@ -27,10 +29,17 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
   );
 
   const dispatch = useAppDispatch();
-  const handlePriceRangeChange = (range: [number, number]) => {
-    dispatch(setPriceRange(range));
-  };
 
+  useEffect(() => {
+    const priceParam = searchParams.get("priceRange");
+
+    if (priceParam) {
+      const [minStr, maxStr] = priceParam.split("-");
+      const min = parseInt(minStr);
+      const max = parseInt(maxStr);
+      if (min && max) dispatch(setPriceRange([min, max]));
+    }
+  }, []);
   useEffect(() => {
     if (priceRange) {
       setLocalRange(priceRange);
@@ -41,17 +50,17 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
   useEffect(() => {
     if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
       dispatch(setPriceRange(null));
+      const params = new URLSearchParams(searchParams);
+      params.delete("priceRange");
+      router.push(pathname + "?" + params.toString(), { scroll: false });
     }
   }, [priceRange]);
-  useEffect(() => {
-    if (!isLoading) {
-      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
-        ...prev,
-        priceRange: false,
-      }));
-    }
-  }, [priceRangeData]);
+
   const handleAfterChange = (range: [number, number]) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("priceRange", range.join("-"));
+    router.push(pathname + "?" + params.toString(), { scroll: false });
+
     dispatch(setPriceRange(range));
   };
 
