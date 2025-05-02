@@ -20,12 +20,13 @@ export const productApi = api.injectEndpoints({
         limit: number;
         filters: IFilters;
         mode: CARDS_RESPONSE_MODE;
+        sortType?: string;
       }
     >({
-      query: ({ page, limit, filters }) => {
+      query: ({ page, limit, filters, sortType }) => {
         const filterQuery = serializeFiltersForQuery(filters);
         return {
-          url: API_URL.products(`/product-cards?page=${page}&limit=${limit}&${filterQuery}`),
+          url: API_URL.products(`/product-cards?page=${page}&limit=${limit}&${filterQuery}&sortType=${sortType}`),
           method: "GET",
         };
       },

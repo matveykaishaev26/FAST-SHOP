@@ -13,7 +13,7 @@ interface IFavoriteProps {
   className?: string;
   setIsDialogOpen?: (open: boolean) => void;
   isDialogOpen?: boolean;
-  sizes: ISize[];
+  sizes?: ISize[];
   productVariantId: string;
   isFavorited: boolean;
   setIsFavorited: React.Dispatch<React.SetStateAction<boolean>>;
@@ -60,7 +60,17 @@ export default function Favorite({
       }
     }
   };
-  console.log(activeSize);
+
+  const handleDeleteFavorite = async () => {
+    if (variant === "favorite") {
+      try {
+        await deleteMutate({ productVariantId, sizeId: activeSize });
+      } catch (e) {
+        console.error("Ошибка добавления в избранное", e);
+        setIsFavorited(false);
+      }
+    }
+  };
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -73,11 +83,8 @@ export default function Favorite({
             return;
           }
 
-          if (isFavorited) {
-            // удаление без диалога
-            deleteMutate({ productVariantId, sizeId: activeSize }) // или sizeId нужно передавать явно как prop
-              .unwrap()
-              .then(() => setIsFavorited(false));
+          if (variant === "favorite") {
+            handleDeleteFavorite();
           } else {
             if (variant === "catalog") setIsDialogOpen(true); // показать выбор размера
           }
@@ -100,7 +107,7 @@ export default function Favorite({
         </DialogHeader>
 
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-          {sizes.map((size) => (
+          {sizes?.map((size) => (
             <div
               onClick={() => setActiveSize(size.id)}
               key={size.title}

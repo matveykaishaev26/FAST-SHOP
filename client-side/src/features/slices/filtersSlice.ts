@@ -25,20 +25,18 @@ export const filtersSlice = createSlice({
       }>
     ) {
       const { option, filterType, isChecked } = action.payload;
-      if (filterType === "colorIds") {
-        if (isChecked) {
-          state[filterType].push(option as IFilterColor);
-        } else {
-          state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
+    
+      const exists = state[filterType].some((filter) => filter.id === option.id);
+    
+      if (isChecked) {
+        if (!exists) {
+          state[filterType].push(option as any);
         }
       } else {
-        if (isChecked) {
-          state[filterType].push(option);
-        } else {
-          state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
-        }
+        state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
       }
     },
+    
     setFilterId(
       state,
       action: PayloadAction<{

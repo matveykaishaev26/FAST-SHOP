@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
+import { SORT_TYPE } from './dto/get-product-cards.dto';
 @Injectable()
 export class ProductService {
   constructor(private prisma: PrismaService) {}
@@ -214,17 +215,28 @@ export class ProductService {
       sizeIds?: string[];
       colorIds?: string[];
       priceRange?: number[];
+      sortType?: string;
     } = {},
   ) {
     const skip = (page - 1) * limit;
     const take = Number(limit);
 
+    let orderBy: any = undefined;
+
+    switch (filters.sortType) {
+      case SORT_TYPE.BY_PRICE_ASC:
+        orderBy = { price: 'asc' };
+        break;
+      case SORT_TYPE.BY_PRICE_DESC:
+        orderBy = { price: 'desc' };
+        break;
+      // Рейтинг сортируется вручную ниже
+    }
+
     const hasValidPriceRange =
       Array.isArray(filters.priceRange) &&
       filters.priceRange.length === 2 &&
       filters.priceRange.every((v) => typeof v === 'number' && !isNaN(v));
-
-    // console.log(filters);
 
     const where: any = {
       ...(filters.brandIds?.length && {
@@ -267,6 +279,7 @@ export class ProductService {
 
     const products = await this.prisma.productVariant.findMany({
       where,
+      orderBy,
       skip,
       take,
       select: {
@@ -305,11 +318,18 @@ export class ProductService {
       },
     });
 
-    return {
-      totalCount,
-      totalPages,
-      currentPage,
-      items: products.map((product) => ({
+    const items = products.map((product) => {
+      const ratingValue =
+        product.product.reviews.length !== 0
+          ? (
+              product.product.reviews.reduce(
+                (acc, review) => acc + review.rating,
+                0,
+              ) / product.product.reviews.length
+            ).toFixed(2)
+          : '0.00';
+
+      return {
         id: product.id,
         title: product.product.title,
         brand: product.product.brand.title,
@@ -322,18 +342,24 @@ export class ProductService {
         })),
         colors: product.productVariantColors.map((v) => v.color.title),
         rating: {
-          value:
-            product.product.reviews.length !== 0
-              ? (
-                  product.product.reviews.reduce(
-                    (acc, review) => acc + review.rating,
-                    0,
-                  ) / product.product.reviews.length
-                ).toFixed(2)
-              : 'Нет отзывов',
+          value: ratingValue,
           count: product.product.reviews.length,
         },
-      })),
+      };
+    });
+
+    // Сортировка по рейтингу — на клиенте
+    if (filters.sortType === SORT_TYPE.BY_RATING) {
+      items.sort(
+        (a, b) => parseFloat(b.rating.value) - parseFloat(a.rating.value),
+      );
+    }
+
+    return {
+      totalCount,
+      totalPages,
+      currentPage,
+      items,
     };
   }
 }

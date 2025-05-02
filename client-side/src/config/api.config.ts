@@ -7,6 +7,7 @@ export const API_URL = {
   products: (url = "") => API_URL.root(`/products${url}`),
   categories: (url = "") => API_URL.root(`/categories${url}`),
   colors: (url = "") => API_URL.root(`/colors${url}`),
+  brands: (url = "") => API_URL.root(`/brands${url}`),
   reviews: (url = "") => API_URL.root(`/reviews${url}`),
   orders: (url = "") => API_URL.root(`/orders${url}`),
   statistics: (url = "") => API_URL.root(`/statistics${url}`),

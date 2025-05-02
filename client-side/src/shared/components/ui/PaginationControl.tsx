@@ -23,6 +23,9 @@ export default function PaginationControl({ page, totalPages, disabled }: IPagin
     page < PAGES_COUNT ? 1 : Math.max(1, Math.min(page - Math.floor(PAGES_COUNT / 2), totalPages - PAGES_COUNT + 1));
   const endPage = Math.min(totalPages, startPage + PAGES_COUNT - 1);
   const defaultClass = `cursor-pointer  transition hover:bg-border rounded-sm flex justify-center items-center text-sm h-6 w-6 sm:h-icon sm:w-icon`;
+  if (totalPages < 2) {
+    return null;
+  }
   return (
     <div className={`justify-center select-none flex gap-x-[2px] items-center ${disabled ? "opacity-40" : ""}`}>
       <div
@@ -52,7 +55,7 @@ export default function PaginationControl({ page, totalPages, disabled }: IPagin
           </div>
         );
       })}
-      {page <= totalPages - PAGES_COUNT / 2  && (
+      {page <= totalPages - PAGES_COUNT / 2 && (
         <div className="h-6 w-6 sm:h-icon sm:w-icon flex justify-center items-center">...</div>
       )}
 

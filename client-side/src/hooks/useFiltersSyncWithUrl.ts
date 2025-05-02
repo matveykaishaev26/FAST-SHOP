@@ -2,12 +2,12 @@ import { useEffect } from "react";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
 import { IFilterOption, IPriceRange } from "@/shared/types/filter.interface";
-import { usePathname, useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 export function useFiltersSyncWithUrl(filters: Record<string, any[]>, priceRange: IPriceRange) {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const pathname = usePathname();
-
+  const router = useRouter();
   // Функция для обновления URL с фильтрами
   const updateUrlWithFilters = () => {
     const params = new URLSearchParams(searchParams);
@@ -25,12 +25,14 @@ export function useFiltersSyncWithUrl(filters: Record<string, any[]>, priceRange
     } else {
       params.delete("priceRange");
     }
+    // params.set("page", "1");
 
     const newUrl = params.size > 0 ? `${pathname}?${params.toString()}` : pathname;
     const currentUrl = `${pathname}${searchParams.size > 0 ? `?${searchParams.toString()}` : ""}`;
 
     if (newUrl !== currentUrl) {
-      window.history.replaceState(null, "", newUrl);
+      // window.history.replaceState(null, "", newUrl);
+      router.push(newUrl); 
     }
   };
   return { updateUrlWithFilters };

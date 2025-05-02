@@ -129,14 +129,14 @@ export class UserFavoritesService {
         brand: favorite.productVariant.product.brand.title,
         images: favorite.productVariant.images,
         price: favorite.productVariant.price,
-        sizes: favorite.size
-          ? [
+        size: favorite.size
+          ? 
               {
                 id: favorite.size.id,
                 title: favorite.size.title,
-              },
-            ]
-          : [],
+              }
+            
+          : {},
         colors: favorite.productVariant.productVariantColors
           ? favorite.productVariant.productVariantColors.map(
               (v) => v.color.title,

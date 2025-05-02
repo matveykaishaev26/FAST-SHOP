@@ -4,40 +4,66 @@ import "rc-slider/assets/index.css";
 import { Input } from "@/shared/components/ui/input";
 import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
-import { useCallback, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
-import { useSearchParams } from "next/navigation";
-import { typeIsFiltersLoading } from "../../types";
 import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
+import { typeIsFiltersLoading } from "../../types";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
-  setIsFiltersLoading: any;
+
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange }: IPriceFilterProps) {
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const router = useRouter();
   const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
-  
+  const [localRange, setLocalRange] = useState<[number, number]>(
+    priceRange
+      ? [priceRange[0], priceRange[1]]
+      : [priceRangeData?.minPrice ?? MIN_DEFAULT, priceRangeData?.maxPrice ?? MAX_DEFAULT]
+  );
+
   const dispatch = useAppDispatch();
-  const handlePriceRangeChange = (range: [number, number]) => {
-    dispatch(setPriceRange(range));
-  };
+
+  useEffect(() => {
+    const priceParam = searchParams.get("priceRange");
+
+    if (priceParam) {
+      const [minStr, maxStr] = priceParam.split("-");
+      const min = parseInt(minStr);
+      const max = parseInt(maxStr);
+      if (min && max) dispatch(setPriceRange([min, max]));
+    }
+  }, []);
+  useEffect(() => {
+    if (priceRange) {
+      setLocalRange(priceRange);
+    } else if (priceRangeData) {
+      setLocalRange([priceRangeData.minPrice ?? MIN_DEFAULT, priceRangeData.maxPrice ?? MAX_DEFAULT]);
+    }
+  }, [priceRangeData]);
   useEffect(() => {
     if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
       dispatch(setPriceRange(null));
+      const params = new URLSearchParams(searchParams);
+      params.delete("priceRange");
+      router.push(pathname + "?" + params.toString(), { scroll: false });
     }
   }, [priceRange]);
 
-  useEffect(() => {
-    if (!isLoading) {
-      setIsFiltersLoading((prev: typeIsFiltersLoading) => ({
-        ...prev,
-        priceRange: false,
-      }));
-    }
-  }, [isLoading]);
+  const handleAfterChange = (range: [number, number]) => {
+    const params = new URLSearchParams(searchParams);
+    params.set("priceRange", range.join("-"));
+    router.push(pathname + "?" + params.toString(), { scroll: false });
+
+    dispatch(setPriceRange(range));
+  };
+
   return (
     <div className="space-y-2">
       <div className="text-xl text-left font-medium w-full">Цена</div>
@@ -71,10 +97,9 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
               max={priceRangeData?.maxPrice || MAX_DEFAULT}
               step={1}
               range
-              value={priceRange ?? [priceRangeData?.minPrice || MIN_DEFAULT, priceRangeData?.maxPrice || MAX_DEFAULT]}
-              onChange={(newRange) => {
-                handlePriceRangeChange(newRange as [number, number]);
-              }}
+              value={localRange}
+              onChange={(newRange) => setLocalRange(newRange as [number, number])}
+              onChangeComplete={(newRange) => handleAfterChange(newRange as [number, number])}
               style={{ width: "100%" }}
             />
             <div className="flex justify-between gap-x-3 items-center">
@@ -82,7 +107,7 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
               <Input
                 className="h-[32px]"
                 type="number"
-                value={(priceRange?.[0] ?? priceRangeData?.minPrice ?? MIN_DEFAULT).toString()}
+                value={localRange[0].toString()}
                 // min={priceRangeData?.minPrice || MIN_DEFAULT}
                 // max={priceRangeData?.maxPrice || MAX_DEFAULT}
                 // onChange={(e) => {
@@ -95,7 +120,7 @@ export default function PriceFilter({ priceRange, setIsFiltersLoading }: IPriceF
               <Input
                 className="h-[32px]"
                 type="number"
-                value={(priceRange?.[1] ?? priceRangeData?.maxPrice ?? MAX_DEFAULT).toString()}
+                value={localRange[1].toString()}
                 // min={priceRangeData?.minPrice || MIN_DEFAULT}
                 // max={priceRangeData?.maxPrice || MAX_DEFAULT}
                 // onChange={(e) => {

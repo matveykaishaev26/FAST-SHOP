@@ -2,8 +2,8 @@ import { api } from "./api";
 import { API_URL } from "@/config/api.config";
 import { CARDS_RESPONSE_MODE } from "./productApi";
 import { ISize } from "@/shared/types/size.interface";
-import { IUserFavoriteItem } from "@/shared/types/card.interface";
 import { IPaginatedResponse } from "@/shared/types/pagination.interface";
+import { IFavoriteCardItem } from "@/shared/types/card.interface";
 
 export interface IUserFavorites {
   productVariantId: string;
@@ -16,7 +16,7 @@ export interface IGetFavoritesCount {
 
 
 export interface IFavoritesResponse {
-  items: IUserFavoriteItem[];
+  items: IFavoriteCardItem[];
   totalCount: number;
   currentPage: number;
   totalPages: number;
@@ -85,32 +85,32 @@ export const userFavoritesApi = api.injectEndpoints({
       },
     }),
 
-    toggleUserFavorites: build.mutation<void, IUserFavorites>({
-      query: ({ productVariantId, sizeId }) => ({
-        url: `${API_URL.userFavorites()}/toggle/${productVariantId}/${sizeId}`,
+    // toggleUserFavorites: build.mutation<void, IUserFavorites>({
+    //   query: ({ productVariantId, sizeId }) => ({
+    //     url: `${API_URL.userFavorites()}/toggle/${productVariantId}/${sizeId}`,
 
-        method: "POST",
-      }),
+    //     method: "POST",
+    //   }),
 
-      async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
-        const patchResult = dispatch(
-          userFavoritesApi.util.updateQueryData("getUserFavorites", undefined, (draft) => {
-            const index = draft.findIndex((item) => item.productVariantId === productVariantId);
-            if (index >= 0) {
-              draft.splice(index, 1);
-            } else {
-              draft.push({ productVariantId, sizeId });
-            }
-          })
-        );
+    //   async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
+    //     const patchResult = dispatch(
+    //       userFavoritesApi.util.updateQueryData("getUserFavorites", undefined, (draft) => {
+    //         const index = draft.findIndex((item) => item.productVariantId === productVariantId);
+    //         if (index >= 0) {
+    //           draft.splice(index, 1);
+    //         } else {
+    //           draft.push({ productVariantId, sizeId });
+    //         }
+    //       })
+    //     );
 
-        try {
-          await queryFulfilled;
-        } catch {
-          patchResult.undo();
-        }
-      },
-    }),
+    //     try {
+    //       await queryFulfilled;
+    //     } catch {
+    //       patchResult.undo();
+    //     }
+    //   },
+    // }),
 
     getFavoritesCount: build.query<{ favoritesCount: number }, void>({
       query: () => ({
@@ -120,7 +120,7 @@ export const userFavoritesApi = api.injectEndpoints({
     }),
 
     getFavoritesCards: build.query<
-      IPaginatedResponse<IUserFavoriteItem>,
+      IPaginatedResponse<IFavoriteCardItem>,
       {
         page: number;
         limit: number;
@@ -174,7 +174,7 @@ export const userFavoritesApi = api.injectEndpoints({
 });
 
 export const {
-  useToggleUserFavoritesMutation,
+  // useToggleUserFavoritesMutation,
   useAddToUserFavoritesMutation,
   useDeleteUserFavoritesMutation,
   useGetFavoritesCountQuery,
