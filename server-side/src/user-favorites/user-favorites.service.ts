@@ -18,7 +18,7 @@ export class UserFavoritesService {
       },
     });
 
-    if (!userFavorites) {
+if (!userFavorites) {
       await this.prisma.userFavorites.create({
         data: {
           userId,
@@ -28,19 +28,17 @@ export class UserFavoritesService {
       });
     }
   }
-  async deleteFavorite(
-    userId: string,
+  async deleteFavorite( userId: string,
     productVariantId: string,
-    sizeId: string,
-  ) {
+    sizeId: string) {
     const userFavorites = await this.prisma.userFavorites.findFirst({
       where: {
         userId,
-        sizeId,
         productVariantId,
+        sizeId
       },
     });
-
+    console.log(userFavorites);
     if (userFavorites) {
       await this.prisma.userFavorites.delete({
         where: {
@@ -125,17 +123,16 @@ export class UserFavoritesService {
       currentPage,
       items: favorites.map((favorite) => ({
         id: favorite.id,
+        productVariantId: favorite.productVariant.id,
         title: favorite.productVariant.product.title,
         brand: favorite.productVariant.product.brand.title,
         images: favorite.productVariant.images,
         price: favorite.productVariant.price,
         size: favorite.size
-          ? 
-              {
-                id: favorite.size.id,
-                title: favorite.size.title,
-              }
-            
+          ? {
+              id: favorite.size.id,
+              title: favorite.size.title,
+            }
           : {},
         colors: favorite.productVariant.productVariantColors
           ? favorite.productVariant.productVariantColors.map(

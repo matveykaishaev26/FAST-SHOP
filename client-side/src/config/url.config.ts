@@ -8,9 +8,9 @@ export const PUBLIC_URL = {
   auth: (page = "") => PUBLIC_URL.root(`/auth/${page}`),
 
   explorer: (query = "") => PUBLIC_URL.root(`/explorer${query}`),
-  product: (id: "") => PUBLIC_URL.root(`/product/${id}`),
-  category: (id: "") => PUBLIC_URL.root(`/category/${id}`),
-  catalog: (id: "") => PUBLIC_URL.root(`/catalog${id}`),
+  product: (id = "") => PUBLIC_URL.root(`/product/${id}`),
+  category: (id = "") => PUBLIC_URL.root(`/category/${id}`),
+  catalog: (id = "") => PUBLIC_URL.root(`/catalog${id}`),
 
 };
 

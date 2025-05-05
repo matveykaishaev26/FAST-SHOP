@@ -87,10 +87,10 @@
       router.push(pathname + "?" + params.toString(), { scroll: false });
 
     }, [dispatch, router, pathname, searchParams]);
-    useEffect(() => {
-      dispatch(clearFilters({}));
-      dispatch(setPriceRange(null));
-    }, []);
+    // useEffect(() => {
+    //   dispatch(clearFilters({}));
+    //   dispatch(setPriceRange(null));
+    // }, []);
   
     const clearAllFilters = useCallback(() => {
       dispatch(clearFilters({}));
@@ -114,7 +114,7 @@
     return (
       <div className={`relative md:overflow-visible scrollbar-hide ${className || ""}`}>
         <FilterChoice
-          isAllFiltersLoading={true}
+          isAllFiltersLoading={false}
           deletePriceRange={() => dispatch(setPriceRange(null))}
           priceRange={priceRange}
           filters={filters}

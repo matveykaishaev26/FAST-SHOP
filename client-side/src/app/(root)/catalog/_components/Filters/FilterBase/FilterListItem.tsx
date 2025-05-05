@@ -1,9 +1,9 @@
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
+import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { toggleFilter } from "@/features/slices/filtersSlice";
 import FilterCheckbox from "../FilterCheckbox";
-import { IFilterItem, IFilterOption, IFilters } from "@/shared/types/filter.interface";
+import { IFilterItem, IFilters } from "@/shared/types/filter.interface";
 
 interface IFilterListItem {
   item: IFilterItem;
@@ -19,33 +19,17 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
   const pathname = usePathname();
   const router = useRouter();
 
-  const [localChecked, setLocalChecked] = useState(false);
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    const paramValue = params.get(filterType);
-    const ids = paramValue ? paramValue.split(",") : [];
-    console.log(ids);
+  const paramValue = searchParams.get(filterType);
+  const ids = paramValue ? paramValue.split(",") : [];
+  const isChecked = ids.includes(item.id);
 
-    if (ids.includes(item.id)) {
-      console.log(item.id);
-      dispatch(toggleFilter({ option: item, filterType, isChecked: true }));
-    }
-  }, []); // пустой массив зависимостей = только при первом рендере
-
-  // Синхронизация localChecked с URL
-  useEffect(() => {
-    const params = new URLSearchParams(searchParams.toString());
-    const paramValue = params.get(filterType); // строка: "id1,id2"
-    const ids = paramValue ? paramValue.split(",") : [];
-    setLocalChecked(ids.includes(item.id));
-  }, [searchParams, item.id, filterType]);
+  // useEffect(() => {
+  //   dispatch(toggleFilter({ option: item, filterType, isChecked: isChecked }));
+  // }, []);
 
   const handleCheckboxChange = (checked: boolean) => {
-    setLocalChecked(checked); // моментальная реакция UI
-
     const params = new URLSearchParams(searchParams.toString());
-    const paramValue = params.get(filterType);
-    const currentValues = paramValue ? paramValue.split(",") : [];
+    const currentValues = params.get(filterType) ? params.get(filterType)!.split(",") : [];
 
     let newValues: string[];
     if (checked) {
@@ -73,7 +57,7 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
       <FilterCheckbox
         id={item.id}
         className={`${item.productCount === 0 && "opacity-50 select-none"}`}
-        checked={localChecked}
+        checked={isChecked}
         onChange={handleCheckboxChange}
       >
         {renderItem ? (

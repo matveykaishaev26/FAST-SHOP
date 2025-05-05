@@ -58,7 +58,7 @@ export class ProductController {
   ) {
     return this.productService.addToFavorite(userId, productVariantId);
   }
-  
+
   @Get('product-cards')
   async getProductCards(
     @Query('page') page = 1,
@@ -72,7 +72,6 @@ export class ProductController {
     @Query('colorIds') colorIds?: string[] | string,
     @Query('priceRange') priceRange?: string,
     @Query('sortType') sortType?: string,
-
   ) {
     function toArray(param?: string[] | string): string[] {
       return Array.isArray(param) ? param : param ? [param] : [];
@@ -96,7 +95,7 @@ export class ProductController {
       sizeIds: toArray(sizeIds),
       colorIds: toArray(colorIds),
       priceRange: parsedPriceRange,
-      sortType: sortType
+      sortType: sortType,
     });
   }
 
@@ -130,5 +129,10 @@ export class ProductController {
   @Roles(UserRole.ADMIN)
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(id, dto);
+  }
+
+  @Get(':productVariantId')
+  async getProduct(@Param('productVariantId') productVariantId: string) {
+    return this.productService.getProduct(productVariantId);
   }
 }

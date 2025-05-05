@@ -7,7 +7,7 @@ import { Button } from "@/shared/components/ui/button";
 import { useAddToUserFavoritesMutation, useDeleteUserFavoritesMutation } from "@/features/api/userFavoritesApi";
 import { ISize } from "@/shared/types/size.interface";
 import toast from "react-hot-toast";
-import { Toaster } from "react-hot-toast";
+import { IActiveSize } from "./Card";
 
 interface IFavoriteProps {
   className?: string;
@@ -17,8 +17,8 @@ interface IFavoriteProps {
   productVariantId: string;
   isFavorited: boolean;
   setIsFavorited: React.Dispatch<React.SetStateAction<boolean>>;
-  activeSize: any;
-  setActiveSize: any;
+  activeSize: IActiveSize | null;
+  setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize>>;
   variant?: "catalog" | "favorite";
 }
 
@@ -38,12 +38,11 @@ export default function Favorite({
   const router = useRouter();
   const [addMutate] = useAddToUserFavoritesMutation(); // Updated hook name
   const [deleteMutate] = useDeleteUserFavoritesMutation(); // Updated hook name
-
-  // const [activeSize, setActiveSize] = useState<string>("");
   const handleAddToFavorite = async () => {
     if (activeSize) {
       try {
-        await addMutate({ productVariantId, sizeId: activeSize });
+        await addMutate({ productVariantId, sizeId: activeSize.id });
+        console.log({ productVariantId, sizeId: activeSize.id });
         setIsFavorited((prev) => !prev);
 
         setIsDialogOpen(false);
@@ -56,46 +55,87 @@ export default function Favorite({
         });
       } catch (e) {
         console.error("Ошибка добавления в избранное", e);
+        toast.success("Ошибка добавления в избранное!", {
+          position: "bottom-right",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
         setIsFavorited(false);
       }
     }
   };
 
   const handleDeleteFavorite = async () => {
-    if (variant === "favorite") {
-      try {
-        await deleteMutate({ productVariantId, sizeId: activeSize });
-      } catch (e) {
-        console.error("Ошибка добавления в избранное", e);
-        setIsFavorited(false);
-      }
+    if (!activeSize) return;
+    try {
+      await deleteMutate({ productVariantId, sizeId: activeSize.id });
+      toast.success("Товар удален из избранного!", {
+        position: "bottom-right",
+        style: {
+          background: "#333",
+          color: "#fff",
+        },
+      });
+      setIsFavorited(false);
+    } catch (e) {
+      console.error("Ошибка удаления из избранного", e);
+      toast.error("Ошибка!", {
+        position: "bottom-right",
+        style: {
+          background: "#333",
+          color: "#fff",
+        },
+      });
     }
   };
-
-  return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+  if (variant == "favorite") {
+    return (
       <div
         onClick={(e) => {
-          e.stopPropagation();
-
-          if (!token) {
-            router.push(PUBLIC_URL.auth("login"));
-            return;
-          }
-
-          if (variant === "favorite") {
-            handleDeleteFavorite();
-          } else {
-            if (variant === "catalog") setIsDialogOpen(true); // показать выбор размера
-          }
+          handleDeleteFavorite();
         }}
         className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
           className ? className : ""
         } ${isFavorited || variant == "favorite" ? "lg:opacity-100" : ""}`}
       >
+        {" "}
         <Heart
           className={`transition-colors ${
             isFavorited || variant == "favorite" ? "text-primary" : "text-muted-foreground"
+          } group-hover/favorite-light:text-primary`}
+          size={18}
+        />
+      </div>
+    );
+  }
+
+  return (
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <div
+        onClick={(e) => {
+          e.stopPropagation()
+          e.preventDefault()
+          if (isFavorited) {
+            handleDeleteFavorite();
+          } else {
+
+            if (!token) {
+              router.push(PUBLIC_URL.auth("login"));
+              return;
+            }
+
+            setIsDialogOpen(true); // показать выбор размера
+          }
+        }}
+        className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
+          className ? className : ""
+        } ${isFavorited ? "lg:opacity-100" : ""}`}
+      >
+        <Heart
+          className={`transition-colors ${
+            isFavorited ? "text-primary" : "text-muted-foreground"
           } group-hover/favorite-light:text-primary`}
           size={18}
         />
@@ -109,11 +149,11 @@ export default function Favorite({
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
           {sizes?.map((size) => (
             <div
-              onClick={() => setActiveSize(size.id)}
+              onClick={() => setActiveSize({ id: size.id, title: size.title })}
               key={size.title}
               className={`border rounded-lg flex justify-center items-center cursor-pointer select-none transition hover:border-primary aspect-square ${
                 size.quantity < 0 ? "opacity-50 pointer-events-none" : ""
-              } ${activeSize === size.id && "border-primary"}`}
+              } ${activeSize?.id === size.id && "border-primary"}`}
             >
               {size.title}
             </div>

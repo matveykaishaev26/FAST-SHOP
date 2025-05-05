@@ -8,9 +8,9 @@ import { useRouter } from "next/navigation";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { CARDS_RESPONSE_MODE } from "@/features/api/productApi";
 import { useEffect, useState } from "react";
-import CardsSkeleton from "./CardsSkeleton";
 import { useAppSelector } from "@/hooks/useAppDispatch";
-import Card from "./Card";
+import Card from "@/shared/components/Cards/Card";
+import CardsSkeleton from "@/shared/components/Cards/CardsSkeleton";
 const LIMIT = 20;
 
 interface ICardsProps {
@@ -48,7 +48,6 @@ export default function CatalogCards({ setCardsCount }: ICardsProps) {
     }
   }, [isFetching]);
 
-  const pathname = usePathname();
   // useEffect(() => {
     
   //   const params = new URLSearchParams(searchParams.toString());

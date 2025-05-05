@@ -202,6 +202,111 @@ export class ProductService {
     });
     return { message: 'Добавлено в избранное' };
   }
+  async getProduct(productVariantId: string) {
+    const product = await this.prisma.productVariant.findFirst({
+      where: {
+        id: productVariantId,
+      },
+      select: {
+        id: true,
+        images: true,
+        price: true,
+        product: {
+          select: {
+            title: true,
+            description: true,
+            brand: {
+              select: { title: true },
+            },
+            _count: {
+              select: {
+                reviews: true,
+              },
+            },
+            reviews: {
+              select: {
+                rating: true,
+              },
+            },
+            productMaterals: {
+              select: {
+                id: true,
+                productPart: true,
+                percentage: true,
+                material: {
+                  select: {
+                    title: true,
+                  },
+                },
+              },
+            },
+          },
+        },
+
+        productVariantQuantity: {
+          select: {
+            size: { select: { title: true, id: true } },
+            quantity: true,
+          },
+        },
+        productVariantColors: {
+          select: {
+            color: { select: { title: true } },
+          },
+        },
+      },
+    });
+    const productPartLabels = {
+      SOLE: 'Низ',
+      UPPER: 'Верх',
+      LINING: 'Подкладка',
+    };
+    const rawMats = product.product.productMaterals;
+    const materials: Record<string, { title: string; percentage: number | null }[]> = 
+  rawMats.reduce((acc, item) => {
+    // находим ключ-метку
+    const label = productPartLabels[item.productPart] || item.productPart;
+    
+    // если ещё нет в аккумуляторе — инициализируем
+    if (!acc[label]) {
+      acc[label] = [];
+    }
+    
+    // пушим объект
+    acc[label].push({
+      title: item.material.title,
+      percentage: item.percentage,
+    });
+    
+    return acc;
+  }, {});
+    // console.log(materials);
+    const items = {
+      id: product.id,
+      title: product.product.title,
+      description: product.product.description,
+      brand: product.product.brand.title,
+      images: product.images,
+      price: product.price,
+      // materials: product.product.productMaterals.map((material) => ({
+      //   ...material,
+      //   productPart:
+      //     productPartLabels[material.productPart] || material.productPart, // Используем маппинг для замены значений
+      // })),
+      materials: materials,
+      sizes: product.productVariantQuantity.map((v) => ({
+        id: v.size.id,
+        title: v.size.title,
+        quantity: v.quantity,
+      })),
+      colors: product.productVariantColors.map((v) => v.color.title),
+      reviews: product.product.reviews,
+    };
+
+    // console.log(items);
+
+    return items;
+  }
 
   async getProductCards(
     page: number = 1,

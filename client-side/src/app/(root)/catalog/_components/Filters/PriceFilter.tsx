@@ -12,7 +12,6 @@ import { typeIsFiltersLoading } from "../../types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
-
 }
 
 const MAX_DEFAULT = 32199;
@@ -29,24 +28,32 @@ export default function PriceFilter({ priceRange }: IPriceFilterProps) {
   );
 
   const dispatch = useAppDispatch();
-
   useEffect(() => {
     const priceParam = searchParams.get("priceRange");
-
     if (priceParam) {
       const [minStr, maxStr] = priceParam.split("-");
       const min = parseInt(minStr);
       const max = parseInt(maxStr);
-      if (min && max) dispatch(setPriceRange([min, max]));
-    }
-  }, []);
-  useEffect(() => {
-    if (priceRange) {
-      setLocalRange(priceRange);
-    } else if (priceRangeData) {
-      setLocalRange([priceRangeData.minPrice ?? MIN_DEFAULT, priceRangeData.maxPrice ?? MAX_DEFAULT]);
+      if (!isNaN(min) && !isNaN(max)) {
+        dispatch(setPriceRange([min, max]));
+        setLocalRange([min, max]);
+      }
+    } else {
+      if (priceRange) {
+        setLocalRange(priceRange);
+      } else if (priceRangeData) {
+        setLocalRange([priceRangeData.minPrice ?? MIN_DEFAULT, priceRangeData.maxPrice ?? MAX_DEFAULT]);
+      }
     }
   }, [priceRangeData]);
+
+  // useEffect(() => {
+  //   if (priceRange) {
+  //     setLocalRange(priceRange);
+  //   } else if (priceRangeData) {
+  //     setLocalRange([priceRangeData.minPrice ?? MIN_DEFAULT, priceRangeData.maxPrice ?? MAX_DEFAULT]);
+  //   }
+  // }, [priceRangeData]);
   useEffect(() => {
     if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
       dispatch(setPriceRange(null));

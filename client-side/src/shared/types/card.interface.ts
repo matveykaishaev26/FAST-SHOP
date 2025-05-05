@@ -1,4 +1,5 @@
 import { ISize } from "./size.interface";
+
 export interface ICardItem {
   id: string;
   title: string;
@@ -13,7 +14,6 @@ export interface ICardItem {
   };
 }
 
-
 export interface IBaseItem {
   id: string;
   title: string;
@@ -27,9 +27,9 @@ export interface IBaseItem {
   };
 }
 
-
 export interface IFavoriteCardItem extends IBaseItem {
   size: ISize;
+  productVariantId: string;
 }
 
 // Для карточки товара - использует массив sizes

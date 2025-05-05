@@ -22,12 +22,10 @@ export default function ForgotPasswordPage() {
     },
   });
   const onSubmit = async (data: z.infer<typeof ForgotPasswordSchema>) => {
-    console.log(data);
     try {
       await mutate({
         email: data.email,
       }).unwrap();
-      console.log(data);
       form.reset();
     } catch {
       console.log(error);

@@ -6,7 +6,8 @@ import SortSelect from "./_components/SortSelect";
 type Props = {
   searchParams: Record<string, string | string[]>;
 };
-export default function Catalog({  }: Props) {
+export default function Catalog({ }: Props) {
+  
   return (
     <div className=" h-full">
       <PageHeader header="Каталог" />

@@ -24,7 +24,6 @@ export default function RegisterPage() {
   const [mutate, { data: registerData, isLoading, error }] = useRegisterMutation();
   const onSubmit = async (data: z.infer<typeof RegisterSchema>) => {
     try {
-      console.log(data);
       await mutate({
         name: data.name,
         email: data.email,

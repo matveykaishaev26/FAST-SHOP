@@ -55,7 +55,7 @@ export default function PaginationControl({ page, totalPages, disabled }: IPagin
           </div>
         );
       })}
-      {page <= totalPages - PAGES_COUNT / 2 && (
+      {page <= totalPages - PAGES_COUNT / 2  && totalPages !== PAGES_COUNT && (
         <div className="h-6 w-6 sm:h-icon sm:w-icon flex justify-center items-center">...</div>
       )}
 

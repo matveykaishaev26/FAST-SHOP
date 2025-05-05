@@ -4,6 +4,9 @@ import Image from "next/image";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { ISize } from "@/shared/types/size.interface";
 import Favorite from "./Favorite";
+import { IActiveSize } from "./Card";
+import { useRouter } from "next13-progressbar";
+import { PUBLIC_URL } from "@/config/url.config";
 
 interface ICardImagesProps {
   images: string[];
@@ -11,9 +14,10 @@ interface ICardImagesProps {
   className?: string;
   sizes: ISize[];
   productVariantId: string;
-  activeSize: any;
+  activeSize: IActiveSize | null;
   setActiveSize: any;
   variant?: "catalog" | "favorite";
+  handlePushToItemPage: () => void;
 }
 
 const DEFAULT_FALLBACK_IMAGE = "/images/default-product.webp"; // Добавьте этот файл в ваш проект
@@ -27,10 +31,12 @@ export default function CardImages({
   activeSize,
   setActiveSize,
   variant,
+  handlePushToItemPage,
 }: ICardImagesProps) {
   const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isFavorited, setIsFavorited] = useState(false);
+
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
       if (isDialogOpen) return;
@@ -43,7 +49,6 @@ export default function CardImages({
     },
     [images, isDialogOpen]
   );
-
   const handleMouseLeave = useCallback(() => {
     setCurrentImage(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   }, [images]);
@@ -72,7 +77,7 @@ export default function CardImages({
       src={currentImage}
       alt={alt}
       fill
-      className="object-cover cursor-pointer pointer-events-none"
+      className="object-cover cursor-pointer "
       onError={(e) => {
         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
         (e.target as HTMLImageElement).classList.add("opacity-80");
@@ -80,11 +85,7 @@ export default function CardImages({
     />
   );
   const defaultClass = "relative aspect-[9/12] cursor-pointer w-full transition-opacity duration-200";
-  useEffect(() => {
-    if (variant === "favorite") {
-      console.log(activeSize);
-    }
-  }, []);
+
   return (
     <>
       <div
@@ -107,9 +108,11 @@ export default function CardImages({
             isDialogOpen={isDialogOpen}
           />
         </div>
-        <CardImage />
+        <div onClick={handlePushToItemPage}>
+          <CardImage />
+        </div>
         {variant === "favorite" && (
-          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize}</div>
+          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize?.title}</div>
         )}
         <div className="absolute z-10 bottom-6 left-1/2 -translate-x-1/2 hidden items-center justify-center gap-x-1 lg:flex opacity-0 group-hover:opacity-100">
           {images.map((image, index) => (
@@ -124,6 +127,7 @@ export default function CardImages({
       </div>
       <div className={`${defaultClass} block lg:hidden`}>
         <Favorite
+          variant={variant}
           activeSize={activeSize}
           setActiveSize={setActiveSize}
           isFavorited={isFavorited}
@@ -134,7 +138,7 @@ export default function CardImages({
           sizes={sizes}
         />
         {variant === "favorite" && (
-          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize}</div>
+          <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize?.title}</div>
         )}
 
         <CardImage />
