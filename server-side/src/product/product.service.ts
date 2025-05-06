@@ -213,6 +213,7 @@ export class ProductService {
         price: true,
         product: {
           select: {
+            id: true,
             title: true,
             description: true,
             brand: {
@@ -256,43 +257,71 @@ export class ProductService {
         },
       },
     });
+    const sameProductVariants = await this.prisma.productVariant
+      .findMany({
+        where: {
+          product: {
+            id: product.product.id,
+          },
+        },
+        select: {
+          id: true,
+          images: true,
+          productVariantColors: {
+            select: {
+              color: { select: { title: true } },
+            },
+          },
+        },
+      })
+      .then((res) => res.filter((item) => item.id !== product.id));
+    // console.log(sameProductVariants);
+
+    const variants = sameProductVariants.reduce(function (result, item) {
+      return {
+        ...result,
+        [item.id]: {
+          colors: item.productVariantColors.map((item) => item.color.title),
+          image: item.images[0],
+        },
+      };
+    }, {});
     const productPartLabels = {
       SOLE: 'Низ',
       UPPER: 'Верх',
       LINING: 'Подкладка',
     };
-    const rawMats = product.product.productMaterals;
-    const materials: Record<string, { title: string; percentage: number | null }[]> = 
-  rawMats.reduce((acc, item) => {
-    // находим ключ-метку
-    const label = productPartLabels[item.productPart] || item.productPart;
-    
-    // если ещё нет в аккумуляторе — инициализируем
-    if (!acc[label]) {
-      acc[label] = [];
-    }
-    
-    // пушим объект
-    acc[label].push({
-      title: item.material.title,
-      percentage: item.percentage,
-    });
-    
-    return acc;
-  }, {});
-    // console.log(materials);
-    const items = {
+    const rawMats = product.product?.productMaterals ?? [];
+
+    const materials: Record<
+      string,
+      { title: string; percentage: number | null }[]
+    > = rawMats.reduce((acc, item) => {
+      // находим ключ-метку
+      const label = productPartLabels[item.productPart] || item.productPart;
+
+      // если ещё нет в аккумуляторе — инициализируем
+      if (!acc[label]) {
+        acc[label] = [];
+      }
+
+      // пушим объект
+      acc[label].push({
+        title: item.material.title,
+        percentage: item.percentage,
+      });
+
+      return acc;
+    }, {});
+
+    return {
       id: product.id,
       title: product.product.title,
       description: product.product.description,
       brand: product.product.brand.title,
       images: product.images,
       price: product.price,
-      // materials: product.product.productMaterals.map((material) => ({
-      //   ...material,
-      //   productPart:
-      //     productPartLabels[material.productPart] || material.productPart, // Используем маппинг для замены значений
-      // })),
+      variants,
       materials: materials,
       sizes: product.productVariantQuantity.map((v) => ({
         id: v.size.id,
@@ -302,10 +331,6 @@ export class ProductService {
       colors: product.productVariantColors.map((v) => v.color.title),
       reviews: product.product.reviews,
     };
-
-    // console.log(items);
-
-    return items;
   }
 
   async getProductCards(
