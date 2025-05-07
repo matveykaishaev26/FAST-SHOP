@@ -74,11 +74,7 @@ export default async function Page({ params }: Params) {
           <h1 className="text-3xl font-bold">{title}</h1>
           <p className="text-muted-foreground">{description}</p>
 
-          <Rating
-            variant="lg"
-            count={String(Array.isArray(reviews) ? reviews.length : 0)}
-            value={String(averageRating)}
-          />
+          <Rating variant="lg" count={Array.isArray(reviews) ? reviews.length : 0} value={String(averageRating)} />
 
           <p className="text-2xl font-semibold">{price.toLocaleString()} ₽</p>
 
@@ -101,8 +97,8 @@ export default async function Page({ params }: Params) {
               <div key={key} className="border-b">
                 <div className="mb-2 font-bold">{key}</div>
                 <div>
-                  {values.map((item: { title: string; percentage: number }) => (
-                    <span className="flex justify-between ">
+                  {values.map((item: { title: string; percentage: number }, index) => (
+                    <span key={`${item.title}-${index}`} className="flex justify-between ">
                       {item.title}
                       <span>{item.percentage}%</span>
                     </span>
@@ -113,7 +109,7 @@ export default async function Page({ params }: Params) {
           </div>
         </div>
 
-        <AddToCartForm sizes={sizes} />
+        <AddToCartForm productVariantId={id} sizes={sizes} />
       </div>
     </div>
   );

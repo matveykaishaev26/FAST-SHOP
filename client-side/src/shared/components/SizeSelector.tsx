@@ -1,23 +1,17 @@
 import React from "react";
 import { ISize } from "../types/size.interface";
 
-export interface SizeOption {
+interface ISizeSelectorProps {
+  sizes: ISize[];
+  activeSize: IActiveSize | null;
+  setActiveSize: (size: IActiveSize) => void;
+}
+
+export interface IActiveSize {
   id: string;
   title: string;
-  quantity: number;
 }
-
-interface SizeSelectorProps {
-  sizes: ISize[];
-  activeSize: SizeOption | null;
-  setActiveSize: (size: SizeOption) => void;
-}
-
-export default function SizeSelector({
-  sizes,
-  activeSize,
-  setActiveSize,
-}: SizeSelectorProps) {
+export default function SizeSelector({ sizes, activeSize, setActiveSize }: ISizeSelectorProps) {
   return (
     <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
       {sizes.map((size) => {
@@ -27,7 +21,7 @@ export default function SizeSelector({
         return (
           <div
             key={size.id}
-            onClick={() => !isDisabled && setActiveSize(size)}
+            onClick={() => !isDisabled && setActiveSize({ id: size.id, title: size.title })}
             className={`border rounded-lg flex justify-center items-center cursor-pointer select-none transition aspect-square
               ${isDisabled ? "opacity-50 pointer-events-none" : ""}
               ${isActive ? "border-primary" : "hover:border-primary"}`}

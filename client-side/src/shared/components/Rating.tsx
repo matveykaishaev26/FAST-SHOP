@@ -1,6 +1,6 @@
 interface IRatingProps {
     value: string;
-    count: string;
+    count: number;
     variant?: "sm" | "md" | "lg";
   }
   
@@ -15,7 +15,7 @@ interface IRatingProps {
       <div className={`flex items-center gap-x-1 ${classNameMap[variant]}`}>
         <span className="text-primary text-lg">★</span>
         <span className="truncate text-muted-foreground">{value}</span>
-        <span className="text-muted-foreground">({count} оценок)</span>
+        <span className="text-muted-foreground">({count})</span>
       </div>
     );
   }

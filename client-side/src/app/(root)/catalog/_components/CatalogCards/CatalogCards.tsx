@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import { useAppSelector } from "@/hooks/useAppDispatch";
 import Card from "@/shared/components/Cards/Card";
 import CardsSkeleton from "@/shared/components/Cards/CardsSkeleton";
+
 const LIMIT = 20;
 
 interface ICardsProps {
@@ -31,6 +32,8 @@ export default function CatalogCards({ setCardsCount }: ICardsProps) {
     filters: { priceRange, ...filters },
     sortType: currentSort,
   });
+
+  
   const { items, totalCount, totalPages, currentPage } = data || {};
 
   const loadMore = () => {

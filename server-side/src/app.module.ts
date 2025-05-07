@@ -22,6 +22,7 @@ import { ColorModule } from './color/color.module';
 import { ProductVariantColorsModule } from './product-variant-colors/product-variant-colors.module';
 import { SizeModule } from './size/size.module';
 import { UserFavoritesModule } from './user-favorites/user-favorites.module';
+import { BasketModule } from './basket/basket.module';
 @Module({
   imports: [
     ScheduleModule.forRoot(), // for scheduled tasks
@@ -47,6 +48,7 @@ import { UserFavoritesModule } from './user-favorites/user-favorites.module';
     ProductVariantColorsModule,
     SizeModule,
     UserFavoritesModule,
+    BasketModule,
   ],
 })
 export class AppModule {}

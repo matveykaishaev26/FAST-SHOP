@@ -50,6 +50,7 @@ model User {
   orders    Order[]
   favorites UserFavorites[]
   Account   Account[]
+  Basket    Basket[]
 
   @@map("user")
 }
@@ -194,6 +195,7 @@ model ProductVariant {
   productId              String?                  @map("product_id")
   productVariantQuantity ProductVariantQuantity[]
   productVariantColors   ProductVariantColors[]
+  Basket                 Basket[]
 
   @@map("product_variant")
 }
@@ -233,6 +235,7 @@ model Size {
   title                  Float                    @unique
   productVariantQuantity ProductVariantQuantity[]
   userFavorites          UserFavorites[]
+  Basket                 Basket[]
 
   @@map("size")
 }
@@ -262,6 +265,22 @@ model UserFavorites {
 
   @@unique([userId, productVariantId, sizeId])
   @@map("user_favorites")
+}
+
+model Basket {
+  id     String @id @default(cuid())
+  user   User   @relation(fields: [userId], references: [id])
+  userId String @map("user_id")
+
+  productVariant   ProductVariant? @relation(fields: [productVariantId], references: [id])
+  productVariantId String?         @map("product_variant_id")
+
+  quantity Int
+  size     Size?   @relation(fields: [sizeId], references: [id])
+  sizeId   String? @map("size_id")
+
+  @@unique([userId, productVariantId, sizeId])
+  @@map("basket")
 }
 
 model Category {

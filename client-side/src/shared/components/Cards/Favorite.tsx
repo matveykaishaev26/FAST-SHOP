@@ -7,18 +7,19 @@ import { Button } from "@/shared/components/ui/button";
 import { useAddToUserFavoritesMutation, useDeleteUserFavoritesMutation } from "@/features/api/userFavoritesApi";
 import { ISize } from "@/shared/types/size.interface";
 import toast from "react-hot-toast";
-import { IActiveSize } from "./Card";
-
+import { IActiveSize } from "../SizeSelector";
+import SizeSelector from "../SizeSelector";
 interface IFavoriteProps {
   className?: string;
+  alwaysVisible?: boolean;
   setIsDialogOpen?: (open: boolean) => void;
   isDialogOpen?: boolean;
   sizes?: ISize[];
   productVariantId: string;
   isFavorited: boolean;
-  setIsFavorited: React.Dispatch<React.SetStateAction<boolean>>;
+  setIsFavorited: (state: boolean) => void;
   activeSize: IActiveSize | null;
-  setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize>>;
+  setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
   variant?: "catalog" | "favorite";
 }
 
@@ -32,6 +33,7 @@ export default function Favorite({
   setIsFavorited,
   activeSize,
   setActiveSize,
+  alwaysVisible = true,
   variant = "catalog",
 }: IFavoriteProps) {
   const token = getAccessToken();
@@ -43,7 +45,7 @@ export default function Favorite({
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
         console.log({ productVariantId, sizeId: activeSize.id });
-        setIsFavorited((prev) => !prev);
+        setIsFavorited(true);
 
         setIsDialogOpen(false);
         toast.success("Товар добавлен в избранное!", {
@@ -93,10 +95,10 @@ export default function Favorite({
   if (variant == "favorite") {
     return (
       <div
-        onClick={(e) => {
+        onClick={() => {
           handleDeleteFavorite();
         }}
-        className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
+        className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
           className ? className : ""
         } ${isFavorited || variant == "favorite" ? "lg:opacity-100" : ""}`}
       >
@@ -115,23 +117,18 @@ export default function Favorite({
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <div
         onClick={(e) => {
-          e.stopPropagation()
-          e.preventDefault()
+          e.stopPropagation();
+          e.preventDefault();
           if (isFavorited) {
             handleDeleteFavorite();
-          } else {
-
-            if (!token) {
-              router.push(PUBLIC_URL.auth("login"));
-              return;
-            }
-
-            setIsDialogOpen(true); // показать выбор размера
-          }
+          } else if (!token) router.push(PUBLIC_URL.auth("login"));
+          else if (activeSize) {
+            handleAddToFavorite();
+          } else setIsDialogOpen(true);
         }}
-        className={`exclude-hover z-20 transition-all cursor-pointer absolute top-2 right-2 bg-background shadow-md p-2 rounded-full group/favorite-light lg:opacity-0 lg:group-hover/favorite:opacity-100 ${
-          className ? className : ""
-        } ${isFavorited ? "lg:opacity-100" : ""}`}
+        className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
+          alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
+        } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
       >
         <Heart
           className={`transition-colors ${
@@ -145,20 +142,7 @@ export default function Favorite({
         <DialogHeader>
           <DialogTitle className="text-2xl">Выберите размер</DialogTitle>
         </DialogHeader>
-
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-          {sizes?.map((size) => (
-            <div
-              onClick={() => setActiveSize({ id: size.id, title: size.title })}
-              key={size.title}
-              className={`border rounded-lg flex justify-center items-center cursor-pointer select-none transition hover:border-primary aspect-square ${
-                size.quantity < 0 ? "opacity-50 pointer-events-none" : ""
-              } ${activeSize?.id === size.id && "border-primary"}`}
-            >
-              {size.title}
-            </div>
-          ))}
-        </div>
+        {sizes && <SizeSelector setActiveSize={setActiveSize} sizes={sizes} activeSize={activeSize} />}
 
         <DialogFooter>
           <div className="flex justify-center gap-x-5">

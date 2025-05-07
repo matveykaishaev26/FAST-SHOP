@@ -2,16 +2,12 @@ import { Injectable } from '@nestjs/common';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
-export class UserFavoritesService {
+export class BasketService {
   constructor(private prisma: PrismaService) {}
 
-  async addToFavorite(
-    userId: string,
-    productVariantId: string,
-    sizeId: string,
-  ) {
-    console.log(userId, productVariantId, sizeId);
-    const userFavorites = await this.prisma.userFavorites.findFirst({
+  async addToBasket(userId: string, productVariantId: string, sizeId: string) {
+    console.log('dfgdfg');
+    const basket = await this.prisma.basket.findFirst({
       where: {
         userId,
         sizeId,
@@ -19,9 +15,10 @@ export class UserFavoritesService {
       },
     });
 
-    if (!userFavorites) {
-      await this.prisma.userFavorites.create({
+    if (!basket) {
+      await this.prisma.basket.create({
         data: {
+          quantity: 1,
           userId,
           productVariantId,
           sizeId,
@@ -29,30 +26,50 @@ export class UserFavoritesService {
       });
     }
   }
-  async deleteFavorite(
+  async deleteFromBasket(
     userId: string,
     productVariantId: string,
     sizeId: string,
   ) {
-    const userFavorites = await this.prisma.userFavorites.findFirst({
+    const basket = await this.prisma.basket.findFirst({
       where: {
         userId,
         productVariantId,
         sizeId,
       },
     });
-    console.log(userFavorites);
-    if (userFavorites) {
-      await this.prisma.userFavorites.delete({
+    console.log(basket);
+    if (basket) {
+      await this.prisma.basket.delete({
         where: {
-          id: userFavorites.id,
+          id: basket.id,
         },
       });
     }
   }
+  async getAddedSizes(userId: string, productVariantId: string) {
+    const basket = await this.prisma.basket.findMany({
+      where: {
+        userId,
+        productVariantId,
+      },
+      select: {
+        quantity: true,
+        size: true,
+      },
+    });
+    const res = basket.reduce(function (result, item) {
+      return {
+        ...result,
+        [item.size.id]: item.quantity,
+      };
+    }, {});
 
+    console.log('все добавленный размеры')
+    return res;
+  }
   async getFavoritesCount(userId: string) {
-    const count = await this.prisma.userFavorites.count({
+    const count = await this.prisma.basket.count({
       where: {
         userId,
       },
@@ -61,7 +78,7 @@ export class UserFavoritesService {
     return { count };
   }
 
-  async getUserFavorites(page: number = 1, limit: number = 10, userId: string) {
+  async getBasket(page: number = 1, limit: number = 10, userId: string) {
     const totalCount = await this.prisma.userFavorites.count({
       where: {
         userId,

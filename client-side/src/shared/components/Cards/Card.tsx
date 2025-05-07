@@ -6,17 +6,29 @@ import CardImages from "./CardImages";
 import { useRouter } from "next13-progressbar";
 import { PUBLIC_URL } from "@/config/url.config";
 import Rating from "../Rating";
+import { IActiveSize } from "../SizeSelector";
+import AddToBasketButton from "./AddToBasketButton";
+import { useGetAddedSizesQuery } from "@/features/api/basketApi";
+import SizesScroller from "./SizesScroller";
 interface ICardProps {
   product: ICardItem | IFavoriteCardItem;
   variant?: "catalog" | "favorite";
 }
 
-export interface IActiveSize {
-  id: string;
-  title: string;
-}
 export default function Card({ product, variant = "catalog" }: ICardProps) {
   const [activeSize, setActiveSize] = useState<IActiveSize | null>(null);
+  const [isAddToBasketOpen, setIsAddToBasketOpen] = useState(false);
+  const [isBasket, setIsBasket] = useState(false);
+
+  const { data } = useGetAddedSizesQuery(
+    {
+      productVariantId: product.id,
+    },
+    {
+      skip: !product.id, // не запрашиваем, если id нет
+    }
+  );
+  console.log(data);
   const router = useRouter();
   const handlePushToItemPage = () => {
     router.push(
@@ -28,6 +40,7 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
       setActiveSize({ id: (product as IFavoriteCardItem).size.id, title: (product as IFavoriteCardItem).size.title });
     }
   }, []);
+  console.log(product.rating);
   return (
     <CardUI
       key={product.id}
@@ -53,14 +66,21 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
             {product.title}
           </h3>
           <p className="text-sm truncate text-muted-foreground">{product.brand}</p>
-          <Rating
-            value={product.rating.value as string}
-            count={product.rating.count > 0 ? String(product.rating.count) : "Нет отзывов"}
-          />
+          <Rating value={String(product.rating.value)} count={product.rating.count} />
         </div>
+        <SizesScroller product={product as ICardItem} />
       </CardContent>
       <CardFooter className="p-0">
-        <Button className="w-full">В корзину</Button>
+        <AddToBasketButton
+          activeSize={activeSize}
+          setActiveSize={setActiveSize}
+          isFavorited={isBasket}
+          setIsFavorited={setIsBasket}
+          productVariantId={product.id}
+          sizes={(product as ICardItem)?.sizes}
+          setIsDialogOpen={setIsAddToBasketOpen}
+          isDialogOpen={isAddToBasketOpen}
+        />
       </CardFooter>
     </CardUI>
   );

@@ -9,7 +9,7 @@ export interface ICardItem {
   images: string[];
   colors: string[];
   rating: {
-    value: number | string;
+    value: number
     count: number;
   };
 }
@@ -22,7 +22,7 @@ export interface IBaseItem {
   images: string[];
   colors: string[];
   rating: {
-    value: number | string;
+    value: number 
     count: number;
   };
 }

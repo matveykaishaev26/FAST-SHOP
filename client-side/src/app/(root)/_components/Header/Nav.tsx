@@ -6,18 +6,23 @@ import { ReactNode } from "react";
 import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { usePathname } from "next/navigation";
 import { useGetFavoritesCountQuery } from "@/features/api/userFavoritesApi";
-import { IGetFavoritesCount } from "@/features/api/userFavoritesApi";
 import { getAccessToken } from "@/services/auth/auth-token.service";
 import ItemsCount from "@/shared/components/ItemsCount";
+import { useGetBasketCountQuery } from "@/features/api/basketApi";
 interface INavItems {
   label: string;
   icon: ReactNode;
   href: string;
 }
-
+interface ICount {
+  count: number;
+}
 export default function Nav() {
   const token = getAccessToken();
-  const { data, isLoading } = useGetFavoritesCountQuery(undefined, {
+  const { data: favoritesCount } = useGetFavoritesCountQuery(undefined, {
+    skip: !token,
+  });
+  const { data: basket } = useGetBasketCountQuery(undefined, {
     skip: !token,
   });
   const pathname = usePathname();
@@ -41,7 +46,9 @@ export default function Nav() {
         <div className="relative">
           <Heart size={20} />
           <div className="absolute  bottom-2 left-5 ">
-            {token  && (data as IGetFavoritesCount)?.favoritesCount > 0 && <ItemsCount count={(data as IGetFavoritesCount)?.favoritesCount} size={"sm"} />}
+            {token && (favoritesCount as ICount)?.count > 0 && (
+              <ItemsCount count={(favoritesCount as ICount)?.count} size={"sm"} />
+            )}
           </div>
         </div>
       ),
@@ -50,7 +57,14 @@ export default function Nav() {
       label: "Корзина",
       href: PROFILE_URL.basket(),
 
-      icon: <ShoppingBag size={20} />,
+      icon: (
+        <div className="relative">
+          <ShoppingBag size={20} />
+          <div className="absolute  bottom-2 left-5 ">
+            {token && (basket as ICount)?.count > 0 && <ItemsCount count={(basket as ICount)?.count} size={"sm"} />}
+          </div>
+        </div>
+      ),
     },
   ];
   return (

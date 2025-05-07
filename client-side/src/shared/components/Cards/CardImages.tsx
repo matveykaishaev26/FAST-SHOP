@@ -4,9 +4,9 @@ import Image from "next/image";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { ISize } from "@/shared/types/size.interface";
 import Favorite from "./Favorite";
-import { IActiveSize } from "./Card";
 import { useRouter } from "next13-progressbar";
 import { PUBLIC_URL } from "@/config/url.config";
+import { IActiveSize } from "../SizeSelector";
 
 interface ICardImagesProps {
   images: string[];
@@ -15,7 +15,7 @@ interface ICardImagesProps {
   sizes: ISize[];
   productVariantId: string;
   activeSize: IActiveSize | null;
-  setActiveSize: any;
+  setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
   variant?: "catalog" | "favorite";
   handlePushToItemPage: () => void;
 }
@@ -97,11 +97,12 @@ export default function CardImages({
       >
         <div className="pointer-events-auto">
           <Favorite
+            className="absolute top-2 right-2"
             variant={variant}
             activeSize={activeSize}
             setActiveSize={setActiveSize}
             isFavorited={isFavorited}
-            setIsFavorited={setIsFavorited}
+            setIsFavorited={ setIsFavorited}
             productVariantId={productVariantId}
             sizes={sizes}
             setIsDialogOpen={setIsOpen}
