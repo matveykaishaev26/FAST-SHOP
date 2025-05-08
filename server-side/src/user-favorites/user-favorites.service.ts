@@ -60,6 +60,24 @@ export class UserFavoritesService {
 
     return { count };
   }
+  async getAddedSizes(userId: string, productVariant) {
+    const favorites = await this.prisma.userFavorites.findMany({
+      where: {
+        userId,
+        productVariant,
+      },
+      select: {
+        sizeId: true,
+      },
+    });
+    const res = favorites.reduce(function (result, item) {
+      return {
+        ...result,
+        [item.sizeId]: true,
+      };
+    }, {});
+    return res;
+  }
 
   async getUserFavorites(page: number = 1, limit: number = 10, userId: string) {
     const totalCount = await this.prisma.userFavorites.count({

@@ -1,7 +1,8 @@
-import { Controller, Delete, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from '@nestjs/common';
 import { BasketService } from './basket.service';
 import { Auth } from 'src/auth/decorators/auth.decorator';
 import { CurrentUser } from 'src/user/decorators/user.decorator';
+import { ChangeQuantityDto } from './dto/change-quantity.dto';
 
 @Controller('baskets')
 export class BasketController {
@@ -19,7 +20,7 @@ export class BasketController {
   @Auth()
   @Get('count')
   getBasketCount(@CurrentUser('id') userId: string) {
-    return this.basketService.getFavoritesCount(userId);
+    return this.basketService.getBasketCount(userId);
   }
   @Auth()
   @Get('cards')
@@ -52,4 +53,11 @@ export class BasketController {
   ) {
     return this.basketService.getAddedSizes(userId, productVariantId);
   }
+
+
+  @Auth()
+@Patch('quantity')
+async changeQuantity(@Body() dto: ChangeQuantityDto, @CurrentUser('id') userId: string) {
+  return this.basketService.changeQuantity(userId, dto.productVariantId, dto.sizeId, dto.variant);
+}
 }

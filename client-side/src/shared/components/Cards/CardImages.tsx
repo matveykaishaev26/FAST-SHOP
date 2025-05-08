@@ -102,7 +102,7 @@ export default function CardImages({
             activeSize={activeSize}
             setActiveSize={setActiveSize}
             isFavorited={isFavorited}
-            setIsFavorited={ setIsFavorited}
+            setIsFavorited={setIsFavorited}
             productVariantId={productVariantId}
             sizes={sizes}
             setIsDialogOpen={setIsOpen}
@@ -128,15 +128,16 @@ export default function CardImages({
       </div>
       <div className={`${defaultClass} block lg:hidden`}>
         <Favorite
+          className="absolute top-2 right-2"
           variant={variant}
           activeSize={activeSize}
           setActiveSize={setActiveSize}
           isFavorited={isFavorited}
           setIsFavorited={setIsFavorited}
           productVariantId={productVariantId}
+          sizes={sizes}
           setIsDialogOpen={setIsOpen}
           isDialogOpen={isDialogOpen}
-          sizes={sizes}
         />
         {variant === "favorite" && (
           <div className="absolute bg-gray-500 bottom-0 text-white p-2 text-xs">{activeSize?.title}</div>

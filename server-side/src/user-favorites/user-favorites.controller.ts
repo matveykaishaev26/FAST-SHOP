@@ -61,4 +61,13 @@ export class UserFavoritesController {
       sizeId,
     );
   }
+
+  @Auth()
+  @Get('sizeAdded/:userId/:productVariantId')
+  async getAddedSizes(
+    @CurrentUser('id') userId: string,
+    @Param('productVariantId') productVariantId: string,
+  ) {
+    return this.userFavoritesService.getAddedSizes(userId, productVariantId);
+  }
 }

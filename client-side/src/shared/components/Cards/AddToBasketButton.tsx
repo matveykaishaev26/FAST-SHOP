@@ -10,17 +10,21 @@ import { useAddToBasketMutation } from "@/features/api/basketApi";
 import ChooseSizeDialog from "./ChooseSizeDialog";
 import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { useState } from "react";
+import { useChangeBasketQuantityMutation } from "@/features/api/basketApi";
 
-interface IFavoriteProps {
+interface AddToBasketButton {
+  initialQuantity: number;
   className?: string;
   alwaysVisible?: boolean;
   setIsDialogOpen?: (open: boolean) => void;
   isDialogOpen?: boolean;
   sizes?: ISize[];
   productVariantId: string;
-  isFavorited: boolean;
-  setIsFavorited: (state: boolean) => void;
-  activeSize: IActiveSize | null;
+  isAdded: boolean;
+  addedToBasket: any;
+
+  setIsAdded: (state: boolean) => void;
+  activeSize: IActiveSize;
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
 }
 
@@ -30,22 +34,25 @@ export default function AddToBasketButton({
   setIsDialogOpen = () => {},
   isDialogOpen = false,
   productVariantId,
-  isFavorited,
-  setIsFavorited,
+  isAdded,
+  setIsAdded,
   activeSize,
   setActiveSize,
   alwaysVisible = true,
-}: IFavoriteProps) {
+  initialQuantity,
+  addedToBasket,
+}: AddToBasketButton) {
   const token = getAccessToken();
   const router = useRouter();
   const [addMutate] = useAddToBasketMutation(); // Updated hook name
-  const [quantity, setQuantity] = useState(1); // State for quantity
+  const [quantity, setQuantity] = useState(initialQuantity); // State for quantity
+  const [changeMutate, { isLoading }] = useChangeBasketQuantityMutation();
 
-  const handleAddToFavorite = async () => {
+  const handleAddToBasket = async (localActiveSize?: IActiveSize) => {
     if (activeSize) {
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
-        setIsFavorited(true);
+        setIsAdded(true);
         setIsDialogOpen(false);
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
@@ -56,27 +63,19 @@ export default function AddToBasketButton({
           position: "bottom-right",
           style: { background: "#333", color: "#fff" },
         });
-        setIsFavorited(false);
+        setIsAdded(false);
       }
-    }
-  };
-
-  const handleDeleteFavorite = async () => {
-    if (!activeSize) return;
-    router.push(PROFILE_URL.basket());
-    try {
-      toast.success("Товар удален из корзины!", {
-        position: "bottom-right",
-        style: { background: "#333", color: "#fff" },
-      });
-      setIsFavorited(false);
-      setActiveSize(null);
-    } catch (e) {
-      toast.error("Ошибка!", {
-        position: "bottom-right",
-        style: { background: "#333", color: "#fff" },
-      });
-    }
+    } else if (localActiveSize) {
+      if (addedToBasket[localActiveSize.id]) {
+        setActiveSize(localActiveSize);
+        changeMutate({
+          productVariantId,
+          sizeId: localActiveSize?.id,
+          variant: "plus",
+        });
+        setIsDialogOpen(false);
+      }
+    } else return;
   };
 
   return (
@@ -86,47 +85,56 @@ export default function AddToBasketButton({
       onOpenChange={setIsDialogOpen}
       activeSize={activeSize}
       setActiveSize={setActiveSize}
-      onConfirm={handleAddToFavorite}
+      onConfirm={handleAddToBasket}
       trigger={
         <div className="flex items-center justify-between w-full gap-4">
           <Button
             onClick={(e) => {
               e.stopPropagation();
               e.preventDefault();
-              if (isFavorited) {
-                handleDeleteFavorite();
-              } else if (!token) router.push(PUBLIC_URL.auth("login"));
+              if (!token) router.push(PUBLIC_URL.auth("login"));
+              else if (isAdded) router.push(PROFILE_URL.basket());
               else if (activeSize) {
-                handleAddToFavorite();
+                handleAddToBasket();
               } else setIsDialogOpen(true);
             }}
-            className="w-full"
-            variant={isFavorited ? "outline" : "default"}
+            className="w-full md:text-sm text-xs"
+            variant={isAdded ? "outline" : "default"}
           >
-            {isFavorited ? "Перейти в корзину" : "В корзину"}
+            {isAdded ? "Перейти в корзину" : "В корзину"}
           </Button>
 
-          {isFavorited && (
-            <div className="flex items-center gap-2">
+          {isAdded && (
+            <div className="hidden items-center gap-2  sm:flex">
               <Button
+                disabled={isLoading || initialQuantity === 1}
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setQuantity((q) => Math.max(1, q - 1));
+                  changeMutate({
+                    productVariantId,
+                    sizeId: activeSize?.id,
+                    variant: "minus",
+                  });
                 }}
               >
                 <Minus size={16} />
               </Button>
-              <span className="text-sm">{quantity}</span>
+              <span className="text-sm">{initialQuantity}</span>
               <Button
+                disabled={isLoading}
                 type="button"
                 variant="outline"
                 size="icon"
                 onClick={(e) => {
                   e.stopPropagation();
-                  setQuantity((q) => q + 1);
+                  changeMutate({
+                    productVariantId,
+                    sizeId: activeSize?.id,
+                    variant: "plus",
+                  });
                 }}
               >
                 <Plus size={16} />

@@ -50,9 +50,9 @@ export default function FilterChoice({
           </Button>
         </div>
 
-        <div className="max-h-[300px] hide-scrollbar overflow-auto flex flex-wrap gap-1">
+        <div className="max-h-[300px] hide-scrollbar overflow-auto flex flex-wrap mt-2 gap-1">
           {isAllFiltersLoading ? (
-            <Skeleton className="h-8 mt-2 w-full" />
+            <Skeleton className="h-8  w-full" />
           ) : (
             <>
               {priceRange && (

@@ -8,6 +8,7 @@ import { useAddToUserFavoritesMutation, useDeleteUserFavoritesMutation } from "@
 import { ISize } from "@/shared/types/size.interface";
 import toast from "react-hot-toast";
 import { IActiveSize } from "../SizeSelector";
+import ChooseSizeDialog from "./ChooseSizeDialog";
 import SizeSelector from "../SizeSelector";
 interface IFavoriteProps {
   className?: string;
@@ -40,7 +41,7 @@ export default function Favorite({
   const router = useRouter();
   const [addMutate] = useAddToUserFavoritesMutation(); // Updated hook name
   const [deleteMutate] = useDeleteUserFavoritesMutation(); // Updated hook name
-  const handleAddToFavorite = async () => {
+  const handleAddToFavorite = async (localActiveSize?: IActiveSize) => {
     if (activeSize) {
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
@@ -66,7 +67,13 @@ export default function Favorite({
         });
         setIsFavorited(false);
       }
-    }
+    } else if (localActiveSize) {
+      // setActiveSize(localActiveSize);
+      await addMutate({ productVariantId, sizeId: localActiveSize.id });
+      setIsFavorited(true);
+
+      setIsDialogOpen(false);
+    } else return;
   };
 
   const handleDeleteFavorite = async () => {
@@ -114,47 +121,79 @@ export default function Favorite({
   }
 
   return (
-    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-      <div
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          if (isFavorited) {
-            handleDeleteFavorite();
-          } else if (!token) router.push(PUBLIC_URL.auth("login"));
-          else if (activeSize) {
-            handleAddToFavorite();
-          } else setIsDialogOpen(true);
-        }}
-        className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
-          alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
-        } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
-      >
-        <Heart
-          className={`transition-colors ${
-            isFavorited ? "text-primary" : "text-muted-foreground"
-          } group-hover/favorite-light:text-primary`}
-          size={18}
-        />
-      </div>
+    <ChooseSizeDialog
+      open={isDialogOpen}
+      sizes={sizes}
+      onOpenChange={setIsDialogOpen}
+      activeSize={activeSize}
+      setActiveSize={setActiveSize}
+      onConfirm={handleAddToFavorite}
+      trigger={
+        <div
+          onClick={(e) => {
+            e.stopPropagation();
+            e.preventDefault();
+            if (isFavorited) {
+              handleDeleteFavorite();
+            } else if (!token) router.push(PUBLIC_URL.auth("login"));
+            else if (activeSize) {
+              handleAddToFavorite();
+            } else setIsDialogOpen(true);
+          }}
+          className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
+            alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
+          } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
+        >
+          <Heart
+            className={`transition-colors ${
+              isFavorited ? "text-primary" : "text-muted-foreground"
+            } group-hover/favorite-light:text-primary`}
+            size={18}
+          />
+        </div>
+      }
+    />
+    // <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+    //   <div
+    //     onClick={(e) => {
+    //       e.stopPropagation();
+    //       e.preventDefault();
+    //       if (isFavorited) {
+    //         handleDeleteFavorite();
+    //       } else if (!token) router.push(PUBLIC_URL.auth("login"));
+    //       else if (activeSize) {
+    //         handleAddToFavorite();
+    //       } else setIsDialogOpen(true);
+    //     }}
+    //     className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
+    //       alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
+    //     } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
+    //   >
+    //     <Heart
+    //       className={`transition-colors ${
+    //         isFavorited ? "text-primary" : "text-muted-foreground"
+    //       } group-hover/favorite-light:text-primary`}
+    //       size={18}
+    //     />
+    //   </div>
 
-      <DialogContent className="sm:max-w-[450px] z-50 h-auto max-w-full">
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Выберите размер</DialogTitle>
-        </DialogHeader>
-        {sizes && <SizeSelector setActiveSize={setActiveSize} sizes={sizes} activeSize={activeSize} />}
+    //   <DialogContent className="sm:max-w-[450px] z-50 h-auto max-w-full">
+    //     <DialogHeader>
+    //       <DialogTitle className="text-2xl">Выберите размер</DialogTitle>
+    //     </DialogHeader>
+    //     {sizes && <SizeSelector setActiveSize={setActiveSize} sizes={sizes} activeSize={activeSize} />}
 
-        <DialogFooter>
-          <div className="flex justify-center gap-x-5">
-            <Button variant={"outline"} className="uppercase" onClick={() => setIsDialogOpen(false)}>
-              ОТМЕНА
-            </Button>
-            <Button disabled={!activeSize} className="uppercase" type="submit" onClick={handleAddToFavorite}>
-              ДОБАВИТЬ
-            </Button>
-          </div>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
+    //     <DialogFooter>
+    //       <div className="flex justify-center gap-x-5">
+    //         <Button variant={"outline"} className="uppercase" onClick={() => setIsDialogOpen(false)}>
+    //           ОТМЕНА
+    //         </Button>
+    //         <Button disabled={!activeSize} className="uppercase" type="submit" onClick={handleAddToFavorite}>
+    //           ДОБАВИТЬ
+    //         </Button>
+    //       </div>
+    //     </DialogFooter>
+    //   </DialogContent>
+    // </Dialog>
   );
 }

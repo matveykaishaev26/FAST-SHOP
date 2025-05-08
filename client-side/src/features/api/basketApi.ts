@@ -83,12 +83,45 @@ export const basketApi = api.injectEndpoints({
       }),
       providesTags: [{ type: "Basket", id: "COUNT" }],
     }),
-    getAddedSizes: build.query<{ sizeId: string; quantity: number }[], { productVariantId: string }>({
+    getAddedSizes: build.query<Record<string, number>, { productVariantId: string }>({
       query: ({ productVariantId }) => ({
         url: API_URL.basket(`/${productVariantId}`),
       }),
       providesTags: [{ type: "Basket", id: "COUNT" }],
     }),
+    changeBasketQuantity: build.mutation<void, { productVariantId: string; sizeId: string; variant: "plus" | "minus" }>(
+      {
+        query: ({ productVariantId, sizeId, variant }) => ({
+          url: `${API_URL.basket("/quantity")}`,
+          method: "PATCH",
+          body: { productVariantId, sizeId, variant },
+        }),
+        invalidatesTags: ["Basket"],
+        // async onQueryStarted({ productVariantId, sizeId, variant }, { dispatch, queryFulfilled }) {
+        //   console.log("✨ Optimistic update triggered");
+        //   const patchResult = dispatch(
+        //     basketApi.util.updateQueryData("getAddedSizes", { productVariantId }, (draft) => {
+        //       if (!draft) return;
+
+        //       if (variant === "plus") {
+        //         draft[sizeId] = sizeId;
+        //       } else if (variant === "minus") {
+        //         // Предположим, что после "minus" quantity может стать 0 — тогда удаляем size
+        //         delete draft[sizeId];
+        //       }
+        //     })
+        //   );
+        //   try {
+        //     await queryFulfilled;
+        //     console.log("✅ Server confirmed");
+        //   } catch {
+        //     patchResult.undo();
+        //     console.error("❌ Server rejected / offline");
+        //   }
+        // },
+      }
+    ),
+
     getBasketCards: build.query<
       IPaginatedResponse<IFavoriteCardItem>,
       {
@@ -144,6 +177,7 @@ export const {
   useDeleteFromBasketMutation,
   useGetBasketQuery,
   useGetBasketCountQuery,
+  useChangeBasketQuantityMutation,
   useGetBasketCardsQuery,
-  useGetAddedSizesQuery
+  useGetAddedSizesQuery,
 } = basketApi;

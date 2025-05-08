@@ -38,7 +38,7 @@ export class BasketService {
         sizeId,
       },
     });
-    console.log(basket);
+    // console.log(basket);
     if (basket) {
       await this.prisma.basket.delete({
         where: {
@@ -65,10 +65,11 @@ export class BasketService {
       };
     }, {});
 
-    console.log('все добавленный размеры')
+    console.log(res);
+    // console.log('все добавленный размеры')
     return res;
   }
-  async getFavoritesCount(userId: string) {
+  async getBasketCount(userId: string) {
     const count = await this.prisma.basket.count({
       where: {
         userId,
@@ -175,37 +176,47 @@ export class BasketService {
     };
   }
 
-  async toggleFavorite(
+  async changeQuantity(
     userId: string,
     productVariantId: string,
     sizeId: string,
+    variant: 'plus' | 'minus',
   ) {
-    // console.log(userId);
-    // console.log(productVariantId);
-    // console.log(sizeId);
-    const userFavorites = await this.prisma.userFavorites.findFirst({
+    const basketItem = await this.prisma.basket.findUnique({
       where: {
-        userId,
-        sizeId,
-        productVariantId,
-      },
-    });
-    if (userFavorites) {
-      await this.prisma.userFavorites.delete({
-        where: {
-          id: userFavorites.id,
-        },
-      });
-      return { message: 'Удалено из избранного' };
-    } else {
-      await this.prisma.userFavorites.create({
-        data: {
+        userId_productVariantId_sizeId: {
           userId,
           productVariantId,
           sizeId,
         },
-      });
-      return { message: 'Добавлено в избранное' };
+      },
+    });
+
+    if (!basketItem) {
+      throw new Error('Basket item not found');
     }
+
+    let newQuantity = basketItem.quantity;
+
+    if (variant === 'plus') {
+      newQuantity += 1;
+    } else if (variant === 'minus') {
+      newQuantity = Math.max(1, newQuantity - 1); // Не даем уйти в 0
+    }
+
+    await this.prisma.basket.update({
+      where: {
+        userId_productVariantId_sizeId: {
+          userId,
+          productVariantId,
+          sizeId,
+        },
+      },
+      data: {
+        quantity: newQuantity,
+      },
+    });
+
+    return newQuantity;
   }
 }
