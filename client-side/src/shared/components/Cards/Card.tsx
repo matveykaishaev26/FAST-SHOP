@@ -9,6 +9,7 @@ import { IActiveSize } from "../SizeSelector";
 import AddToBasketButton from "./AddToBasketButton";
 import { useGetAddedSizesQuery } from "@/features/api/basketApi";
 import SizesScroller from "./SizesScroller";
+import { useGetFavoriteSizesByProductQuery } from "@/features/api/userFavoritesApi";
 
 interface ICardProps {
   product: ICardItem | IFavoriteCardItem;
@@ -19,22 +20,24 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
   const [activeSize, setActiveSize] = useState<IActiveSize | null>(null);
   const [isAddToBasketOpen, setIsAddToBasketOpen] = useState(false);
   const [isBasket, setIsBasket] = useState(false);
-  const [addedToBasket, setAddedToBasket] = useState<Record<string, number>>({});
+  // const [addedToBasket, setAddedToBasket] = useState<Record<string, number>>({});
 
   const productVariantId = variant === "catalog" ? product.id : (product as IFavoriteCardItem).productVariantId;
 
-  const { data, isLoading } = useGetAddedSizesQuery({ productVariantId }, { skip: !productVariantId });
+  const { data: addedToBasketData, isLoading: isAddedToBasketDataLoading } = useGetAddedSizesQuery(
+    { productVariantId },
+    { skip: !productVariantId }
+  );
 
-  useEffect(() => {
-    if (data && (product as ICardItem).sizes) {
-      const updated = (product as ICardItem).sizes.reduce<Record<string, number>>((result, size) => {
-        result[size.id] = Number(data[size.id] ?? 0);
-        return result;
-      }, {});
-
-      setAddedToBasket(updated);
+  const { data: addedFavoriteSizes, isLoading } = useGetFavoriteSizesByProductQuery(
+    {
+      productVariantId,
+    },
+    {
+      skip: !productVariantId,
     }
-  }, [data, product]);
+  );
+  console.log(addedFavoriteSizes);
 
   useEffect(() => {
     if (variant === "favorite") {
@@ -49,7 +52,7 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
     router.push(PUBLIC_URL.catalog(`/${productVariantId}`));
   };
 
-  if (isLoading) return null;
+  if (isAddedToBasketDataLoading) return null;
 
   return (
     <CardUI
@@ -58,6 +61,7 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
     >
       <CardContent className="p-0">
         <CardImages
+          addedFavoriteSizes={addedFavoriteSizes}
           variant={variant}
           handlePushToItemPage={handlePushToItemPage}
           activeSize={activeSize}
@@ -82,11 +86,11 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
       </CardContent>
       <CardFooter className="p-0">
         <AddToBasketButton
-          addedToBasket={addedToBasket}
-          initialQuantity={activeSize ? addedToBasket[activeSize?.id] : 0}
+          addedToBasket={addedToBasketData}
+          initialQuantity={activeSize ? addedToBasketData[activeSize?.id] : 0}
           activeSize={activeSize!}
           setActiveSize={setActiveSize}
-          isAdded={activeSize ? addedToBasket[activeSize.id] > 0 : false}
+          isAdded={activeSize ? addedToBasketData[activeSize.id] > 0 : false}
           setIsAdded={setIsBasket}
           productVariantId={productVariantId}
           sizes={(product as ICardItem)?.sizes}

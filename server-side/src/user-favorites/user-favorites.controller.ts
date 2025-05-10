@@ -63,7 +63,7 @@ export class UserFavoritesController {
   }
 
   @Auth()
-  @Get('sizeAdded/:userId/:productVariantId')
+  @Get('sizeAdded/:productVariantId')
   async getAddedSizes(
     @CurrentUser('id') userId: string,
     @Param('productVariantId') productVariantId: string,

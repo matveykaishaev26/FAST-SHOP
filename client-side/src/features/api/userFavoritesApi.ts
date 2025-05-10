@@ -25,6 +25,13 @@ export const userFavoritesApi = api.injectEndpoints({
       }),
       providesTags: ["UserFavorites"],
     }),
+    getFavoriteSizesByProduct: build.query<Record<string, boolean>, { productVariantId: string }>({
+      query: ({ productVariantId }) => ({
+        url: API_URL.userFavorites(`/sizeAdded/${productVariantId}`),
+        method: "GET",
+      }),
+      providesTags: [{ type: "UserFavorites", id: "SIZES" }],
+    }),
 
     addToUserFavorites: build.mutation<void, IUserFavorites>({
       query: ({ productVariantId, sizeId }) => ({
@@ -35,43 +42,8 @@ export const userFavoritesApi = api.injectEndpoints({
         "UserFavorites",
         { type: "UserFavorites", id: "COUNT" },
         // { type: "UserFavorites", id: "PARTIAL-LIST" },
+        { type: "UserFavorites", id: "SIZES" },
       ],
-      // async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
-      //   // Обновим локальный кэш избранного до ответа сервера
-      //   const patchResult = dispatch(
-      //     userFavoritesApi.util.updateQueryData('getUserFavorites', undefined, (draft) => {
-      //       draft.push({
-      //         productVariantId,
-      //         size: { id: sizeId, title: '' }, // можно добавить title, если он у тебя есть
-      //       });
-      //     })
-      //   );
-
-      //   try {
-      //     await queryFulfilled;
-      //   } catch {
-      //     // Откат, если ошибка
-      //     patchResult.undo();
-      //   }
-      // },
-      // async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
-      //   const patchResult = dispatch(
-      //     userFavoritesApi.util.updateQueryData("getUserFavorites", undefined, (draft) => {
-      //       const index = draft.findIndex((item) => item.productVariantId === productVariantId);
-      //       if (index >= 0) {
-      //         draft.splice(index, 1);
-      //       } else {
-      //         draft.push({ productVariantId, sizeId });
-      //       }
-      //     })
-      //   );
-
-      //   try {
-      //     await queryFulfilled;
-      //   } catch {
-      //     patchResult.undo();
-      //   }
-      // },
     }),
 
     deleteUserFavorites: build.mutation<void, IUserFavorites>({
@@ -107,7 +79,10 @@ export const userFavoritesApi = api.injectEndpoints({
         }
       },
 
-      invalidatesTags: [{ type: "UserFavorites", id: "COUNT" }],
+      invalidatesTags: [
+        { type: "UserFavorites", id: "COUNT" },
+        { type: "UserFavorites", id: "SIZES" },
+      ],
       // invalidatesTags: [
       //   { type: "UserFavorites", id: "COUNT" },
       //   { type: "UserFavorites", id: "PARTIAL-LIST" },
@@ -177,4 +152,5 @@ export const {
   useGetFavoritesCountQuery,
   useGetFavoritesCardsQuery,
   useGetUserFavoritesQuery,
+  useGetFavoriteSizesByProductQuery,
 } = userFavoritesApi;

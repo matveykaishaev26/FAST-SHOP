@@ -10,7 +10,7 @@ export class UserFavoritesService {
     productVariantId: string,
     sizeId: string,
   ) {
-    console.log(userId, productVariantId, sizeId);
+    // console.log(userId, productVariantId, sizeId);
     const userFavorites = await this.prisma.userFavorites.findFirst({
       where: {
         userId,
@@ -41,7 +41,7 @@ export class UserFavoritesService {
         sizeId,
       },
     });
-    console.log(userFavorites);
+    // console.log(userFavorites);
     if (userFavorites) {
       await this.prisma.userFavorites.delete({
         where: {
@@ -60,11 +60,11 @@ export class UserFavoritesService {
 
     return { count };
   }
-  async getAddedSizes(userId: string, productVariant) {
+  async getAddedSizes(userId: string, productVariantId: string) {
     const favorites = await this.prisma.userFavorites.findMany({
       where: {
         userId,
-        productVariant,
+        productVariantId,
       },
       select: {
         sizeId: true,

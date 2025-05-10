@@ -45,7 +45,6 @@ export default function AddToBasketButton({
   const token = getAccessToken();
   const router = useRouter();
   const [addMutate] = useAddToBasketMutation(); // Updated hook name
-  const [quantity, setQuantity] = useState(initialQuantity); // State for quantity
   const [changeMutate, { isLoading }] = useChangeBasketQuantityMutation();
 
   const handleAddToBasket = async (localActiveSize?: IActiveSize) => {
@@ -67,13 +66,26 @@ export default function AddToBasketButton({
       }
     } else if (localActiveSize) {
       if (addedToBasket[localActiveSize.id]) {
+        setIsDialogOpen(false);
+
         setActiveSize(localActiveSize);
+
         changeMutate({
           productVariantId,
           sizeId: localActiveSize?.id,
           variant: "plus",
         });
         setIsDialogOpen(false);
+      } else {
+        await addMutate({ productVariantId, sizeId: localActiveSize.id });
+        setActiveSize(localActiveSize);
+
+        setIsAdded(true);
+        setIsDialogOpen(false);
+        toast.success("Товар добавлен в корзину!", {
+          position: "bottom-right",
+          style: { background: "#333", color: "#fff" },
+        });
       }
     } else return;
   };
@@ -87,7 +99,7 @@ export default function AddToBasketButton({
       setActiveSize={setActiveSize}
       onConfirm={handleAddToBasket}
       trigger={
-        <div className="flex items-center justify-between w-full gap-4">
+        <div className="flex items-center justify-between w-full gap-2">
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -98,16 +110,16 @@ export default function AddToBasketButton({
                 handleAddToBasket();
               } else setIsDialogOpen(true);
             }}
-            className="w-full md:text-sm text-xs"
+            className="w-full lg:text-sm text-xs"
             variant={isAdded ? "outline" : "default"}
           >
             {isAdded ? "Перейти в корзину" : "В корзину"}
           </Button>
 
           {isAdded && (
-            <div className="hidden items-center gap-2  sm:flex">
+            <div className="hidden items-center gap-1  sm:flex">
               <Button
-                disabled={isLoading || initialQuantity === 1}
+                disabled={initialQuantity === 1}
                 type="button"
                 variant="outline"
                 size="icon"
@@ -122,9 +134,9 @@ export default function AddToBasketButton({
               >
                 <Minus size={16} />
               </Button>
-              <span className="text-sm">{initialQuantity}</span>
+              <span className="text-xs">{initialQuantity}</span>
               <Button
-                disabled={isLoading}
+                // disabled={isLoading}
                 type="button"
                 variant="outline"
                 size="icon"

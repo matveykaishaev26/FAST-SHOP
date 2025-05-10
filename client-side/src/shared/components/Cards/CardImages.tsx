@@ -18,6 +18,7 @@ interface ICardImagesProps {
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
   variant?: "catalog" | "favorite";
   handlePushToItemPage: () => void;
+  addedFavoriteSizes: Record<string, boolean>;
 }
 
 const DEFAULT_FALLBACK_IMAGE = "/images/default-product.webp"; // Добавьте этот файл в ваш проект
@@ -30,6 +31,7 @@ export default function CardImages({
   productVariantId,
   activeSize,
   setActiveSize,
+  addedFavoriteSizes,
   variant,
   handlePushToItemPage,
 }: ICardImagesProps) {
@@ -62,6 +64,7 @@ export default function CardImages({
     },
     [images]
   );
+
 
   if (!images.length || !images.some((img) => img.trim() !== "")) {
     return (
@@ -101,7 +104,7 @@ export default function CardImages({
             variant={variant}
             activeSize={activeSize}
             setActiveSize={setActiveSize}
-            isFavorited={isFavorited}
+            isFavorited={activeSize ? addedFavoriteSizes[activeSize.id] > 0 : false}
             setIsFavorited={setIsFavorited}
             productVariantId={productVariantId}
             sizes={sizes}

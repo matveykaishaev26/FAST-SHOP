@@ -30,6 +30,23 @@ export const basketApi = api.injectEndpoints({
         url: `${API_URL.basket()}/${productVariantId}/${sizeId}`,
         method: "POST",
       }),
+      async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          basketApi.util.updateQueryData("getAddedSizes", { productVariantId }, (draft) => {
+            if (!draft) return;
+            draft[sizeId] = 1;
+          })
+        );
+
+        try {
+          console.log("Optimistic update initiated");
+          await queryFulfilled; // Ожидаем выполнения запроса
+        } catch (e) {
+          // Если ошибка, откатываем изменения
+          patchResult.undo();
+          console.error("Error during update: ", e);
+        }
+      },
       invalidatesTags: [
         "Basket",
         { type: "Basket", id: "COUNT" },
@@ -70,7 +87,8 @@ export const basketApi = api.injectEndpoints({
         }
       },
 
-      invalidatesTags: [{ type: "Basket", id: "COUNT" }],
+      // invalidatesTags: [{ type: "Basket", id: "COUNT" }],
+
       // invalidatesTags: [
       //   { type: "UserFavorites", id: "COUNT" },
       //   { type: "UserFavorites", id: "PARTIAL-LIST" },
@@ -87,7 +105,9 @@ export const basketApi = api.injectEndpoints({
       query: ({ productVariantId }) => ({
         url: API_URL.basket(`/${productVariantId}`),
       }),
-      providesTags: [{ type: "Basket", id: "COUNT" }],
+
+      // providesTags: [{ type: "Basket", id: "COUNT" }],
+      providesTags: (result, error, { productVariantId }) => [{ type: "Basket", id: productVariantId }],
     }),
     changeBasketQuantity: build.mutation<void, { productVariantId: string; sizeId: string; variant: "plus" | "minus" }>(
       {
@@ -96,29 +116,36 @@ export const basketApi = api.injectEndpoints({
           method: "PATCH",
           body: { productVariantId, sizeId, variant },
         }),
-        invalidatesTags: ["Basket"],
-        // async onQueryStarted({ productVariantId, sizeId, variant }, { dispatch, queryFulfilled }) {
-        //   console.log("✨ Optimistic update triggered");
-        //   const patchResult = dispatch(
-        //     basketApi.util.updateQueryData("getAddedSizes", { productVariantId }, (draft) => {
-        //       if (!draft) return;
+        async onQueryStarted({ productVariantId, sizeId, variant }, { dispatch, queryFulfilled }) {
+          const patchResult = dispatch(
+            basketApi.util.updateQueryData("getAddedSizes", { productVariantId }, (draft) => {
+              if (!draft) return;
 
-        //       if (variant === "plus") {
-        //         draft[sizeId] = sizeId;
-        //       } else if (variant === "minus") {
-        //         // Предположим, что после "minus" quantity может стать 0 — тогда удаляем size
-        //         delete draft[sizeId];
-        //       }
-        //     })
-        //   );
-        //   try {
-        //     await queryFulfilled;
-        //     console.log("✅ Server confirmed");
-        //   } catch {
-        //     patchResult.undo();
-        //     console.error("❌ Server rejected / offline");
-        //   }
-        // },
+              const currentQty = draft[sizeId] || 0;
+              const newQty = variant === "plus" ? currentQty + 1 : currentQty - 1;
+
+              if (newQty <= 0) {
+                delete draft[sizeId];
+              } else {
+                draft[sizeId] = newQty;
+              }
+            })
+          );
+
+          try {
+            console.log("Optimistic update initiated");
+            await queryFulfilled; // Ожидаем выполнения запроса
+          } catch (e) {
+            // Если ошибка, откатываем изменения
+            patchResult.undo();
+            console.error("Error during update: ", e);
+          }
+        },
+        // invalidatesTags: ["Basket"],
+        invalidatesTags: (result, error, { productVariantId }) => [
+          { type: "Basket", id: productVariantId },
+          { type: "Basket", id: "COUNT" },
+        ],
       }
     ),
 
