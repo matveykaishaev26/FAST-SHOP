@@ -19,8 +19,6 @@ interface ICardProps {
 export default function Card({ product, variant = "catalog" }: ICardProps) {
   const [activeSize, setActiveSize] = useState<IActiveSize | null>(null);
   const [isAddToBasketOpen, setIsAddToBasketOpen] = useState(false);
-  const [isBasket, setIsBasket] = useState(false);
-  // const [addedToBasket, setAddedToBasket] = useState<Record<string, number>>({});
 
   const productVariantId = variant === "catalog" ? product.id : (product as IFavoriteCardItem).productVariantId;
 
@@ -52,7 +50,6 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
     router.push(PUBLIC_URL.catalog(`/${productVariantId}`));
   };
 
-  if (isAddedToBasketDataLoading) return null;
 
   return (
     <CardUI
@@ -61,7 +58,7 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
     >
       <CardContent className="p-0">
         <CardImages
-          addedFavoriteSizes={addedFavoriteSizes}
+          addedFavoriteSizes={addedFavoriteSizes ?? {}}
           variant={variant}
           handlePushToItemPage={handlePushToItemPage}
           activeSize={activeSize}
@@ -79,19 +76,20 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
           </h3>
           <p className="text-sm truncate text-muted-foreground">{product.brand}</p>
           <Rating value={String(product.rating.value)} count={product.rating.count} />
-          <div className="sm:block hidden">
-            <SizesScroller activeSize={activeSize} setActiveSize={setActiveSize} product={product as ICardItem} />
-          </div>
+          {variant === "catalog" && (
+            <div className="sm:block hidden">
+              <SizesScroller activeSize={activeSize} setActiveSize={setActiveSize} product={product as ICardItem} />
+            </div>
+          )}
         </div>
       </CardContent>
       <CardFooter className="p-0">
         <AddToBasketButton
           addedToBasket={addedToBasketData}
-          initialQuantity={activeSize ? addedToBasketData[activeSize?.id] : 0}
+          initialQuantity={addedToBasketData && activeSize ? addedToBasketData[activeSize?.id] : 0}
           activeSize={activeSize!}
           setActiveSize={setActiveSize}
-          isAdded={activeSize ? addedToBasketData[activeSize.id] > 0 : false}
-          setIsAdded={setIsBasket}
+          isAdded={activeSize && addedToBasketData ? addedToBasketData[activeSize.id] > 0 : false}
           productVariantId={productVariantId}
           sizes={(product as ICardItem)?.sizes}
           setIsDialogOpen={setIsAddToBasketOpen}

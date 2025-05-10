@@ -33,7 +33,6 @@ export default function CatalogCards({ setCardsCount }: ICardsProps) {
     sortType: currentSort,
   });
 
-  
   const { items, totalCount, totalPages, currentPage } = data || {};
 
   const loadMore = () => {
@@ -42,22 +41,12 @@ export default function CatalogCards({ setCardsCount }: ICardsProps) {
       router.push(`/catalog/?page=${currentPage + 1}`, { scroll: false });
     }
   };
-  // useEffect(() => {
-  //   if (totalCount) setCardsCount(totalCount);
-  // }, [data]);
+
   useEffect(() => {
     if (isFetching === false) {
       setIsNewPageFetching(false);
     }
   }, [isFetching]);
-
-  // useEffect(() => {
-    
-  //   const params = new URLSearchParams(searchParams.toString());
-  //   params.set("page", "1");
-  //   router.push(pathname + "?" + params);
-  //   page = 1;
-  // }, [filters, priceRange, useSearchParams]);
 
   if (isLoading || (isFetching && !isMobile)) {
     return <CardsSkeleton count={LIMIT} />;

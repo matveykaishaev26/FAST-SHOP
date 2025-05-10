@@ -9,7 +9,6 @@ import { Plus, Minus } from "lucide-react";
 import { useAddToBasketMutation } from "@/features/api/basketApi";
 import ChooseSizeDialog from "./ChooseSizeDialog";
 import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
-import { useState } from "react";
 import { useChangeBasketQuantityMutation } from "@/features/api/basketApi";
 
 interface AddToBasketButton {
@@ -23,7 +22,7 @@ interface AddToBasketButton {
   isAdded: boolean;
   addedToBasket: any;
 
-  setIsAdded: (state: boolean) => void;
+  // setIsAdded: (state: boolean) => void;
   activeSize: IActiveSize;
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
 }
@@ -35,7 +34,7 @@ export default function AddToBasketButton({
   isDialogOpen = false,
   productVariantId,
   isAdded,
-  setIsAdded,
+  // setIsAdded,
   activeSize,
   setActiveSize,
   alwaysVisible = true,
@@ -51,7 +50,6 @@ export default function AddToBasketButton({
     if (activeSize) {
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
-        setIsAdded(true);
         setIsDialogOpen(false);
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
@@ -62,7 +60,6 @@ export default function AddToBasketButton({
           position: "bottom-right",
           style: { background: "#333", color: "#fff" },
         });
-        setIsAdded(false);
       }
     } else if (localActiveSize) {
       if (addedToBasket[localActiveSize.id]) {
@@ -77,11 +74,10 @@ export default function AddToBasketButton({
         });
         setIsDialogOpen(false);
       } else {
-        await addMutate({ productVariantId, sizeId: localActiveSize.id });
         setActiveSize(localActiveSize);
-
-        setIsAdded(true);
         setIsDialogOpen(false);
+        await addMutate({ productVariantId, sizeId: localActiveSize.id });
+
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
           style: { background: "#333", color: "#fff" },
@@ -99,7 +95,7 @@ export default function AddToBasketButton({
       setActiveSize={setActiveSize}
       onConfirm={handleAddToBasket}
       trigger={
-        <div className="flex items-center justify-between w-full gap-2">
+        <div className="flex items-center aspect-auto justify-between w-full gap-1">
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -110,7 +106,7 @@ export default function AddToBasketButton({
                 handleAddToBasket();
               } else setIsDialogOpen(true);
             }}
-            className="w-full lg:text-sm text-xs"
+            className="w-full 2xl:text-sm text-xs"
             variant={isAdded ? "outline" : "default"}
           >
             {isAdded ? "Перейти в корзину" : "В корзину"}
@@ -134,9 +130,10 @@ export default function AddToBasketButton({
               >
                 <Minus size={16} />
               </Button>
+
               <span className="text-xs">{initialQuantity}</span>
               <Button
-                // disabled={isLoading}
+                disabled={isLoading}
                 type="button"
                 variant="outline"
                 size="icon"
@@ -149,7 +146,7 @@ export default function AddToBasketButton({
                   });
                 }}
               >
-                <Plus size={16} />
+                <Plus size={10} />
               </Button>
             </div>
           )}

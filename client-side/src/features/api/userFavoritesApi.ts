@@ -38,8 +38,25 @@ export const userFavoritesApi = api.injectEndpoints({
         url: `${API_URL.userFavorites()}/${productVariantId}/${sizeId}`,
         method: "POST",
       }),
+      async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
+        const patchResult = dispatch(
+          userFavoritesApi.util.updateQueryData("getFavoriteSizesByProduct", { productVariantId }, (draft) => {
+            if (!draft) return;
+            draft[sizeId] = true;
+          })
+        );
+
+        try {
+          console.log("Optimistic update initiated");
+          await queryFulfilled; // Ожидаем выполнения запроса
+        } catch (e) {
+          // Если ошибка, откатываем изменения
+          patchResult.undo();
+          console.error("Error during update: ", e);
+        }
+      },
       invalidatesTags: [
-        "UserFavorites",
+        // "UserFavorites",
         { type: "UserFavorites", id: "COUNT" },
         // { type: "UserFavorites", id: "PARTIAL-LIST" },
         { type: "UserFavorites", id: "SIZES" },
@@ -69,12 +86,20 @@ export const userFavoritesApi = api.injectEndpoints({
             }
           )
         );
+        const patchAddedSizes = dispatch(
+          userFavoritesApi.util.updateQueryData("getFavoriteSizesByProduct", { productVariantId }, (draft) => {
+            if (!draft) return;
+            delete draft[sizeId];
+            // draft[sizeId] = true;
+          })
+        );
 
         try {
           await queryFulfilled;
           console.log("✅ Server confirmed");
         } catch {
           patchResult.undo();
+          patchAddedSizes.undo();
           console.error("❌ Server rejected / offline");
         }
       },

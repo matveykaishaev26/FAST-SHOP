@@ -17,7 +17,9 @@ interface IFavoriteProps {
   isDialogOpen?: boolean;
   sizes?: ISize[];
   productVariantId: string;
-  isFavorited: boolean;
+  isFavorited: boolean | null;
+  addedToFavorite: any;
+
   setIsFavorited: (state: boolean) => void;
   activeSize: IActiveSize | null;
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
@@ -35,6 +37,7 @@ export default function Favorite({
   activeSize,
   setActiveSize,
   alwaysVisible = true,
+  addedToFavorite,
   variant = "catalog",
 }: IFavoriteProps) {
   const token = getAccessToken();
@@ -46,7 +49,7 @@ export default function Favorite({
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
         console.log({ productVariantId, sizeId: activeSize.id });
-        setIsFavorited(true);
+        // setIsFavorited(true);
 
         setIsDialogOpen(false);
         toast.success("Товар добавлен в избранное!", {
@@ -58,21 +61,34 @@ export default function Favorite({
         });
       } catch (e) {
         console.error("Ошибка добавления в избранное", e);
-        toast.success("Ошибка добавления в избранное!", {
-          position: "bottom-right",
-          style: {
-            background: "#333",
-            color: "#fff",
-          },
-        });
-        setIsFavorited(false);
+        // toast.success("Ошибка добавления в избранное!", {
+        //   position: "bottom-right",
+        //   style: {
+        //     background: "#333",
+        //     color: "#fff",
+        //   },
+        // });
+        // setIsFavorited(false);
       }
     } else if (localActiveSize) {
-      // setActiveSize(localActiveSize);
-      await addMutate({ productVariantId, sizeId: localActiveSize.id });
-      setIsFavorited(true);
+      if (addedToFavorite[localActiveSize.id]) {
+        setIsDialogOpen(false);
 
-      setIsDialogOpen(false);
+        setActiveSize(localActiveSize);
+
+        await addMutate({ productVariantId, sizeId: localActiveSize.id });
+        setIsDialogOpen(false);
+      } else {
+        setActiveSize(localActiveSize);
+        setIsDialogOpen(false);
+        await addMutate({ productVariantId, sizeId: localActiveSize.id });
+
+        // setIsAdded(true);
+        // toast.success("Товар добавлен в корзину!", {
+        //   position: "bottom-right",
+        //   style: { background: "#333", color: "#fff" },
+        // });
+      }
     } else return;
   };
 
@@ -80,23 +96,23 @@ export default function Favorite({
     if (!activeSize) return;
     try {
       await deleteMutate({ productVariantId, sizeId: activeSize.id });
-      toast.success("Товар удален из избранного!", {
-        position: "bottom-right",
-        style: {
-          background: "#333",
-          color: "#fff",
-        },
-      });
-      setIsFavorited(false);
+      // toast.success("Товар удален из избранного!", {
+      //   position: "bottom-right",
+      //   style: {
+      //     background: "#333",
+      //     color: "#fff",
+      //   },
+      // });
+      // setIsFavorited(false);
     } catch (e) {
       console.error("Ошибка удаления из избранного", e);
-      toast.error("Ошибка!", {
-        position: "bottom-right",
-        style: {
-          background: "#333",
-          color: "#fff",
-        },
-      });
+      // toast.error("Ошибка!", {
+      //   position: "bottom-right",
+      //   style: {
+      //     background: "#333",
+      //     color: "#fff",
+      //   },
+      // });
     }
   };
   if (variant == "favorite") {
@@ -153,47 +169,5 @@ export default function Favorite({
         </div>
       }
     />
-    // <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-    //   <div
-    //     onClick={(e) => {
-    //       e.stopPropagation();
-    //       e.preventDefault();
-    //       if (isFavorited) {
-    //         handleDeleteFavorite();
-    //       } else if (!token) router.push(PUBLIC_URL.auth("login"));
-    //       else if (activeSize) {
-    //         handleAddToFavorite();
-    //       } else setIsDialogOpen(true);
-    //     }}
-    //     className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
-    //       alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
-    //     } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
-    //   >
-    //     <Heart
-    //       className={`transition-colors ${
-    //         isFavorited ? "text-primary" : "text-muted-foreground"
-    //       } group-hover/favorite-light:text-primary`}
-    //       size={18}
-    //     />
-    //   </div>
-
-    //   <DialogContent className="sm:max-w-[450px] z-50 h-auto max-w-full">
-    //     <DialogHeader>
-    //       <DialogTitle className="text-2xl">Выберите размер</DialogTitle>
-    //     </DialogHeader>
-    //     {sizes && <SizeSelector setActiveSize={setActiveSize} sizes={sizes} activeSize={activeSize} />}
-
-    //     <DialogFooter>
-    //       <div className="flex justify-center gap-x-5">
-    //         <Button variant={"outline"} className="uppercase" onClick={() => setIsDialogOpen(false)}>
-    //           ОТМЕНА
-    //         </Button>
-    //         <Button disabled={!activeSize} className="uppercase" type="submit" onClick={handleAddToFavorite}>
-    //           ДОБАВИТЬ
-    //         </Button>
-    //       </div>
-    //     </DialogFooter>
-    //   </DialogContent>
-    // </Dialog>
   );
 }

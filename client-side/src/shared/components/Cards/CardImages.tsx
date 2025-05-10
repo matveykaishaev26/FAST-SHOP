@@ -100,11 +100,12 @@ export default function CardImages({
       >
         <div className="pointer-events-auto">
           <Favorite
+            addedToFavorite={addedFavoriteSizes}
             className="absolute top-2 right-2"
             variant={variant}
             activeSize={activeSize}
             setActiveSize={setActiveSize}
-            isFavorited={activeSize ? addedFavoriteSizes[activeSize.id] > 0 : false}
+            isFavorited={activeSize && addedFavoriteSizes[activeSize.id] }
             setIsFavorited={setIsFavorited}
             productVariantId={productVariantId}
             sizes={sizes}
@@ -131,11 +132,13 @@ export default function CardImages({
       </div>
       <div className={`${defaultClass} block lg:hidden`}>
         <Favorite
+            addedToFavorite={addedFavoriteSizes}
+          
           className="absolute top-2 right-2"
           variant={variant}
           activeSize={activeSize}
           setActiveSize={setActiveSize}
-          isFavorited={isFavorited}
+          isFavorited={activeSize && addedFavoriteSizes[activeSize.id] }
           setIsFavorited={setIsFavorited}
           productVariantId={productVariantId}
           sizes={sizes}
