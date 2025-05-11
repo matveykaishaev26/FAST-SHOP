@@ -23,7 +23,7 @@ interface AddToBasketButton {
   addedToBasket: any;
 
   // setIsAdded: (state: boolean) => void;
-  activeSize: IActiveSize;
+  activeSize: IActiveSize | null;
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
 }
 
@@ -48,6 +48,7 @@ export default function AddToBasketButton({
 
   const handleAddToBasket = async (localActiveSize?: IActiveSize) => {
     if (activeSize) {
+
       try {
         await addMutate({ productVariantId, sizeId: activeSize.id });
         setIsDialogOpen(false);
@@ -63,6 +64,7 @@ export default function AddToBasketButton({
       }
     } else if (localActiveSize) {
       if (addedToBasket[localActiveSize.id]) {
+
         setIsDialogOpen(false);
 
         setActiveSize(localActiveSize);
@@ -74,16 +76,21 @@ export default function AddToBasketButton({
         });
         setIsDialogOpen(false);
       } else {
+        await addMutate({ productVariantId, sizeId: localActiveSize.id });
+
         setActiveSize(localActiveSize);
         setIsDialogOpen(false);
-        await addMutate({ productVariantId, sizeId: localActiveSize.id });
 
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
           style: { background: "#333", color: "#fff" },
         });
       }
-    } else return;
+    } else
+      toast.error("Ошибка добавления в корзину!", {
+        position: "bottom-right",
+        style: { background: "#333", color: "#fff" },
+      });
   };
 
   return (
@@ -95,7 +102,7 @@ export default function AddToBasketButton({
       setActiveSize={setActiveSize}
       onConfirm={handleAddToBasket}
       trigger={
-        <div className="flex items-center aspect-auto justify-between w-full gap-1">
+        <div className="flex items-center select-none aspect-auto justify-between w-full gap-1">
           <Button
             onClick={(e) => {
               e.stopPropagation();
@@ -112,7 +119,7 @@ export default function AddToBasketButton({
             {isAdded ? "Перейти в корзину" : "В корзину"}
           </Button>
 
-          {isAdded && (
+          {isAdded && activeSize && (
             <div className="hidden items-center gap-1  sm:flex">
               <Button
                 disabled={initialQuantity === 1}

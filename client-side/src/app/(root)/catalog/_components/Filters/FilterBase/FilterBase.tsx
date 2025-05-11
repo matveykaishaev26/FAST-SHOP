@@ -60,7 +60,7 @@ export default function FilterBase<T extends IFilterItem>({
         dispatch(toggleFilter({ option: item, filterType, isChecked: shouldBeChecked }));
       }
     });
-  }, [data, filterType, dispatch]);
+  }, [data, searchParams, dispatch]);
 
   const filteredItems = useMemo(() => {
     return data.filter((item) =>

@@ -20,7 +20,7 @@ interface IFavoriteProps {
   isFavorited: boolean | null;
   addedToFavorite: any;
 
-  setIsFavorited: (state: boolean) => void;
+  // setIsFavorited: (state: boolean) => void;
   activeSize: IActiveSize | null;
   setActiveSize: React.Dispatch<React.SetStateAction<IActiveSize | null>>;
   variant?: "catalog" | "favorite";
@@ -33,7 +33,7 @@ export default function Favorite({
   isDialogOpen = false,
   productVariantId,
   isFavorited,
-  setIsFavorited,
+  // setIsFavorited,
   activeSize,
   setActiveSize,
   alwaysVisible = true,
@@ -61,13 +61,13 @@ export default function Favorite({
         });
       } catch (e) {
         console.error("Ошибка добавления в избранное", e);
-        // toast.success("Ошибка добавления в избранное!", {
-        //   position: "bottom-right",
-        //   style: {
-        //     background: "#333",
-        //     color: "#fff",
-        //   },
-        // });
+        toast.success("Ошибка добавления в избранное!", {
+          position: "bottom-right",
+          style: {
+            background: "#333",
+            color: "#fff",
+          },
+        });
         // setIsFavorited(false);
       }
     } else if (localActiveSize) {
@@ -84,10 +84,10 @@ export default function Favorite({
         await addMutate({ productVariantId, sizeId: localActiveSize.id });
 
         // setIsAdded(true);
-        // toast.success("Товар добавлен в корзину!", {
-        //   position: "bottom-right",
-        //   style: { background: "#333", color: "#fff" },
-        // });
+        toast.success("Товар добавлен в корзину!", {
+          position: "bottom-right",
+          style: { background: "#333", color: "#fff" },
+        });
       }
     } else return;
   };
@@ -96,23 +96,23 @@ export default function Favorite({
     if (!activeSize) return;
     try {
       await deleteMutate({ productVariantId, sizeId: activeSize.id });
-      // toast.success("Товар удален из избранного!", {
-      //   position: "bottom-right",
-      //   style: {
-      //     background: "#333",
-      //     color: "#fff",
-      //   },
-      // });
+      toast.success("Товар удален из избранного!", {
+        position: "bottom-right",
+        style: {
+          background: "#333",
+          color: "#fff",
+        },
+      });
       // setIsFavorited(false);
     } catch (e) {
       console.error("Ошибка удаления из избранного", e);
-      // toast.error("Ошибка!", {
-      //   position: "bottom-right",
-      //   style: {
-      //     background: "#333",
-      //     color: "#fff",
-      //   },
-      // });
+      toast.error("Ошибка!", {
+        position: "bottom-right",
+        style: {
+          background: "#333",
+          color: "#fff",
+        },
+      });
     }
   };
   if (variant == "favorite") {
@@ -158,7 +158,7 @@ export default function Favorite({
           }}
           className={`exclude-hover z-20 transition-all border cursor-pointer  bg-background shadow-md p-2 rounded-full group/favorite-light ${
             alwaysVisible ? "opacity-100" : "lg:opacity-0 lg:group-hover/favorite:opacity-100"
-          } ${isFavorited ? "opacity-100" : ""} ${className ?? ""}`}
+          } ${isFavorited ? "opacity-100" : "opacity-100"} ${className ?? "opacity-100"}`}
         >
           <Heart
             className={`transition-colors ${

@@ -37,7 +37,6 @@ export default function CardImages({
 }: ICardImagesProps) {
   const [currentImage, setCurrentImage] = useState(images[0]?.trim() || DEFAULT_FALLBACK_IMAGE);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isFavorited, setIsFavorited] = useState(false);
 
   const handleMouseMove = useCallback(
     (e: React.MouseEvent) => {
@@ -106,7 +105,7 @@ export default function CardImages({
             activeSize={activeSize}
             setActiveSize={setActiveSize}
             isFavorited={activeSize && addedFavoriteSizes[activeSize.id] }
-            setIsFavorited={setIsFavorited}
+            // setIsFavorited={setIsFavorited}
             productVariantId={productVariantId}
             sizes={sizes}
             setIsDialogOpen={setIsOpen}
@@ -139,7 +138,7 @@ export default function CardImages({
           activeSize={activeSize}
           setActiveSize={setActiveSize}
           isFavorited={activeSize && addedFavoriteSizes[activeSize.id] }
-          setIsFavorited={setIsFavorited}
+          // setIsFavorited={setIsFavorited}
           productVariantId={productVariantId}
           sizes={sizes}
           setIsDialogOpen={setIsOpen}

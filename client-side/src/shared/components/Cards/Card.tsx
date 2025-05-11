@@ -1,15 +1,13 @@
 import { Card as CardUI, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { ICardItem, IFavoriteCardItem } from "@/shared/types/card.interface";
-import { useEffect, useState } from "react";
-import CardImages from "./CardImages";
 import { useRouter } from "next13-progressbar";
 import { PUBLIC_URL } from "@/config/url.config";
 import Rating from "../Rating";
-import { IActiveSize } from "../SizeSelector";
 import AddToBasketButton from "./AddToBasketButton";
-import { useGetAddedSizesQuery } from "@/features/api/basketApi";
 import SizesScroller from "./SizesScroller";
-import { useGetFavoriteSizesByProductQuery } from "@/features/api/userFavoritesApi";
+import CardImages from "./CardImages";
+import { Skeleton } from "../ui/Skeleton/Skeleton";
+import { useProductCartState } from "@/hooks/useProductCartState";
 
 interface ICardProps {
   product: ICardItem | IFavoriteCardItem;
@@ -17,45 +15,30 @@ interface ICardProps {
 }
 
 export default function Card({ product, variant = "catalog" }: ICardProps) {
-  const [activeSize, setActiveSize] = useState<IActiveSize | null>(null);
-  const [isAddToBasketOpen, setIsAddToBasketOpen] = useState(false);
-
   const productVariantId = variant === "catalog" ? product.id : (product as IFavoriteCardItem).productVariantId;
+  const sizes = variant === "catalog" ? (product as ICardItem).sizes : [(product as IFavoriteCardItem).size];
+  const preselectedSize = variant === "favorite" ? { id: (product as IFavoriteCardItem).size.id, title: (product as IFavoriteCardItem).size.title } : null;
 
-  const { data: addedToBasketData, isLoading: isAddedToBasketDataLoading } = useGetAddedSizesQuery(
-    { productVariantId },
-    { skip: !productVariantId }
-  );
-
-  const { data: addedFavoriteSizes, isLoading } = useGetFavoriteSizesByProductQuery(
-    {
-      productVariantId,
-    },
-    {
-      skip: !productVariantId,
-    }
-  );
-  console.log(addedFavoriteSizes);
-
-  useEffect(() => {
-    if (variant === "favorite") {
-      const favProduct = product as IFavoriteCardItem;
-      setActiveSize({ id: favProduct.size.id, title: favProduct.size.title });
-    }
-  }, [product, variant]);
+  const {
+    activeSize,
+    setActiveSize,
+    isBasketDialogOpen,
+    setIsBasketDialogOpen,
+    addedToBasketData,
+    isBasketLoading,
+    isAdded,
+    quantity,
+    addedFavoriteSizes,
+    isFavoriteLoading,
+  } = useProductCartState(productVariantId, sizes, preselectedSize);
 
   const router = useRouter();
-
   const handlePushToItemPage = () => {
     router.push(PUBLIC_URL.catalog(`/${productVariantId}`));
   };
 
-
   return (
-    <CardUI
-      key={product.id}
-      className="relative rounded-none border-none shadow-none transition duration-300 hover:m-0"
-    >
+    <CardUI className="relative rounded-none border-none shadow-none transition duration-300 hover:m-0">
       <CardContent className="p-0">
         <CardImages
           addedFavoriteSizes={addedFavoriteSizes ?? {}}
@@ -64,7 +47,7 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
           activeSize={activeSize}
           setActiveSize={setActiveSize}
           productVariantId={productVariantId}
-          sizes={(product as ICardItem)?.sizes}
+          sizes={sizes}
           className=""
           images={product.images}
           alt={product.title}
@@ -84,17 +67,21 @@ export default function Card({ product, variant = "catalog" }: ICardProps) {
         </div>
       </CardContent>
       <CardFooter className="p-0">
-        <AddToBasketButton
-          addedToBasket={addedToBasketData}
-          initialQuantity={addedToBasketData && activeSize ? addedToBasketData[activeSize?.id] : 0}
-          activeSize={activeSize!}
-          setActiveSize={setActiveSize}
-          isAdded={activeSize && addedToBasketData ? addedToBasketData[activeSize.id] > 0 : false}
-          productVariantId={productVariantId}
-          sizes={(product as ICardItem)?.sizes}
-          setIsDialogOpen={setIsAddToBasketOpen}
-          isDialogOpen={isAddToBasketOpen}
-        />
+        {isBasketLoading ? (
+          <Skeleton className="h-icon w-full" />
+        ) : (
+          <AddToBasketButton
+            addedToBasket={addedToBasketData}
+            initialQuantity={quantity}
+            activeSize={activeSize}
+            setActiveSize={setActiveSize}
+            isAdded={isAdded}
+            productVariantId={productVariantId}
+            sizes={sizes}
+            setIsDialogOpen={setIsBasketDialogOpen}
+            isDialogOpen={isBasketDialogOpen}
+          />
+        )}
       </CardFooter>
     </CardUI>
   );

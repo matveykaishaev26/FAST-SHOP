@@ -5,7 +5,7 @@ import { Badge } from "@/shared/components/ui/badge";
 import Rating from "@/shared/components/Rating";
 import { IReview } from "@/shared/types/review.interface";
 import { Button } from "@/shared/components/ui/button";
-import AddToCartForm from "./components/AddToCartForm";
+import AddToCartForm from "./components/AddToBasketForm";
 import { ISize } from "@/shared/types/size.interface";
 import { IColor } from "@/shared/types/color.interface";
 import { IMaterial } from "@/shared/types/material.interface";
@@ -41,7 +41,19 @@ async function getProduct(id: string) {
 export default async function Page({ params }: Params) {
   const { id } = await params;
   const productData: IProduct = await getProduct(id);
-  const { images, price, title, sizes, colors, reviews, brand, description, materials, variants } = productData;
+  const {
+    images,
+    price,
+    title,
+    sizes,
+    colors,
+    reviews,
+    brand,
+    description,
+    materials,
+    variants,
+    id: productVariantId,
+  } = productData;
   console.log(productData);
   const averageRating =
     Array.isArray(reviews) && reviews.length !== 0
@@ -91,25 +103,27 @@ export default async function Page({ params }: Params) {
           {variants && <Variants currentImage={images[0]} variants={variants} />}
 
           {/* Отображение материалов */}
-          <div>
-            <h4 className="text-2xl mb-4">Материалы</h4>
-            {Object.entries(materials).map(([key, values]) => (
-              <div key={key} className="border-b">
-                <div className="mb-2 font-bold">{key}</div>
-                <div>
-                  {values.map((item: { title: string; percentage: number }, index) => (
-                    <span key={`${item.title}-${index}`} className="flex justify-between ">
-                      {item.title}
-                      <span>{item.percentage}%</span>
-                    </span>
-                  ))}
+          <div className="pt-6 border-t">
+            <h4 className="text-2xl font-semibold mb-4">Материалы</h4>
+            <div className="space-y-4">
+              {Object.entries(materials).map(([section, items]) => (
+                <div key={section} className="border p-4 rounded-xl bg-muted/50">
+                  <div className="mb-2 font-medium text-lg">{section}</div>
+                  <div className="space-y-1">
+                    {items.map((item, index) => (
+                      <div key={`${item.title}-${index}`} className="flex justify-between text-sm">
+                        <span>{item.title}</span>
+                        <span className="font-medium">{item.percentage}%</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
 
-        <AddToCartForm productVariantId={id} sizes={sizes} />
+        <AddToCartForm productVariantId={productVariantId} sizes={sizes} />
       </div>
     </div>
   );
