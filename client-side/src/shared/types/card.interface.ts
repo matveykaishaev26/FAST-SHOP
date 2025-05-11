@@ -9,12 +9,13 @@ export interface ICardItem {
   images: string[];
   colors: string[];
   rating: {
-    value: number
+    value: number;
     count: number;
   };
 }
 
 export interface IBaseItem {
+  image: string | undefined;
   id: string;
   title: string;
   price: number;
@@ -22,7 +23,7 @@ export interface IBaseItem {
   images: string[];
   colors: string[];
   rating: {
-    value: number 
+    value: number;
     count: number;
   };
 }
@@ -35,4 +36,12 @@ export interface IFavoriteCardItem extends IBaseItem {
 // Для карточки товара - использует массив sizes
 export interface ICardItem extends IBaseItem {
   sizes: ISize[];
+}
+
+export interface IBasketCardItem extends Omit<IBaseItem, "images" | "rating"> {
+  size: ISize;
+  image: string;
+  productVariantId: string;
+  quantity: number
+
 }

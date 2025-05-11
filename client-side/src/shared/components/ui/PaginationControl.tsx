@@ -6,7 +6,7 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 interface IPaginationControlProps {
   page: number;
   totalPages: number;
-  disabled: boolean;
+  disabled?: boolean;
 }
 
 const PAGES_COUNT = 5;

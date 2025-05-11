@@ -80,7 +80,7 @@ export class BasketService {
   }
 
   async getBasket(page: number = 1, limit: number = 10, userId: string) {
-    const totalCount = await this.prisma.userFavorites.count({
+    const totalCount = await this.prisma.basket.count({
       where: {
         userId,
       },
@@ -89,7 +89,7 @@ export class BasketService {
     const take = Number(limit);
     const totalPages = Math.ceil(totalCount / take);
     const currentPage = Math.max(1, Math.min(page, totalPages));
-    const favorites = await this.prisma.userFavorites.findMany({
+    const basket = await this.prisma.basket.findMany({
       skip,
       take,
       where: {
@@ -97,6 +97,7 @@ export class BasketService {
       },
       select: {
         id: true,
+        quantity: true,
         size: {
           select: {
             id: true,
@@ -126,11 +127,6 @@ export class BasketService {
                     reviews: true,
                   },
                 },
-                reviews: {
-                  select: {
-                    rating: true,
-                  },
-                },
               },
             },
           },
@@ -142,36 +138,25 @@ export class BasketService {
       totalCount,
       totalPages,
       currentPage,
-      items: favorites.map((favorite) => ({
-        id: favorite.id,
-        productVariantId: favorite.productVariant.id,
-        title: favorite.productVariant.product.title,
-        brand: favorite.productVariant.product.brand.title,
-        images: favorite.productVariant.images,
-        price: favorite.productVariant.price,
-        size: favorite.size
+      items: basket.map((item) => ({
+        id: item.id,
+        quantity: item.quantity,
+        productVariantId: item.productVariant.id,
+        title: item.productVariant.product.title,
+        brand: item.productVariant.product.brand.title,
+        image: item.productVariant.images[0],
+        price: item.productVariant.price,
+        size: item.size
           ? {
-              id: favorite.size.id,
-              title: favorite.size.title,
+              id: item.size.id,
+              title: item.size.title,
             }
           : {},
-        colors: favorite.productVariant.productVariantColors
-          ? favorite.productVariant.productVariantColors.map(
+        colors: item.productVariant.productVariantColors
+          ? item.productVariant.productVariantColors.map(
               (v) => v.color.title,
             )
           : [],
-        rating: {
-          value:
-            favorite.productVariant.product.reviews.length !== 0
-              ? (
-                  favorite.productVariant.product.reviews.reduce(
-                    (acc, review) => acc + review.rating,
-                    0,
-                  ) / favorite.productVariant.product.reviews.length
-                ).toFixed(2)
-              : '0.00',
-          count: favorite.productVariant.product.reviews.length,
-        },
       })),
     };
   }

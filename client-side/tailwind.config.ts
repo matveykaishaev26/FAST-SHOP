@@ -64,6 +64,9 @@ export default {
         w: "1400px",
         authForm: "400px",
         filtersSheetHeader: "50px",
+
+  mainHeader: "90px",
+  pagePadding: "2rem", // p-8 = 2rem
       },
       maxWidth: {
         page: "1600px", // Кастомный класс max-w-page

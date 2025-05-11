@@ -9,11 +9,9 @@ import PageHeader from "../../_components/PageHeader";
 import { IFavoriteCardItem } from "@/shared/types/card.interface";
 import Card from "@/shared/components/Cards/Card";
 import CardsSkeleton from "@/shared/components/Cards/CardsSkeleton";
-
 const LIMIT = 20;
 
 export default function Favorites({ searchParams }: { searchParams: Promise<{ page?: string; query?: string }> }) {
-  const router = useRouter();
   const params = use(searchParams);
 
   const page = Number(params.page) || 1;

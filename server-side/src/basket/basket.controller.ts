@@ -33,7 +33,7 @@ export class BasketController {
   }
   @Auth()
   @Delete(':productVariantId/:sizeId')
-  async deleteFavorite(
+  async deleteFromBasket(
     @CurrentUser('id') userId: string,
     @Param('productVariantId') productVariantId: string,
     @Param('sizeId') sizeId: string,

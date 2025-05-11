@@ -2,7 +2,7 @@ import { api } from "./api";
 import { API_URL } from "@/config/api.config";
 import { CARDS_RESPONSE_MODE } from "./productApi";
 import { IPaginatedResponse } from "@/shared/types/pagination.interface";
-import { IFavoriteCardItem } from "@/shared/types/card.interface";
+import { IBasketCardItem, IFavoriteCardItem } from "@/shared/types/card.interface";
 
 interface IAddToBasketPayload {
   productVariantId: string;
@@ -18,12 +18,12 @@ export interface IFavoritesResponse {
 
 export const basketApi = api.injectEndpoints({
   endpoints: (build) => ({
-    getBasket: build.query<IAddToBasketPayload[], void>({
-      query: () => ({
-        url: API_URL.basket(),
-      }),
-      providesTags: ["Basket"],
-    }),
+    // getBasket: build.query<IBasketCardItem[], void>({
+    //   query: () => ({
+    //     url: API_URL.basket(),
+    //   }),
+    //   providesTags: ["Basket"],
+    // }),
 
     addToBasket: build.mutation<void, IAddToBasketPayload>({
       query: ({ productVariantId, sizeId }) => ({
@@ -37,6 +37,13 @@ export const basketApi = api.injectEndpoints({
             draft[sizeId] = 1;
           })
         );
+        const patchCountResult = dispatch(
+          basketApi.util.updateQueryData("getBasketCount", undefined, (draft) => {
+            if (!draft?.count) return;
+
+            draft.count += 1;
+          })
+        );
 
         try {
           console.log("Optimistic update initiated");
@@ -44,6 +51,7 @@ export const basketApi = api.injectEndpoints({
         } catch (e) {
           // Если ошибка, откатываем изменения
           patchResult.undo();
+          patchCountResult.undo();
           console.error("Error during update: ", e);
         }
       },
@@ -63,19 +71,22 @@ export const basketApi = api.injectEndpoints({
       async onQueryStarted({ productVariantId, sizeId }, { dispatch, queryFulfilled }) {
         console.log("✨ Optimistic update triggered");
         const patchResult = dispatch(
-          basketApi.util.updateQueryData(
-            "getBasketCards",
-            { page: 1, limit: 20, mode: CARDS_RESPONSE_MODE.PAGINATION },
-            (draft) => {
-              if (!draft?.items) return;
+          basketApi.util.updateQueryData("getBasketCards", { page: 1, limit: 20 }, (draft) => {
+            if (!draft?.items) return;
 
-              draft.items = draft.items.filter(
-                (item) => !(item.productVariantId === productVariantId && item.size.id === sizeId)
-              );
+            draft.items = draft.items.filter(
+              (item) => !(item.productVariantId === productVariantId && sizeId === item.size.id)
+            );
 
-              draft.totalCount -= 1;
-            }
-          )
+            draft.totalCount -= 1;
+          })
+        );
+        const patchCountResult = dispatch(
+          basketApi.util.updateQueryData("getBasketCount", undefined, (draft) => {
+            if (!draft?.count) return;
+
+            draft.count -= 1;
+          })
         );
 
         try {
@@ -83,6 +94,8 @@ export const basketApi = api.injectEndpoints({
           console.log("✅ Server confirmed");
         } catch {
           patchResult.undo();
+          patchCountResult.undo();
+
           console.error("❌ Server rejected / offline");
         }
       },
@@ -106,7 +119,6 @@ export const basketApi = api.injectEndpoints({
         url: API_URL.basket(`/${productVariantId}`),
       }),
 
-      // providesTags: [{ type: "Basket", id: "COUNT" }],
       providesTags: (result, error, { productVariantId }) => [{ type: "Basket", id: productVariantId }],
     }),
     changeBasketQuantity: build.mutation<void, { productVariantId: string; sizeId: string; variant: "plus" | "minus" }>(
@@ -131,13 +143,27 @@ export const basketApi = api.injectEndpoints({
               }
             })
           );
+          const patchGetBasketResult = dispatch(
+            basketApi.util.updateQueryData("getBasketCards", { page: 1, limit: 2 }, (draft) => {
+              if (!draft) return;
 
+              const item = draft.items.find((item) => item.productVariantId === productVariantId && item.size.id === sizeId);
+              if (!item) return;
+
+              if (variant === "plus") {
+                item.quantity += 1;
+              } else {
+                item.quantity = Math.max(1, item.quantity - 1); // или удалить, если нужно
+              }
+            })
+          );
           try {
             console.log("Optimistic update initiated");
             await queryFulfilled; // Ожидаем выполнения запроса
           } catch (e) {
             // Если ошибка, откатываем изменения
             patchResult.undo();
+            patchGetBasketResult.undo();
             console.error("Error during update: ", e);
           }
         },
@@ -150,50 +176,36 @@ export const basketApi = api.injectEndpoints({
     ),
 
     getBasketCards: build.query<
-      IPaginatedResponse<IFavoriteCardItem>,
+      IPaginatedResponse<IBasketCardItem>,
       {
         page: number;
         limit: number;
-        mode: CARDS_RESPONSE_MODE;
       }
     >({
-      query: ({ page, limit, mode }) => ({
-        url: API_URL.basket(`/cards?page=${page}&limit=${limit}&mode=${mode}`),
+      query: ({ page, limit }) => ({
+        url: API_URL.basket(`/cards?page=${page}&limit=${limit}`),
         method: "GET",
       }),
       serializeQueryArgs: ({ endpointName, queryArgs }) => {
-        return `${endpointName}-${queryArgs.mode}-${queryArgs.page}`;
+        return `${endpointName}-${queryArgs.page}`;
       },
-      merge: (currentCache, newItems, { arg }) => {
-        if (arg.mode === CARDS_RESPONSE_MODE.PAGINATION || arg.page === 1) {
-          return newItems;
-        }
+      // merge: (currentCache, newItems, { arg }) => {
+      //   if (currentCache?.items && newItems?.items) {
+      //     const existingIds = new Set(currentCache.items.map((item) => item.id));
+      //     const newUniqueItems = newItems.items.filter((item) => !existingIds.has(item.id));
+      //     return {
+      //       ...newItems,
+      //       items: [...currentCache.items, ...newUniqueItems],
+      //     };
+      //   }
 
-        if (currentCache?.items && newItems?.items) {
-          const existingIds = new Set(currentCache.items.map((item) => item.id));
-          const newUniqueItems = newItems.items.filter((item) => !existingIds.has(item.id));
-          return {
-            ...newItems,
-            items: [...currentCache.items, ...newUniqueItems],
-          };
-        }
+      //   return newItems;
+      // },
 
-        return newItems;
-      },
-      forceRefetch({ currentArg, previousArg }) {
-        if (!previousArg) return true;
-        if (currentArg.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
-          return currentArg.page !== previousArg.page;
-        }
-        return true;
-      },
       providesTags: (result) =>
         result?.items
-          ? [
-              ...result.items.map(({ id }) => ({ type: "UserFavorites" as const, id })),
-              { type: "UserFavorites", id: "PARTIAL-LIST" },
-            ]
-          : [{ type: "UserFavorites", id: "PARTIAL-LIST" }],
+          ? [...result.items.map(({ id }) => ({ type: "Basket" as const, id })), { type: "Basket", id: "PARTIAL-LIST" }]
+          : [{ type: "Basket", id: "PARTIAL-LIST" }],
       // providesTags:[{ type: "UserFavorites", id: "PARTIAL-LIST" }],
     }),
   }),
@@ -202,7 +214,6 @@ export const basketApi = api.injectEndpoints({
 export const {
   useAddToBasketMutation,
   useDeleteFromBasketMutation,
-  useGetBasketQuery,
   useGetBasketCountQuery,
   useChangeBasketQuantityMutation,
   useGetBasketCardsQuery,

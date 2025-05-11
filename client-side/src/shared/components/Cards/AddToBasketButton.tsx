@@ -10,7 +10,7 @@ import { useAddToBasketMutation } from "@/features/api/basketApi";
 import ChooseSizeDialog from "./ChooseSizeDialog";
 import { PROFILE_URL, PUBLIC_URL } from "@/config/url.config";
 import { useChangeBasketQuantityMutation } from "@/features/api/basketApi";
-
+import BasketQuantityChanger from "./BasketQuantityChanger";
 interface AddToBasketButton {
   initialQuantity: number;
   className?: string;
@@ -44,14 +44,13 @@ export default function AddToBasketButton({
   const token = getAccessToken();
   const router = useRouter();
   const [addMutate] = useAddToBasketMutation(); // Updated hook name
-  const [changeMutate, { isLoading }] = useChangeBasketQuantityMutation();
+  const [changeMutate] = useChangeBasketQuantityMutation();
 
   const handleAddToBasket = async (localActiveSize?: IActiveSize) => {
     if (activeSize) {
-
       try {
-        await addMutate({ productVariantId, sizeId: activeSize.id });
         setIsDialogOpen(false);
+        await addMutate({ productVariantId, sizeId: activeSize.id });
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
           style: { background: "#333", color: "#fff" },
@@ -64,7 +63,6 @@ export default function AddToBasketButton({
       }
     } else if (localActiveSize) {
       if (addedToBasket[localActiveSize.id]) {
-
         setIsDialogOpen(false);
 
         setActiveSize(localActiveSize);
@@ -76,10 +74,9 @@ export default function AddToBasketButton({
         });
         setIsDialogOpen(false);
       } else {
-        await addMutate({ productVariantId, sizeId: localActiveSize.id });
-
-        setActiveSize(localActiveSize);
         setIsDialogOpen(false);
+        setActiveSize(localActiveSize); // ✅ сначала
+        await addMutate({ productVariantId, sizeId: localActiveSize.id }).unwrap(); // потом
 
         toast.success("Товар добавлен в корзину!", {
           position: "bottom-right",
@@ -120,41 +117,12 @@ export default function AddToBasketButton({
           </Button>
 
           {isAdded && activeSize && (
-            <div className="hidden items-center gap-1  sm:flex">
-              <Button
-                disabled={initialQuantity === 1}
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeMutate({
-                    productVariantId,
-                    sizeId: activeSize?.id,
-                    variant: "minus",
-                  });
-                }}
-              >
-                <Minus size={16} />
-              </Button>
-
-              <span className="text-xs">{initialQuantity}</span>
-              <Button
-                disabled={isLoading}
-                type="button"
-                variant="outline"
-                size="icon"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  changeMutate({
-                    productVariantId,
-                    sizeId: activeSize?.id,
-                    variant: "plus",
-                  });
-                }}
-              >
-                <Plus size={10} />
-              </Button>
+            <div className="hidden sm:flex">
+              <BasketQuantityChanger
+                productVariantId={productVariantId}
+                sizeId={activeSize?.id}
+                initialQuantity={initialQuantity}
+              />
             </div>
           )}
         </div>
