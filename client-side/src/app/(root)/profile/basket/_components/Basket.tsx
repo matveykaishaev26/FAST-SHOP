@@ -12,7 +12,9 @@ import { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { useRouter } from "next13-progressbar";
 import { PUBLIC_URL } from "@/config/url.config";
+import { usePlaceOrderMutation } from "@/features/api/orderApi";
 import usePushToProductPage from "@/hooks/usePushToProductPage";
+import { productApi } from "@/features/api/productApi";
 
 const LIMIT = 120;
 
@@ -23,13 +25,41 @@ export default function Basket() {
   const [wholePrice, setWholePrice] = useState<number>(0);
   const [wholeQuantity, setWholeQuantity] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const [placeOrder, { isLoading: isOrderLoading }] = usePlaceOrderMutation();
+  const router = useRouter()
   const initialized = useRef(false);
-  const { data, isLoading, isFetching, error } = useGetBasketCardsQuery({
+  const {
+    data,
+    isLoading: isBasketLoading,
+    isFetching,
+    error,
+  } = useGetBasketCardsQuery({
     page: Number(page) || 1,
     limit: LIMIT,
   });
-
   const { items, totalPages, currentPage } = data || {};
+
+  const handleCheckout = async () => {
+    try {
+      const filteredItems = items?.filter((item) => selectedItems.includes(item.id));
+      const response = await placeOrder({
+        items: filteredItems.map((item) => ({
+          productVariantId: item.productVariantId,
+          quantity: item.quantity,
+          price: item.price,
+          sizeId: item.size.id,
+        })),
+      }).unwrap();
+      // console.log(confirmation);
+      if (response.url) {
+       router.push(response.url);
+      } else {
+        console.error("Stripe URL not найден");
+      }
+    } catch (e) {
+      console.error("Ошибка при создании заказа:", e);
+    }
+  };
   const { pushToProductPage } = usePushToProductPage();
   useEffect(() => {
     if (data && !initialized.current) {
@@ -49,7 +79,7 @@ export default function Basket() {
     }
   }, [data, selectedItems]);
 
-  if (isLoading || isFetching) {
+  if (isBasketLoading || isFetching) {
     return <div className="text-center py-8 text-gray-500">Загрузка...</div>;
   }
 
@@ -100,7 +130,7 @@ export default function Basket() {
                       <CardHeader className="p-0 mb-2">
                         <span className="text-sm text-muted-foreground">{item.brand}</span>
                         <CardTitle
-                         onClick={() => pushToProductPage(item.productVariantId)}
+                          onClick={() => pushToProductPage(item.productVariantId)}
                           className="text-lg cursor-pointer font-semibold hover:text-primary"
                         >
                           {item.title}
@@ -145,7 +175,9 @@ export default function Basket() {
               <CardContent className="w-full space-y-2">
                 <div className="font-bold text-2xl">Итого: {wholePrice.toLocaleString()} ₽</div>
                 <div className="text-muted-foreground text-md">Количество: {wholeQuantity}</div>
-                <Button className="w-full">Заказать</Button>
+                <Button disabled={isOrderLoading} onClick={handleCheckout} className="w-full">
+                  Заказать
+                </Button>
               </CardContent>
             </Card>
           </div>

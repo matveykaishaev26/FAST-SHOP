@@ -13,8 +13,7 @@ export class OrderDto {
   @IsOptional()
   @IsEnum(OrderStatus, {
     message:
-      'Статус должен быть одним из: ' +
-      Object.values(OrderStatus).join(', '),
+      'Статус должен быть одним из: ' + Object.values(OrderStatus).join(', '),
   })
   status: OrderStatus;
 
@@ -32,6 +31,9 @@ export class OrderItemDto {
 
   @IsNumber({}, { message: 'Цена должна быть числом' })
   price: number;
+
+  @IsString()
+  sizeId: string;
 
   @IsString({ message: 'ID продукта должен быть строкой' })
   productVariantId: string;

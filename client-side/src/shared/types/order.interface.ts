@@ -1,4 +1,3 @@
-import { ICartItem } from "./card.interface";
 import { IUser } from "./user.interface";
 
 interface IAmount {
@@ -39,7 +38,7 @@ export enum EnumOrderStatus {
 export interface IOrder {
   id: string;
   createdAt: string;
-  items: ICartItem[];
+  items: { produdctVariantId: string; sizeId: string; quantity: number }[];
   status: EnumOrderStatus;
   user: IUser;
   total: number;

@@ -4,7 +4,13 @@ import { api } from "./api";
 export const orderApi = api.injectEndpoints({
   endpoints: (build) => ({
     // Создание заказа
-    placeOrder: build.mutation<IPaymenentResponse, { status?: EnumOrderStatus; items: { productId: string; quantity: number; price: number; storeId: string }[] }>({
+    placeOrder: build.mutation<
+      IPaymenentResponse,
+      {
+        status?: EnumOrderStatus;
+        items: { productVariantId: string; quantity: number; price: number; sizeId: string }[];
+      }
+    >({
       query: (data) => ({
         url: "/orders/place",
         method: "POST",

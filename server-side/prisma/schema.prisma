@@ -236,6 +236,7 @@ model Size {
   productVariantQuantity ProductVariantQuantity[]
   userFavorites          UserFavorites[]
   Basket                 Basket[]
+  OrderItem              OrderItem[]
 
   @@map("size")
 }
@@ -336,6 +337,8 @@ model OrderItem {
 
   quantity Int
   price    Int
+  size     Size?   @relation(fields: [sizeId], references: [id])
+  sizeId   String? @map("size_id")
 
   order            Order?          @relation(fields: [orderId], references: [id])
   orderId          String?         @map("order_id")

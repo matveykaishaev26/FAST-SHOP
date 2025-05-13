@@ -14,26 +14,31 @@ export class OrderService {
   }
 
   async createPayment(dto: OrderDto, userId: string) {
-    const orderItems = dto.items.map((item) => ({
-      quantity: item.quantity,
-      price: item.price,
-      product: {
-        connect: {
-          id: item.productVariantId,
-        },
-      },
-    }));
-    const total = dto.items.reduce((acc, item) => {
+    // const orderItems = dto.items.map((item) => ({
+    //   quantity: item.quantity,
+    //   price: item.price,
+    //   size: {
+    //     connect: {
+    //       id: item.sizeId,
+    //     },
+    //   },
+    //   productVariant: {
+    //     connect: {
+    //       id: item.productVariantId,
+    //     },
+    //   },
+    // }));
+    const totalPrice = dto.items.reduce((acc, item) => {
       return acc + item.price * item.quantity;
     }, 0);
 
     const order = await this.prisma.order.create({
       data: {
         status: dto.status,
-        items: {
-          create: orderItems,
-        },
-        total,
+        // items: {
+        //   create: orderItems,
+        // },
+        total: totalPrice,
         user: {
           connect: {
             id: userId,
@@ -41,19 +46,49 @@ export class OrderService {
         },
       },
     });
+    const orderItems = dto.items.map((item) => ({
+      orderId: order.id,
+      quantity: item.quantity,
+      price: item.price,
+      sizeId: item.sizeId,
+      productVariantId: item.productVariantId,
+    }));
+    await this.prisma.orderItem.createMany({
+      data: orderItems,
+    });
+    const variantIds = dto.items.map((item) => item.productVariantId);
 
+    const variants = await this.prisma.productVariant.findMany({
+      where: {
+        id: {
+          in: variantIds,
+        },
+      },
+      include: {
+        product: {
+          select: {
+            title: true,
+          },
+        },
+      },
+    });
+
+    const line_items = dto.items.map((item) => {
+      const variant = variants.find((v) => v.id === item.productVariantId);
+      return {
+        price_data: {
+          currency: 'rub',
+          product_data: {
+            name: variant?.product.title || 'Товар',
+          },
+          unit_amount: item.price * 100,
+        },
+        quantity: item.quantity,
+      };
+    });
     const session = await this.stripe.checkout.sessions.create({
       payment_method_types: ['card'],
-      line_items: [
-        {
-          price_data: {
-            currency: 'rub',
-            product_data: { name: 'Продукт' },
-            unit_amount: total * 100, // В копейках
-          },
-          quantity: 1,
-        },
-      ],
+      line_items: line_items,
       mode: 'payment',
       success_url: `${process.env.CLIENT_URL}/thankyou`,
       cancel_url: 'https://yourwebsite.com/cancel',
@@ -73,6 +108,11 @@ export class OrderService {
       const session = dto.data.object;
       const orderId = session.metadata?.orderId;
 
+      const order = await this.prisma.order.findUnique({
+        where: {
+          id: orderId,
+        },
+      });
       if (!orderId) {
         this.logger.error('Order ID not found in metadata');
         return;
@@ -82,6 +122,49 @@ export class OrderService {
         where: { id: orderId },
         data: { status: OrderStatus.PAYED },
       });
+
+      const orderItems = await this.prisma.orderItem.findMany({
+        where: {
+          orderId,
+        },
+      });
+
+      const orderItemsIds = orderItems.map((item) => ({
+        productVariantId: item.productVariantId,
+        sizeId: item.sizeId,
+        quantity: item.quantity,
+      }));
+      await Promise.all(
+        orderItemsIds.map((item) =>
+          this.prisma.productVariantQuantity.update({
+            where: {
+              productVariantId_sizeId: {
+                productVariantId: item.productVariantId,
+                sizeId: item.sizeId,
+              },
+            },
+            data: {
+              quantity: {
+                decrement: item.quantity,
+              },
+            },
+          }),
+        ),
+      );
+
+      await Promise.all(
+        orderItemsIds.map((item) =>
+          this.prisma.basket.delete({
+            where: {
+              userId_productVariantId_sizeId: {
+                productVariantId: item.productVariantId,
+                sizeId: item.sizeId,
+                userId: order.userId,
+              },
+            },
+          }),
+        ),
+      );
     }
   }
 }
