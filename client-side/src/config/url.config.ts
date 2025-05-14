@@ -11,15 +11,14 @@ export const PUBLIC_URL = {
   product: (id = "") => PUBLIC_URL.root(`/product/${id}`),
   category: (id = "") => PUBLIC_URL.root(`/category/${id}`),
   catalog: (id = "") => PUBLIC_URL.root(`/catalog${id}`),
-
 };
 
 export const PROFILE_URL = {
   root: (url = "") => `/profile${url ? url : ""}`,
   home: () => PROFILE_URL.root("/"),
   favorites: () => PROFILE_URL.root("/favorites"),
-  profile: () => PROFILE_URL.root("/profile"),
-basket: () => PROFILE_URL.root('/basket')
+  // profile: () => PROFILE_URL.root("/profile"),
+  basket: () => PROFILE_URL.root("/basket"),
 };
 export const ADMIN_URL = {
   root: (url = "") => `/admin${url ? url : ""}`,

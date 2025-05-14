@@ -26,7 +26,7 @@ export default function Basket() {
   const [wholeQuantity, setWholeQuantity] = useState<number>(0);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [placeOrder, { isLoading: isOrderLoading }] = usePlaceOrderMutation();
-  const router = useRouter()
+  const router = useRouter();
   const initialized = useRef(false);
   const {
     data,
@@ -41,7 +41,7 @@ export default function Basket() {
 
   const handleCheckout = async () => {
     try {
-      const filteredItems = items?.filter((item) => selectedItems.includes(item.id));
+      const filteredItems = items?.filter((item) => selectedItems.includes(item.id)) || [];
       const response = await placeOrder({
         items: filteredItems.map((item) => ({
           productVariantId: item.productVariantId,
@@ -52,7 +52,7 @@ export default function Basket() {
       }).unwrap();
       // console.log(confirmation);
       if (response.url) {
-       router.push(response.url);
+        router.push(response.url);
       } else {
         console.error("Stripe URL not найден");
       }

@@ -24,6 +24,7 @@ interface IConfirmation {
 export interface IPaymenentResponse {
   id: string;
   status: string;
+  url:string
   amount: IAmount;
   recipient: IRecipient;
   paynment_method: IPaymentMethod;

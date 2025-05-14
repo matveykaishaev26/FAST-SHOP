@@ -1,6 +1,8 @@
+import { PROFILE_URL } from "@/config/url.config";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
-import { CheckCircle2, Link } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
+import Link from "next/link";
 
 export default function ThankYouPage() {
   return (
@@ -11,10 +13,10 @@ export default function ThankYouPage() {
           <CardTitle className="text-2xl mt-2">Спасибо за заказ!</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-muted-foreground mb-4">Мы получили ваш платёж. Скоро свяжемся с вами для подтверждения.</p>
-          <Button asChild>
-            <Link href="/">Вернуться на главную</Link>
-          </Button>
+          <p className="text-muted-foreground mb-4">Мы получили ваш платёж!</p>
+          <Link  href={PROFILE_URL.root()}>
+            <Button>Принять</Button>
+          </Link>
         </CardContent>
       </Card>
     </div>

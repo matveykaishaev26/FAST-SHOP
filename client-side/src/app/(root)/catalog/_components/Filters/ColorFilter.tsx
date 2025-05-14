@@ -5,9 +5,12 @@ import FilterCheckbox from "./FilterCheckbox";
 import { IFilterProps } from "../../types";
 import { IColor } from "@/shared/types/color.interface";
 import FilterListItem from "./FilterBase/FilterListItem";
-interface IFilterFolorProps extends IFilterProps {}
-export default function ColorFilter({ filters, deleteFilters, variant }: IFilterFolorProps) {
-  const { data: colors, isLoading } = useGetColorsQuery();
+import { IFilterItem } from "@/shared/types/filter.interface";
+interface IFilterFolorProps extends IFilterProps {
+  colorsData: IColor[]
+}
+export default function ColorFilter({ filters, deleteFilters, variant, colorsData }: IFilterFolorProps) {
+  // const { data: colors, isLoading } = useGetColorsQuery();
   const filterType = "colorIds";
   return (
     <FilterBase
@@ -15,9 +18,9 @@ export default function ColorFilter({ filters, deleteFilters, variant }: IFilter
       deleteFilters={deleteFilters}
       filters={filters}
       header="Цвет"
-      isLoading={isLoading}
+      isLoading={false}
       filterType={filterType}
-      data={colors || []}
+      data={colorsData || []}
       renderItem={(color: IColor) => {
         const isWhite = color.title === "Белый";
         const isBlack = color.title === "Чёрный";

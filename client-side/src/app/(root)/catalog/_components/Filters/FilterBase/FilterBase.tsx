@@ -89,7 +89,7 @@ export default function FilterBase<T extends IFilterItem>({
   return (
     <div className="space-y-2">
       <div className="flex items-center gap-x-2 w-full">
-        <span className="text-xl font-medium">{header}</span>
+        <h2 className="text-xl font-medium">{header}</h2>
         {filtersCount > 0 && !isLoading && (
           <ItemsCount count={filtersCount} size="md" />
         )}

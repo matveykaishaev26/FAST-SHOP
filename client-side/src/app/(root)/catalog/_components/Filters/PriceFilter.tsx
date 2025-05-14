@@ -10,17 +10,19 @@ import { useAppDispatch } from "@/hooks/useAppDispatch";
 import { setPriceRange } from "@/features/slices/filtersSlice";
 import { typeIsFiltersLoading } from "../../types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { IPriceRangeResponse } from "@/shared/types/productVariant.interface";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
+  priceRangeData: IPriceRangeResponse;
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ priceRange }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilterProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
+  // const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
   const [localRange, setLocalRange] = useState<[number, number]>(
     priceRange
       ? [priceRange[0], priceRange[1]]
@@ -75,7 +77,7 @@ export default function PriceFilter({ priceRange }: IPriceFilterProps) {
     <div className="space-y-2">
       <div className="text-xl text-left font-medium w-full">Цена</div>
 
-      {isLoading ? (
+      {false ? (
         <Skeleton className="h-[80px] w-full" />
       ) : (
         priceRangeData && (

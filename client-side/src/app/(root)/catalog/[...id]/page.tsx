@@ -28,7 +28,7 @@ interface IProduct {
 // Пример запроса к API или БД
 async function getProduct(id: string) {
   const res = await fetch(`http://localhost:5000/products/${id}`, {
-    next: { revalidate: 1 }, // ISR: страница будет кэшироваться на 60 сек
+    next: { revalidate: 60 }, // ISR: страница будет кэшироваться на 60 сек
   });
 
   if (!res.ok) {
@@ -81,17 +81,14 @@ export default async function Page({ params }: Params) {
         </div>
 
         {/* Описание */}
-        <div className="space-y-4 ">
+        <div className="space-y-4">
           <p className="text-2xl">{brand}</p>
-          <h1 className="text-3xl font-bold">{title}</h1>
+          <h1 className="text-3xl font-bold">{title}</h1> {/* Основной заголовок */}
           <p className="text-muted-foreground">{description}</p>
-
           <Rating variant="lg" count={Array.isArray(reviews) ? reviews.length : 0} value={String(averageRating)} />
-
           <p className="text-2xl font-semibold">{price.toLocaleString()} ₽</p>
-
           <div className="flex items-center gap-x-2">
-            <h4 className="text-sm text-muted-foreground">Цвет: </h4>
+            <h4 className="text-sm text-muted-foreground">Цвет: </h4> {/* Заголовок для цвета */}
             <div className="flex gap-2 mt-1">
               {colors.map((v: string) => (
                 <Badge key={v} variant="outline">
@@ -101,14 +98,13 @@ export default async function Page({ params }: Params) {
             </div>
           </div>
           {variants && <Variants currentImage={images[0]} variants={variants} />}
-
           {/* Отображение материалов */}
           <div className="pt-6 border-t">
-            <h4 className="text-2xl font-semibold mb-4">Материалы</h4>
+            <h2 className="text-2xl font-semibold mb-4">Материалы</h2> {/* Заголовок для раздела материалов */}
             <div className="space-y-4">
               {Object.entries(materials).map(([section, items]) => (
                 <div key={section} className="border p-4 rounded-xl bg-muted/50">
-                  <div className="mb-2 font-medium text-lg">{section}</div>
+                  <div className="mb-2 font-medium text-lg">{section}</div> {/* Раздел внутри материалов */}
                   <div className="space-y-1">
                     {items.map((item, index) => (
                       <div key={`${item.title}-${index}`} className="flex justify-between text-sm">
