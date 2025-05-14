@@ -11,43 +11,27 @@ import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
 import { clearFilters, setPriceRange } from "@/features/slices/filtersSlice";
+import { IFiltersData } from "../../utils/fetchFiltersData";
 interface IFiltersSheetProps {
-  // filtersData: any;
+  filtersData: IFiltersData;
+  initialState: IFilters;
 }
-export default function FiltersSheet({}: IFiltersSheetProps) {
+export default function FiltersSheet({ filtersData, initialState }: IFiltersSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
-  const dispatch = useAppDispatch();
-
+  const [mobileFilters, setMobileFilters] = useState()
   const [filtersCount, setFiltersCount] = useState(0);
-  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
+  // const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
+  const { priceRange, ...filters } = initialState;
   const allFiltersCount =
-    Object.values(filters as Omit<IFilters, "priceRange">).reduce((acc, arr) => acc + arr.length, 0) +
-    (priceRange === null ? 0 : 1);
+    Object.values(filters).reduce((acc, arr, index) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
 
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
   useEffect(() => {
-    let count = 0;
-
-    if (searchParams.get("price")) {
-      count += 1;
-    }
-    Object.keys(filters).forEach((key) => {
-      const param = searchParams.get(key);
-      if (param) {
-        const queryIds = param.split(",");
-        count += queryIds.length;
-      }
-    });
-
-    setFiltersCount(count);
-  }, [filters, priceRange, searchParams]);
-
-  useEffect(() => {
-    dispatch(clearFilters({}));
-    dispatch(setPriceRange(null));
-  }, []);
+    // const allFiltersCount =
+    //   Object.values(filters).reduce((acc, arr, index) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
+    setFiltersCount(allFiltersCount);
+  }, [filters, priceRange]);
 
   if (!isMobile) {
     return null;
@@ -73,6 +57,9 @@ export default function FiltersSheet({}: IFiltersSheetProps) {
               <X onClick={() => setIsOpen((prev) => !prev)} className="w-5 h-5 cursor-pointer text-muted-foreground" />
             </div>
             <Filters
+              setMobileFilters={setMobileFilters}
+              initialState={initialState}
+              filtersData={filtersData}
               // isFiltersReady={isFiltersReady}
               // setIsOpen={() => setIsOpen((prev) => !prev)}
               variant="mobile"
@@ -80,7 +67,6 @@ export default function FiltersSheet({}: IFiltersSheetProps) {
             <div className="sticky bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
               <Button
                 onClick={() => {
-                  updateUrlWithFilters();
                   setIsOpen((prev) => !prev);
                 }}
                 className="w-full uppercase"

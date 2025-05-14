@@ -1,18 +1,9 @@
 "use client";
-import { useMemo, useCallback, useEffect } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
-// import { useGetAllBrandsQuery } from "@/features/api/brandApi";
-// import { useGetCategoriesQuery } from "@/features/api/categoryApi";
-// import { useGetSizesQuery } from "@/features/api/sizeApi";
-// import { useGetGenderCountQuery } from "@/features/api/productApi";
-// import { useGetMaterialsQuery } from "@/features/api/materialApi";
-// import { useGetStylesQuery } from "@/features/api/styleApi";
-
-import { clearFilters, setPriceRange } from "@/features/slices/filtersSlice";
-import { IFilters, IFilterItem, filtersOrder, IFilterOption } from "@/shared/types/filter.interface";
+import { IFilterItem, filtersOrder, IFilterOption, IFilters } from "@/shared/types/filter.interface";
 
 import FilterChoice from "./FilterChoice";
 import PriceFilter from "./PriceFilter";
@@ -32,19 +23,18 @@ interface IFiltersProps {
   className?: string;
   variant?: "desktop" | "mobile";
   filtersData: IFiltersData;
+  initialState: IFilters;
+  setMobileFilters?: any;
 }
 
-export default function Filters({ className, variant = "desktop", filtersData }: IFiltersProps) {
-  const dispatch = useAppDispatch();
-  const { priceRange, ...filters } = useAppSelector((state) => state.filters);
-
-  // const { data: brands, isLoading: isBrandsLoading } = useGetAllBrandsQuery();
-  // const { data: categories, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
-  // const { data: sizes, isLoading: isSizesLoading } = useGetSizesQuery();
-  // const { data: genders, isLoading: isGendersLoading } = useGetGenderCountQuery();
-  // const { data: styles, isLoading: isStylesLoading } = useGetStylesQuery();
-  // const { data: materials, isLoading: isMaterialsLoading } = useGetMaterialsQuery();
-
+export default function Filters({
+  className,
+  variant = "desktop",
+  filtersData,
+  initialState,
+  setMobileFilters,
+}: IFiltersProps) {
+  const { priceRange, ...filtersWithoutPrice } = initialState;
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -55,25 +45,40 @@ export default function Filters({ className, variant = "desktop", filtersData }:
   const filtersComponents = useMemo<IFilterComponent[]>(
     () => [
       { header: "Бренды", filterType: "brandIds", data: filtersData.brands, isLoading: false },
-      { header: "Категории", filterType: "categoryIds", data: filtersData.brands, isLoading: false },
-      { header: "Размеры", filterType: "sizeIds", data: filtersData.brands, isLoading: false },
-      { header: "Пол", filterType: "genderIds", data: filtersData.brands, isExpandable: false, isLoading: false },
-      { header: "Материалы", filterType: "materialIds", data: filtersData.brands, isLoading: false },
-      { header: "Стили", filterType: "styleIds", data: filtersData.brands, isLoading: false },
+      { header: "Категории", filterType: "categoryIds", data: filtersData.categories, isLoading: false },
+      { header: "Размеры", filterType: "sizeIds", data: filtersData.sizes, isLoading: false },
+      { header: "Пол", filterType: "genderIds", data: filtersData.genders, isExpandable: false, isLoading: false },
+      { header: "Материалы", filterType: "materialIds", data: filtersData.materials, isLoading: false },
+      { header: "Стили", filterType: "styleIds", data: filtersData.styles, isLoading: false },
     ],
-    [
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-    ]
+    [filtersData]
   );
 
-  const middleIndex = Math.floor(filtersComponents.length / 2 - 1);
-  const firstHalf = filtersComponents.slice(0, middleIndex);
-  const secondHalf = filtersComponents.slice(middleIndex);
+  const handleCheckboxChange = (
+    checked: boolean,
+    filterType: keyof Omit<IFilters, "priceRange">,
+    item: IFilterOption
+  ) => {
+    const params = new URLSearchParams(searchParams.toString());
+    const currentValues = params.get(filterType)?.split(",") ?? [];
+
+    const newValues = checked
+      ? [...new Set([...currentValues, item.id])]
+      : currentValues.filter((id) => id !== item.id);
+
+    if (newValues.length > 0) {
+      params.set(filterType, newValues.join(","));
+    } else {
+      params.delete(filterType);
+    }
+
+    if (variant === "desktop") {
+      params.delete("page");
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    } else {
+      setMobileFilters(initialState);
+    }
+  };
 
   const deleteFilters = useCallback(
     (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
@@ -84,46 +89,46 @@ export default function Filters({ className, variant = "desktop", filtersData }:
       if (filterId) {
         const newIds = ids.filter((id) => id !== filterId);
         newIds.length ? params.set(filterType, newIds.join(",")) : params.delete(filterType);
-        dispatch(clearFilters({ filterType, filterId }));
       } else {
         params.delete(filterType);
-        dispatch(clearFilters({ filterType }));
       }
 
-      router.push(pathname + "?" + params.toString(), { scroll: false });
+      router.push(`${pathname}?${params.toString()}`, { scroll: false });
     },
-    [dispatch, router, pathname, searchParams]
+    [router, pathname, searchParams]
   );
-  // useEffect(() => {
-  //   dispatch(clearFilters({}));
-  //   dispatch(setPriceRange(null));
-  // }, []);
+
+  const deletePriceRange = useCallback(() => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("priceRange");
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [router, pathname, searchParams]);
 
   const clearAllFilters = useCallback(() => {
-    dispatch(clearFilters({}));
-    dispatch(setPriceRange(null));
-
     const params = new URLSearchParams(searchParams.toString());
     params.delete("priceRange");
     filtersOrder.forEach((item) => params.delete(item));
-
-    router.push(pathname + "?" + params.toString(), { scroll: false });
-  }, [dispatch, searchParams, pathname, router]);
+    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+  }, [searchParams, pathname, router]);
 
   if (!shouldShow) return null;
 
   const commonFilterBaseProps = {
-    filters,
+    filters: filtersWithoutPrice,
     deleteFilters,
   };
+
+  const middleIndex = Math.floor(filtersComponents.length / 2 - 1);
+  const firstHalf = filtersComponents.slice(0, middleIndex);
+  const secondHalf = filtersComponents.slice(middleIndex);
 
   return (
     <div className={`relative md:overflow-visible scrollbar-hide ${className || ""}`}>
       <FilterChoice
         isAllFiltersLoading={false}
-        deletePriceRange={() => dispatch(setPriceRange(null))}
+        deletePriceRange={deletePriceRange}
         priceRange={priceRange}
-        filters={filters}
+        filters={filtersWithoutPrice}
         deleteFilters={deleteFilters}
         clearFilters={clearAllFilters}
       />
@@ -132,13 +137,32 @@ export default function Filters({ className, variant = "desktop", filtersData }:
         <PriceFilter priceRangeData={filtersData.priceRange} priceRange={priceRange} />
 
         {firstHalf.map((item) => (
-          <FilterBase variant={variant} key={item.header} {...commonFilterBaseProps} {...item} data={item.data || []} />
+          <FilterBase
+            handleCheckboxChange={handleCheckboxChange}
+            variant={variant}
+            key={item.header}
+            {...commonFilterBaseProps}
+            {...item}
+            data={item.data || []}
+          />
         ))}
 
-        <ColorFilter colorsData={filtersData.colors} variant={variant} {...commonFilterBaseProps} />
+        <ColorFilter
+          handleCheckboxChange={handleCheckboxChange}
+          colorsData={filtersData.colors}
+          variant={variant}
+          {...commonFilterBaseProps}
+        />
 
         {secondHalf.map((item) => (
-          <FilterBase variant={variant} key={item.header} {...commonFilterBaseProps} {...item} data={item.data || []} />
+          <FilterBase
+            handleCheckboxChange={handleCheckboxChange}
+            variant={variant}
+            key={item.header}
+            {...commonFilterBaseProps}
+            {...item}
+            data={item.data || []}
+          />
         ))}
       </div>
     </div>

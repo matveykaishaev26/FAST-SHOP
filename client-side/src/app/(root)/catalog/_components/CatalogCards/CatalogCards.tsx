@@ -16,8 +16,9 @@ const LIMIT = 20;
 
 interface ICardsProps {
   setCardsCount?: React.Dispatch<React.SetStateAction<number>>;
+  parsedFilters: any;
 }
-export default function CatalogCards({ setCardsCount }: ICardsProps) {
+export default function CatalogCards({ setCardsCount, parsedFilters }: ICardsProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
   const page = Number(searchParams.get("page")) || 1;
@@ -29,7 +30,7 @@ export default function CatalogCards({ setCardsCount }: ICardsProps) {
     page: page,
     limit: LIMIT,
     mode: isMobile ? CARDS_RESPONSE_MODE.INFINITE_SCROLL : CARDS_RESPONSE_MODE.PAGINATION,
-    filters: { priceRange, ...filters },
+    filters: parsedFilters,
     sortType: currentSort,
   });
 

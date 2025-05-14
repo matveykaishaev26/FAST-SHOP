@@ -18,7 +18,7 @@ export const productApi = api.injectEndpoints({
       {
         page: number;
         limit: number;
-        filters: IFilters;
+        filters: Record<string, string[]>;
         mode: CARDS_RESPONSE_MODE;
         sortType?: string;
       }

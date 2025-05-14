@@ -11,9 +11,16 @@ interface IFilterListItem {
   filterType: Exclude<keyof IFilters, "priceRange">;
   renderItem?: any;
   variant?: "desktop" | "mobile";
+  handleCheckboxChange: any;
 }
 
-export default function FilterListItem({ item, filterType, renderItem, variant = "desktop" }: IFilterListItem) {
+export default function FilterListItem({
+  item,
+  filterType,
+  renderItem,
+  variant = "desktop",
+  handleCheckboxChange,
+}: IFilterListItem) {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -23,33 +30,9 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
   const ids = paramValue ? paramValue.split(",") : [];
   const isChecked = ids.includes(item.id);
 
-  // useEffect(() => {
-  //   dispatch(toggleFilter({ option: item, filterType, isChecked: isChecked }));
-  // }, []);
 
-  const handleCheckboxChange = (checked: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const currentValues = params.get(filterType) ? params.get(filterType)!.split(",") : [];
-
-    let newValues: string[];
-    if (checked) {
-      newValues = [...new Set([...currentValues, item.id])];
-    } else {
-      newValues = currentValues.filter((id) => id !== item.id);
-    }
-
-    dispatch(toggleFilter({ option: item, filterType, isChecked: checked }));
-
-    params.delete(filterType);
-    if (newValues.length > 0) {
-      params.set(filterType, newValues.join(","));
-    }
-
-    if (variant === "desktop") {
-      params.delete("page");
-
-      router.push(pathname + "?" + params.toString(), { scroll: false });
-    }
+  const onChange = (checked: boolean) => {
+    handleCheckboxChange(checked, filterType, item);
   };
 
   return (
@@ -58,7 +41,7 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
         id={item.id}
         className={`${item.productCount === 0 && "opacity-50 select-none"}`}
         checked={isChecked}
-        onChange={handleCheckboxChange}
+        onChange={onChange}
       >
         {renderItem ? (
           <>{renderItem}</>
