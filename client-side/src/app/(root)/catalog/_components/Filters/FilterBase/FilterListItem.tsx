@@ -28,29 +28,33 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
   // }, []);
 
   const handleCheckboxChange = (checked: boolean) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const currentValues = params.get(filterType) ? params.get(filterType)!.split(",") : [];
+  // обновить состояние фильтров в Redux
+  dispatch(toggleFilter({ option: item, filterType, isChecked: checked }));
 
-    let newValues: string[];
-    if (checked) {
-      newValues = [...new Set([...currentValues, item.id])];
-    } else {
-      newValues = currentValues.filter((id) => id !== item.id);
-    }
+  // сформировать новый URL
+  const params = new URLSearchParams(searchParams.toString());
+  const currentValues = params.get(filterType) ? params.get(filterType)!.split(",") : [];
 
-    dispatch(toggleFilter({ option: item, filterType, isChecked: checked }));
+  let newValues: string[];
+  if (checked) {
+    newValues = [...new Set([...currentValues, item.id])];
+  } else {
+    newValues = currentValues.filter((id) => id !== item.id);
+  }
 
-    params.delete(filterType);
-    if (newValues.length > 0) {
-      params.set(filterType, newValues.join(","));
-    }
+  params.delete(filterType);
+  if (newValues.length > 0) {
+    params.set(filterType, newValues.join(","));
+  }
 
-    if (variant === "desktop") {
-      params.delete("page");
+  if (variant === "desktop") {
+    params.delete("page");
 
-      router.push(pathname + "?" + params.toString(), { scroll: false });
-    }
-  };
+    // обновляем URL без перезагрузки страницы и серверного рендера
+    window.history.pushState({}, "", pathname + "?" + params.toString());
+  }
+};
+
 
   return (
     <div key={item.title}>

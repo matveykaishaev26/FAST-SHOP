@@ -11,10 +11,12 @@ import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
 import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
 import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
 import { clearFilters, setPriceRange } from "@/features/slices/filtersSlice";
+import { IFiltersData } from "../../utils/fetchFiltersData";
 interface IFiltersSheetProps {
-  // filtersData: any;
+    filtersData: IFiltersData;
+  
 }
-export default function FiltersSheet({}: IFiltersSheetProps) {
+export default function FiltersSheet({filtersData}: IFiltersSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
   const dispatch = useAppDispatch();
@@ -75,6 +77,7 @@ export default function FiltersSheet({}: IFiltersSheetProps) {
             <Filters
               // isFiltersReady={isFiltersReady}
               // setIsOpen={() => setIsOpen((prev) => !prev)}
+              filtersData={filtersData}
               variant="mobile"
             />
             <div className="sticky bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">

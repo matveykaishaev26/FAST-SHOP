@@ -52,24 +52,14 @@ export default function Filters({ className, variant = "desktop", filtersData }:
   const isMobile = useBreakpointMatch(1024);
   const shouldShow = variant === "desktop" ? !isMobile : isMobile;
 
-  const filtersComponents = useMemo<IFilterComponent[]>(
-    () => [
-      { header: "Бренды", filterType: "brandIds", data: filtersData.brands, isLoading: false },
-      { header: "Категории", filterType: "categoryIds", data: filtersData.brands, isLoading: false },
-      { header: "Размеры", filterType: "sizeIds", data: filtersData.brands, isLoading: false },
-      { header: "Пол", filterType: "genderIds", data: filtersData.brands, isExpandable: false, isLoading: false },
-      { header: "Материалы", filterType: "materialIds", data: filtersData.brands, isLoading: false },
-      { header: "Стили", filterType: "styleIds", data: filtersData.brands, isLoading: false },
-    ],
-    [
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-      filtersData.brands,
-    ]
-  );
+  const filtersComponents: IFilterComponent[] = [
+    { header: "Бренды", filterType: "brandIds", data: filtersData.brands, isLoading: false },
+    { header: "Категории", filterType: "categoryIds", data: filtersData.categories, isLoading: false },
+    { header: "Размеры", filterType: "sizeIds", data: filtersData.sizes, isLoading: false },
+    { header: "Пол", filterType: "genderIds", data: filtersData.genders, isExpandable: false, isLoading: false },
+    { header: "Материалы", filterType: "materialIds", data: filtersData.materials, isLoading: false },
+    { header: "Стили", filterType: "styleIds", data: filtersData.styles, isLoading: false },
+  ];
 
   const middleIndex = Math.floor(filtersComponents.length / 2 - 1);
   const firstHalf = filtersComponents.slice(0, middleIndex);
