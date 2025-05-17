@@ -1,5 +1,5 @@
 "use client";
-import { useMemo, useCallback, useState } from "react";
+import { useMemo, useCallback, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
@@ -34,6 +34,7 @@ export default function Filters({
   initialState,
   setMobileFilters,
 }: IFiltersProps) {
+  // const [localFilters, setLocalFilters] = useState<IFilters>(initialState);
   const { priceRange, ...filtersWithoutPrice } = initialState;
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -73,8 +74,18 @@ export default function Filters({
     }
 
     if (variant === "desktop") {
+      // if (checked)
+      //   setLocalFilters((prev) => ({
+      //     ...prev,
+      //     [filterType]: [...prev[filterType], item],
+      //   }));
+      // else
+      //   setLocalFilters((prev) => ({
+      //     ...prev,
+      //     [filterType]: [...prev[filterType].filter((option) => option.id !== item.id)],
+      //   }));
       params.delete("page");
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`?${params.toString()}`, { scroll: false });
     } else {
       setMobileFilters(initialState);
     }
@@ -93,7 +104,7 @@ export default function Filters({
         params.delete(filterType);
       }
 
-      router.push(`${pathname}?${params.toString()}`, { scroll: false });
+      router.push(`?${params.toString()}`, { scroll: false });
     },
     [router, pathname, searchParams]
   );
@@ -101,14 +112,14 @@ export default function Filters({
   const deletePriceRange = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("priceRange");
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`?${params.toString()}`, { scroll: false });
   }, [router, pathname, searchParams]);
 
   const clearAllFilters = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("priceRange");
     filtersOrder.forEach((item) => params.delete(item));
-    router.push(`${pathname}?${params.toString()}`, { scroll: false });
+    router.push(`?${params.toString()}`, { scroll: false });
   }, [searchParams, pathname, router]);
 
   if (!shouldShow) return null;

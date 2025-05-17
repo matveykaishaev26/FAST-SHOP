@@ -1,81 +1,31 @@
-import { IFilterItem, IFilterOption, IFilters } from "@/shared/types/filter.interface";
 import PageHeader from "../_components/PageHeader";
 import CatalogCards from "./_components/CatalogCards/CatalogCards";
 import Filters from "./_components/Filters/Filters";
 import FiltersSheet from "./_components/Filters/FiltersSheet";
 import SortSelect from "./_components/SortSelect";
 import { fetchFilters } from "./utils/fetchFiltersData";
+import { createInitialFiltersState } from "./utils/createInitialFiltersState";
+import fetchProductCards from "./utils/fetchProductCards";
+import { parseFiltersFromSearchParams } from "./utils/parseFiltersFromSearchParams";
+import createFiltersApiUrl from "./utils/createFiltersApiUrl";
+import { Metadata } from "next";
+import { SITE_DESCRIPTION, SITE_NAME } from "@/constants/seo.constants";
 type Props = {
-  searchParams: Record<string, string | string[]>;
+  searchParams: Promise<Record<string, string | string[]>>;
 };
-
-export async function parseFiltersFromSearchParams(params: Record<string, string | string[]>) {
-  const getArray = (key: string): string[] => {
-  const value = params[key];
-  return Array.isArray(value) ? value : value ? value.split(",") : [];
+export const metadata: Metadata = {
+  title: "Каталог",
 };
-
-  const priceRangeRaw = params["priceRange"];
-  const priceRangeStr = Array.isArray(priceRangeRaw) ? priceRangeRaw[0] : priceRangeRaw;
-  const priceRange = priceRangeStr?.split("-").map(Number) || null;
-
-  return {
-    brandIds: getArray("brandIds"),
-    colorIds: getArray("colorIds"),
-    priceRange,
-    categoryIds: getArray("categoryIds"),
-    sizeIds: getArray("sizeIds"),
-    genderIds: getArray("genderIds"),
-    materialIds: getArray("materialIds"),
-    styleIds: getArray("styleIds"),
-  } as IFilters;
-}
-
-export async function createInitialFiltersState(filtersData: any, parsedFilters: IFilters) {
-  let initialState: IFilters = {
-    brandIds: [],
-    colorIds: [],
-    priceRange: null, 
-    categoryIds: [],
-    sizeIds: [],
-    genderIds: [],
-    materialIds: [],
-    styleIds: [],
-  };
-  const filterKeyMap: Record<string, keyof Omit<IFilters, "priceRange">> = {
-    brands: "brandIds",
-    materials: "materialIds",
-    categories: "categoryIds",
-    sizes: "sizeIds",
-    genders: "genderIds",
-    styles: "styleIds",
-    colors: "colorIds",
-  };
-
-  Object.entries(filterKeyMap).forEach(([key, values]) => {
-    const typedKey = key as keyof typeof filtersData;
-    const itemsToUpdate = filtersData[typedKey]
-      .filter((item: IFilterItem) => parsedFilters[values]?.some((f) => f === item.id))
-      .map((item: IFilterItem) => ({
-        id: item.id,
-        title: item.title,
-        ...(values === "colorIds" && { hex: (item as any).hex }),
-      }));
-
-    if (itemsToUpdate.length > 0) {
-      initialState[values] = itemsToUpdate;
-    }
-  });
-
-  initialState.priceRange = parsedFilters.priceRange;
-  return initialState;
-}
 export default async function Catalog({ searchParams }: Props) {
+  const params = await searchParams; 
   const filtersData = await fetchFilters();
-  const parsedFilters = await parseFiltersFromSearchParams(searchParams);
+  const parsedFilters = await parseFiltersFromSearchParams(params);
   const initialState = await createInitialFiltersState(filtersData, parsedFilters);
 
-  console.log(parsedFilters);
+  const filtersUrl = createFiltersApiUrl(params);
+
+  const productCards = await fetchProductCards(await filtersUrl);
+
   return (
     <div className=" h-full">
       <PageHeader header="Каталог" />
@@ -90,9 +40,13 @@ export default async function Catalog({ searchParams }: Props) {
         <div className="w-full ">
           <div className="flex justify-between items-center  mb-4">
             <SortSelect />
-            <div className="block lg:hidden"><FiltersSheet  filtersData={filtersData}  initialState={initialState}/></div>
+            <div className="block lg:hidden">
+              <FiltersSheet filtersData={filtersData} initialState={initialState} />
+            </div>
           </div>
-          <div className="w-full"><CatalogCards parsedFilters={parsedFilters} /></div>
+          <div className="w-full">
+            <CatalogCards productCards={productCards} parsedFilters={parsedFilters} />
+          </div>
         </div>
       </div>
     </div>

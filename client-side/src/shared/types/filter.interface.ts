@@ -29,7 +29,17 @@ export type IPriceRange = [number, number] | null;
 
 
 export interface IFilters {
-  brandIds: string[];
+  brandIds: IFilterOption[];
+  colorIds: IFilterColor[];
+  priceRange: null | [number, number];
+  categoryIds: IFilterOption[];
+  sizeIds: IFilterOption[];
+  genderIds: IFilterOption[];
+  materialIds: IFilterOption[];
+  styleIds: IFilterOption[];
+}
+export interface IParsedFilters {
+    brandIds: string[];
   colorIds: string[];
   priceRange: null | [number, number];
   categoryIds: string[];

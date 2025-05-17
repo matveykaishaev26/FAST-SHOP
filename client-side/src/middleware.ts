@@ -10,7 +10,9 @@ interface IToken {
 
 export async function middleware(req: NextRequest) {
   const refreshToken = req.cookies.get(EnumTokens.REFRESH_TOKEN)?.value;
-
+  // const decodedToken = jwtDecode<IToken>(refreshToken);
+  // const userRole = decodedToken.role;
+  // console.log(userRole)
   console.log(refreshToken);
   if (!refreshToken && req.nextUrl.pathname.startsWith("/profile")) {
     return NextResponse.redirect(new URL(PUBLIC_URL.auth("/login"), req.nextUrl.origin));

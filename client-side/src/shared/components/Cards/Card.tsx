@@ -1,3 +1,4 @@
+'use client'
 import { Card as CardUI, CardContent, CardFooter } from "@/shared/components/ui/card";
 import { ICardItem, IFavoriteCardItem } from "@/shared/types/card.interface";
 import { useRouter } from "next13-progressbar";

@@ -2,6 +2,7 @@
 import { useRouter } from "next13-progressbar";
 import { cn } from "@/lib/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 
 interface IPaginationControlProps {
   page: number;
@@ -13,9 +14,12 @@ const PAGES_COUNT = 5;
 
 export default function PaginationControl({ page, totalPages, disabled }: IPaginationControlProps) {
   const router = useRouter();
-
+  const searchParams = useSearchParams();
   const setPage = (newPage: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    console.log(params);
     if (newPage < 1 || newPage > totalPages) return;
+    params.append("page", newPage.toString());
     router.push(`?page=${newPage}`);
   };
 
@@ -55,7 +59,7 @@ export default function PaginationControl({ page, totalPages, disabled }: IPagin
           </div>
         );
       })}
-      {page <= totalPages - PAGES_COUNT / 2  && totalPages !== PAGES_COUNT && (
+      {page <= totalPages - PAGES_COUNT / 2 && totalPages !== PAGES_COUNT && (
         <div className="h-6 w-6 sm:h-icon sm:w-icon flex justify-center items-center">...</div>
       )}
 

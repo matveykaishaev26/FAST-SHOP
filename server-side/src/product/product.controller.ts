@@ -74,8 +74,10 @@ export class ProductController {
     @Query('sortType') sortType?: string,
   ) {
     function toArray(param?: string[] | string): string[] {
-      return Array.isArray(param) ? param : param ? [param] : [];
-    }
+  if (!param) return [];
+  if (Array.isArray(param)) return param;
+  return param.split(','); // <--- важное изменение!
+}
 
     let parsedPriceRange: number[] | undefined;
     console.log(priceRange);
@@ -130,6 +132,7 @@ export class ProductController {
   async update(@Param('id') id: string, @Body() dto: UpdateProductDto) {
     return this.productService.update(id, dto);
   }
+  @HttpCode(200)
 
   @Get(':productVariantId')
   async getProduct(@Param('productVariantId') productVariantId: string) {

@@ -152,13 +152,13 @@ export const userFavoritesApi = api.injectEndpoints({
 
         return newItems;
       },
-      forceRefetch({ currentArg, previousArg }) {
-        if (!previousArg) return true;
-        if (currentArg.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
-          return currentArg.page !== previousArg.page;
-        }
-        return true;
-      },
+      // forceRefetch({ currentArg, previousArg }) {
+      //   if (!previousArg) return true;
+      //   if (currentArg.mode === CARDS_RESPONSE_MODE.INFINITE_SCROLL) {
+      //     return currentArg.page !== previousArg.page;
+      //   }
+      //   return true;
+      // },
       providesTags: (result) =>
         result?.items
           ? [
