@@ -1,7 +1,7 @@
 "use client";
 import { useCreateBrandMutation, useGetBrandsQuery } from "@/features/api/brandApi";
 import { useSearchParams } from "next/navigation";
-
+import { useGetMaterialsQuery } from "@/features/api/materialApi";
 import Loading from "@/shared/components/ui/Loading/Loading";
 import PaginationControl from "@/shared/components/ui/PaginationControl";
 import { useState } from "react";
@@ -19,13 +19,12 @@ import { Input } from "@/shared/components/ui/input";
 
 const LIMIT = 20;
 
-export default function BrandsList() {
+export default function Materials() {
   const searchParams = useSearchParams();
   const page = Number(searchParams.get("page")) || 1;
 
   const header = ["Название"];
-  const { data, isLoading, refetch } = useGetBrandsQuery({ page, limit: LIMIT });
-  const [createBrand, { isLoading: isCreating }] = useCreateBrandMutation();
+  const { data, isLoading, refetch } = useGetMaterialsQuery();
   const [newBrand, setNewBrand] = useState("");
   const [isDialogOpen, setIsDialogOpen] = useState(false); // 👈 управление открытием
 
@@ -33,7 +32,7 @@ export default function BrandsList() {
     if (!newBrand.trim()) return;
 
     try {
-      await createBrand([{ title: newBrand }]).unwrap();
+    //   await createBrand([{ title: newBrand }]).unwrap();
       setNewBrand("");
       setIsDialogOpen(false); // 👈 закрытие после успешного добавления
       await refetch();
@@ -42,7 +41,7 @@ export default function BrandsList() {
     }
   };
 
-  const { items, totalPages, currentPage } = data || {};
+//   const { items, totalPages, currentPage } = data || {};
 
   return (
     <div className="space-y-4">
@@ -60,12 +59,12 @@ export default function BrandsList() {
               className="w-full"
               value={newBrand}
               onChange={(e) => setNewBrand(e.target.value)}
-              disabled={isCreating}
+            //   disabled={isCreating}
             />
           </div>
           <DialogFooter>
-            <Button onClick={handleCreateBrand} disabled={isCreating || !newBrand.trim()}>
-              {isCreating ? "Добавление..." : "Добавить"}
+            <Button onClick={handleCreateBrand} disabled={ !newBrand.trim()}>
+              {false ? "Добавление..." : "Добавить"}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -77,11 +76,8 @@ export default function BrandsList() {
         </div>
       ) : (
         <>
-          <CustomTable
-            header={header}
-            data={items?.map((brand) => ({ title: brand.title })) || []}
-          />
-          <PaginationControl page={currentPage} totalPages={totalPages} />
+          <CustomTable header={header} data={data?.map((brand) => ({ title: brand.title })) || []} />
+          {/* <PaginationControl page={currentPage} totalPages={totalPages} /> */}
         </>
       )}
     </div>

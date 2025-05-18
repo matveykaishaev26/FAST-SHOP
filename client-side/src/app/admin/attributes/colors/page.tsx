@@ -1,8 +1,9 @@
-import Materials from "./Materials";
+import Colors from "./Colors";
+
 export default function Page() {
   return (
     <div>
-      <Materials />
+      <Colors />
     </div>
   );
 }

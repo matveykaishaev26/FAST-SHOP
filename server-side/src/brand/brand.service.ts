@@ -5,8 +5,10 @@ import { CreateBrandDto } from './dto/create-brand.dto';
 export class BrandService {
   constructor(private prisma: PrismaService) {}
 
-  async getBrands(skip: number, take: number) {
-    skip = Math.max(skip, 0);
+  async getBrands(page: number, limit: number) {
+    const skip = (page - 1) * limit;
+    const take = Number(limit);
+
     const brands = await this.prisma.brand.findMany({
       skip,
       take,
@@ -17,11 +19,16 @@ export class BrandService {
       ],
     });
 
-    const total = await this.prisma.brand.count(); // Всего брендов
+    const totalCount = await this.prisma.brand.count();
+
+    const totalPages = Math.ceil(totalCount / take);
+    const currentPage = Math.max(1, Math.min(page, totalPages));
 
     return {
-      brands,
-      total,
+      items: brands,
+      totalCount,
+      totalPages,
+      currentPage,
     };
   }
   async getAll() {
@@ -59,7 +66,13 @@ export class BrandService {
 
     return color;
   }
-
+  async createBrand(title: string) {
+    await this.prisma.brand.create({
+      data: {
+        title,
+      },
+    });
+  }
   async create(dto: CreateBrandDto[]) {
     return this.prisma.brand.createMany({
       data: dto,

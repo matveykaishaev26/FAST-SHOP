@@ -1,19 +1,16 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useProfile } from "@/hooks/useProfile";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardContent,
-} from "@/shared/components/ui/card";
+import { Card, CardHeader, CardTitle, CardContent } from "@/shared/components/ui/card";
 import { MailIcon } from "lucide-react";
 import Image from "next/image";
 import { useGetOrdersQuery } from "@/features/api/orderApi";
 import { IOrder } from "@/shared/types/order.interface";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
+import { useEffect } from "react";
+import { saveTokenStorage } from "@/services/auth/auth-token.service";
 
 export default function Profile() {
   const { user, isLoading } = useProfile();
@@ -21,7 +18,14 @@ export default function Profile() {
   const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
 
   const isLoadingAll = isLoading || isOrdersLoading;
+  const searchParams = useSearchParams();
+  useEffect(() => {
+    const accessToken = searchParams.get("accessToken");
 
+    if (accessToken) {
+      saveTokenStorage(accessToken);
+    }
+  }, [searchParams]);
   return (
     <div className="space-y-6">
       <Card>
@@ -43,11 +47,7 @@ export default function Profile() {
                 />
               )}
               <MailIcon className="w-4 h-4" />
-              {isLoading ? (
-                <Skeleton className="h-4 w-32" />
-              ) : (
-                <span>{user?.email}</span>
-              )}
+              {isLoading ? <Skeleton className="h-4 w-32" /> : <span>{user?.email}</span>}
             </div>
           </div>
           <Button>Выйти</Button>
@@ -91,12 +91,9 @@ export default function Profile() {
               <CardHeader>
                 <div className="flex justify-between items-center">
                   <CardTitle className="text-md">
-                    Заказ #{order.id.slice(0, 8)} •{" "}
-                    {new Date(order.createdAt).toLocaleDateString()}
+                    Заказ #{order.id.slice(0, 8)} • {new Date(order.createdAt).toLocaleDateString()}
                   </CardTitle>
-                  <span className="text-lg font-medium text-muted-foreground">
-                    {order.total} ₽
-                  </span>
+                  <span className="text-lg font-medium text-muted-foreground">{order.total} ₽</span>
                 </div>
               </CardHeader>
               <CardContent className="space-y-3">
@@ -111,15 +108,9 @@ export default function Profile() {
                     />
                     <div className="flex flex-col text-sm">
                       <span className="font-medium">{item.title}</span>
-                      <span className="text-muted-foreground">
-                        Бренд: {item.brand}
-                      </span>
-                      <span className="text-muted-foreground">
-                        Размер: {item.size.title}
-                      </span>
-                      <span className="text-muted-foreground">
-                        Цвета: {item.colors.join(", ")}
-                      </span>
+                      <span className="text-muted-foreground">Бренд: {item.brand}</span>
+                      <span className="text-muted-foreground">Размер: {item.size.title}</span>
+                      <span className="text-muted-foreground">Цвета: {item.colors.join(", ")}</span>
                       <span className="text-muted-foreground">
                         Кол-во: {item.quantity} × {item.price} ₽
                       </span>

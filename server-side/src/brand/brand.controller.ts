@@ -25,16 +25,22 @@ export class BrandController {
 
   @Get()
   async getBrands(
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,           
+    @Query('page') page?: string,
+    @Query('limit') limit?: string,
     @Query('all') all?: string,
   ) {
+    const pageNumber = Number(page) || 1;
+    const limitNumber = Number(limit) || 20;
     const isAll = all === 'true';
+
     if (isAll) {
       return await this.brandService.getAll();
     }
-    const skip = (page - 1) * limit;
-    const brands = await this.brandService.getBrands(skip, +limit);
+
+    const brands = await this.brandService.getBrands(
+      Number(page),
+      Number(limit),
+    );
     return brands;
   }
 

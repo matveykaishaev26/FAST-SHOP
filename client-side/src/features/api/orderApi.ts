@@ -1,4 +1,4 @@
-import { EnumOrderStatus, IPaymenentResponse } from "@/shared/types/order.interface";
+import { EnumOrderStatus, IOrder, IPaymenentResponse } from "@/shared/types/order.interface";
 import { api } from "./api";
 import { IBasketCardItem } from "@/shared/types/card.interface";
 
