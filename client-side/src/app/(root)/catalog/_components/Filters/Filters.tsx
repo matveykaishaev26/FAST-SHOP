@@ -74,16 +74,6 @@ export default function Filters({
     }
 
     if (variant === "desktop") {
-      // if (checked)
-      //   setLocalFilters((prev) => ({
-      //     ...prev,
-      //     [filterType]: [...prev[filterType], item],
-      //   }));
-      // else
-      //   setLocalFilters((prev) => ({
-      //     ...prev,
-      //     [filterType]: [...prev[filterType].filter((option) => option.id !== item.id)],
-      //   }));
       params.delete("page");
       router.push(`?${params.toString()}`, { scroll: false });
     } else {
