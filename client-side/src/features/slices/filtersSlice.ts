@@ -33,7 +33,7 @@ export const filtersSlice = createSlice({
           state[filterType].push(option as any);
         }
       } else {
-        state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
+        // state[filterType] = state[filterType].filter((filter) => filter.id !== option.id);
       }
     },
     

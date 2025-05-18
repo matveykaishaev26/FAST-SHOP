@@ -13,6 +13,78 @@ export class OrderService {
     this.stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
   }
 
+  async getOrders(userId: string) {
+    const res = await this.prisma.order.findMany({
+      where: {
+        userId,
+        status: 'PAYED',
+      },
+      select: {
+        id: true,
+        createdAt: true,
+        total: true,
+        status: true,
+
+        items: {
+          select: {
+            price: true,
+            quantity: true,
+            size: {
+              select: {
+                title: true,
+              },
+            },
+            productVariant: {
+              select: {
+                id: true,
+                images: true,
+                price: true,
+                productVariantColors: {
+                  select: {
+                    color: { select: { title: true } },
+                  },
+                },
+                product: {
+                  select: {
+                    title: true,
+                    brand: {
+                      select: { title: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+    });
+
+    return res.map((order) => ({
+      id: order.id,
+      total: order.total,
+      createdAt: order.createdAt,
+      items: order.items.map((item) => ({
+        quantity: item.quantity,
+        price: item.productVariant.price,
+        productVariantId: item.productVariant.id,
+        title: item.productVariant.product.title,
+        brand: item.productVariant.product.brand.title,
+        image: item.productVariant.images?.[0] ?? null,
+        size: item.size
+          ? {
+              title: item.size.title,
+            }
+          : null,
+        colors:
+          item.productVariant.productVariantColors?.map((v) => v.color.title) ||
+          [],
+      })),
+    }));
+  }
+
   async createPayment(dto: OrderDto, userId: string) {
     // const orderItems = dto.items.map((item) => ({
     //   quantity: item.quantity,

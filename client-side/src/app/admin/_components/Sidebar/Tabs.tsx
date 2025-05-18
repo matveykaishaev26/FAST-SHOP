@@ -34,6 +34,7 @@ export default function Tabs() {
       href: ADMIN_URL.settings(),
       icon: Settings,
     },
+    
   ];
   return (
     <div className="flex flex-col gap-y-2">

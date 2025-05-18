@@ -7,14 +7,21 @@ import { IColor } from "@/shared/types/color.interface";
 import FilterListItem from "./FilterBase/FilterListItem";
 import { IFilterItem } from "@/shared/types/filter.interface";
 interface IFilterFolorProps extends IFilterProps {
-  colorsData: IColor[]
+  colorsData: IColor[];
 }
-export default function ColorFilter({ filters, deleteFilters, variant, colorsData }: IFilterFolorProps) {
+export default function ColorFilter({
+  filters,
+  deleteFilters,
+  variant,
+  colorsData,
+  handleCheckboxChange,
+}: IFilterFolorProps) {
   // const { data: colors, isLoading } = useGetColorsQuery();
   const filterType = "colorIds";
   return (
     <FilterBase
       // setIsFiltersLoading={setIsFiltersLoading}
+      handleCheckboxChange={handleCheckboxChange}
       deleteFilters={deleteFilters}
       filters={filters}
       header="Цвет"
@@ -28,6 +35,7 @@ export default function ColorFilter({ filters, deleteFilters, variant, colorsDat
 
         return (
           <FilterListItem
+            handleCheckboxChange={handleCheckboxChange}
             variant={variant}
             key={`${filterType}-${color.id}`}
             item={color}

@@ -79,7 +79,7 @@ export default function CardImages({
       src={currentImage}
       alt={alt}
       fill
-      className="object-cover cursor-pointer "
+      className="object-cover cursor-pointer"
       onError={(e) => {
         (e.target as HTMLImageElement).src = DEFAULT_FALLBACK_IMAGE;
         (e.target as HTMLImageElement).classList.add("opacity-80");

@@ -11,10 +11,8 @@ import BasketQuantityChanger from "@/shared/components/Cards/BasketQuantityChang
 import { useEffect, useRef, useState } from "react";
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { useRouter } from "next13-progressbar";
-import { PUBLIC_URL } from "@/config/url.config";
 import { usePlaceOrderMutation } from "@/features/api/orderApi";
 import usePushToProductPage from "@/hooks/usePushToProductPage";
-import { productApi } from "@/features/api/productApi";
 
 const LIMIT = 120;
 
@@ -108,8 +106,8 @@ export default function Basket() {
           <div className="grid grid-cols-3 gap-x-5">
             <div className="space-y-4 col-span-2">
               {items?.map((item: IBasketCardItem) => (
-                <Card key={item.id} className="grid grid-cols-3 shadow-none p-2 rounded-lg">
-                  <div className="flex items-center gap-4 w-full md:w-auto">
+                <Card key={item.id} className="grid grid-cols-4 shadow-none p-2 rounded-lg">
+                  <div className="flex items-center col-span-2 gap-4 w-full md:w-auto">
                     <Checkbox
                       onCheckedChange={(checked) => {
                         setSelectedItems((prev) =>
@@ -138,10 +136,10 @@ export default function Basket() {
                       </CardHeader>
                       <CardContent className="p-0 text-sm text-muted-foreground space-y-2">
                         <p>
-                          <span className="font-medium">Размер:</span> {item.size.title}
+                          <span className="font-medium text-xs">Размер: {item.size.title}</span>
                         </p>
                         <p>
-                          <span className="font-medium">Цвет:</span> {item.colors.join(" / ")}
+                          <span className="font-medium text-xs">Цвет: {item.colors.join(" / ")}</span>
                         </p>
                         <Trash2
                           onClick={() =>
@@ -175,7 +173,7 @@ export default function Basket() {
               <CardContent className="w-full space-y-2">
                 <div className="font-bold text-2xl">Итого: {wholePrice.toLocaleString()} ₽</div>
                 <div className="text-muted-foreground text-md">Количество: {wholeQuantity}</div>
-                <Button disabled={isOrderLoading} onClick={handleCheckout} className="w-full">
+                <Button disabled={isOrderLoading || wholeQuantity === 0} onClick={handleCheckout} className="w-full">
                   Заказать
                 </Button>
               </CardContent>

@@ -5,6 +5,7 @@ import { IUser } from "../types/user.interface";
 import Link from "next/link";
 import { PROFILE_URL } from "@/config/url.config";
 import Image from "next/image";
+import { usePathname } from "next/navigation";
 
 interface IProfileProps {
   className?: string;
@@ -12,12 +13,18 @@ interface IProfileProps {
 
 export default function Profile({ className }: IProfileProps) {
   const { user, isLoading } = useProfile();
-
+  const pathname = usePathname();
   if (isLoading) {
     return (
       <div className={`flex h-9 w-9 flex-col items-center`}>
         <Skeleton className={`h-9 w-9 ${className ?? ""}`} />
-        <span className="text-muted-foreground group-hover:text-primary  text-[10px] sm:text-xs">Профиль</span>
+        <span
+          className={` group-hover:text-primary  text-[10px] sm:text-xs ${
+            pathname === PROFILE_URL.root("") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          Профиль
+        </span>
       </div>
     );
   }
@@ -32,7 +39,13 @@ export default function Profile({ className }: IProfileProps) {
           height={36}
           src={user?.picture && user.picture !== "" ? user.picture : "/images/no-avatar.jpg"}
         />
-        <span className="text-muted-foreground group-hover:text-primary  text-[10px] sm:text-xs">Профиль</span>
+        <span
+          className={` group-hover:text-primary  text-[10px] sm:text-xs ${
+            pathname === PROFILE_URL.root("") ? "text-primary" : "text-muted-foreground"
+          }`}
+        >
+          Профиль
+        </span>
       </Link>
     </div>
   );

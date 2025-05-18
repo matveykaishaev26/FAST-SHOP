@@ -27,16 +27,28 @@ export interface IFilterColor extends IFilterOption {
 }
 export type IPriceRange = [number, number] | null;
 
+
 export interface IFilters {
+  brandIds: IFilterOption[];
+  colorIds: IFilterColor[];
+  priceRange: null | [number, number];
   categoryIds: IFilterOption[];
   sizeIds: IFilterOption[];
-  colorIds: IFilterColor[];
   genderIds: IFilterOption[];
-  brandIds: IFilterOption[];
   materialIds: IFilterOption[];
   styleIds: IFilterOption[];
-  priceRange: IPriceRange;
 }
+export interface IParsedFilters {
+    brandIds: string[];
+  colorIds: string[];
+  priceRange: null | [number, number];
+  categoryIds: string[];
+  sizeIds: string[];
+  genderIds: string[];
+  materialIds: string[];
+  styleIds: string[];
+}
+
 
 // export interface temp {
 //   [id: number]: {

@@ -1,17 +1,22 @@
 import { PUBLIC_URL } from "@/config/url.config";
 import { Button } from "@/shared/components/ui/button";
-import { Card, CardContent } from "@/shared/components/ui/card";
 import { Star } from "lucide-react";
 import { Metadata } from "next";
 import Link from "next/link";
+import fetchProductCards from "./catalog/utils/fetchProductCards";
+import { ICardItem } from "@/shared/types/card.interface";
+import Card from "@/shared/components/Cards/Card";
 export const metadata: Metadata = {
   title: "FastShop",
 };
-export default function Home() {
+const LIMIT = 4;
+export default  function Home() {
+  const apiQuery = `limit=${LIMIT}`;
+  // const productCards = await fetchProductCards(apiQuery);
+  // const { items } = productCards || {};
   return (
-    <main className="space-y-16 px-4 md:px-16 py-10">
-      {/* Hero Section */}
-      <section className="bg-muted rounded-2xl py-20 text-center space-y-6">
+    <main className="space-y-10  ">
+      <section className="rounded-2xl  text-center space-y-6">
         <h1 className="text-5xl font-bold tracking-tight">Стильно. Удобно. Надёжно.</h1>
         <p className="text-lg text-muted-foreground">Магазин обуви, в котором легко найти свою пару.</p>
         <Link className="block" href={PUBLIC_URL.catalog()}>
@@ -20,20 +25,10 @@ export default function Home() {
       </section>
 
       {/* Popular Products */}
-      <section>
-        <h2 className="text-3xl font-semibold mb-8">Популярные модели</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-          {["Кеды", "Кроссовки", "Ботинки"].map((title, id) => (
-            <Card key={id} className="hover:shadow-md transition">
-              <CardContent className="p-6 space-y-3">
-                <h3 className="text-xl font-semibold">{title}</h3>
-                <p className="text-sm text-muted-foreground">₽5 990</p>
-                <Button variant="outline" size="sm"></Button>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
+      {/* <h3 className="font-bold text-2xl">Популярные модели</h3>
+      <div className="grid  grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6  mb-10">
+        {items && items.map((product: ICardItem) => <Card key={product.id} product={product} />)}
+      </div> */}
     </main>
   );
 }

@@ -1,5 +1,6 @@
 import { Checkbox } from "@/shared/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/shared/components/ui/table";
+import { Trash2, PenLine } from "lucide-react";
 interface ITableProps<T> {
   header: string[];
   data: T[];
@@ -11,20 +12,17 @@ export function CustomTable<T extends Record<string, any>>({ header, data, rende
     <Table>
       <TableHeader className="bg-muted/70">
         <TableRow>
-          <TableCell>
-            <Checkbox />
-          </TableCell>
           {header.map((item, index) => (
             <TableHead key={index}>{item}</TableHead>
           ))}
+            <TableHead>Удалить</TableHead>
+            <TableHead>Изменить</TableHead>
+
         </TableRow>
       </TableHeader>
       <TableBody>
         {data.map((item, index) => (
           <TableRow className="" key={index}>
-            <TableCell className="w-[100px]">
-              <Checkbox />
-            </TableCell>
             {renderRow
               ? renderRow(item)
               : Object.values(item).map((value, i) => (
@@ -32,6 +30,12 @@ export function CustomTable<T extends Record<string, any>>({ header, data, rende
                     {String(value)}
                   </TableCell>
                 ))}
+            <TableCell>
+              <Trash2 className="text-destructive cursor-pointer" size={20} />
+            </TableCell>
+            <TableCell>
+              <PenLine className="text-blue-500 cursor-pointer" size={20} />
+            </TableCell>
           </TableRow>
         ))}
       </TableBody>

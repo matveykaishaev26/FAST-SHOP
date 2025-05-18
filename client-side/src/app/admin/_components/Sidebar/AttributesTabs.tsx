@@ -11,19 +11,27 @@ export default function AttributesTabs() {
   const tabs = [
     {
       label: "Бренды",
-      href: ADMIN_URL.root('/attributes/brands'),
+      href: ADMIN_URL.root("/attributes/brands"),
     },
     {
       label: "Стили",
-      href: ADMIN_URL.root('/attributes/styles'),
+      href: ADMIN_URL.root("/attributes/styles"),
     },
     {
       label: "Технологии",
-      href:ADMIN_URL.root('/attributes/technologies'),
+      href: ADMIN_URL.root("/attributes/technologies"),
     },
     {
       label: "Материалы",
-      href: ADMIN_URL.root('/attributes/products'),
+      href: ADMIN_URL.root("/attributes/materials"),
+    },
+    {
+      label: "Размеры",
+      href: ADMIN_URL.root("/attributes/sizes"),
+    },
+    {
+      label: "Цвета",
+      href: ADMIN_URL.root("/attributes/colors"),
     },
   ];
   return (

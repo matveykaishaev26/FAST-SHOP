@@ -34,33 +34,34 @@ export default function FilterBase<T extends IFilterItem>({
   isExpandable = true,
   deleteFilters,
   variant,
+  handleCheckboxChange
 }: IFilterBaseProps<T>) {
-  const dispatch = useAppDispatch();
+  // const dispatch = useAppDispatch();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [isOpen, setIsOpen] = useState(false);
-  const searchParams = useSearchParams();
+  // const searchParams = useSearchParams();
 
   const toggleList = () => {
     setIsOpen((prev) => !prev);
     setSearchTerm("");
   };
 
-  useEffect(() => {
-    const paramValue = searchParams.get(filterType);
-    const idsFromUrl = paramValue ? paramValue.split(",") : [];
+  // useEffect(() => {
+  //   const paramValue = searchParams.get(filterType);
+  //   const idsFromUrl = paramValue ? paramValue.split(",") : [];
 
-    const selectedIds = new Set(filters?.[filterType]?.map((f) => f.id));
+  //   const selectedIds = new Set(filters?.[filterType]?.map((f) => f.id));
 
-    data.forEach((item) => {
-      const shouldBeChecked = idsFromUrl.includes(item.id);
-      const isAlreadyChecked = selectedIds.has(item.id);
+  //   data.forEach((item) => {
+  //     const shouldBeChecked = idsFromUrl.includes(item.id);
+  //     const isAlreadyChecked = selectedIds.has(item.id);
 
-      if (shouldBeChecked !== isAlreadyChecked) {
-        dispatch(toggleFilter({ option: item, filterType, isChecked: shouldBeChecked }));
-      }
-    });
-  }, [data, searchParams, dispatch]);
+  //     if (shouldBeChecked !== isAlreadyChecked) {
+  //       dispatch(toggleFilter({ option: item, filterType, isChecked: shouldBeChecked }));
+  //     }
+  //   });
+  // }, [data, searchParams, dispatch]);
 
   const filteredItems = useMemo(() => {
     return data.filter((item) =>
@@ -81,7 +82,8 @@ export default function FilterBase<T extends IFilterItem>({
             key={`${variant}-${filterType}-${item.id}`}
             item={item}
             filterType={filterType}
-            filters={filters}
+          filters={filters}
+          handleCheckboxChange={handleCheckboxChange}
           />
         ));
   };

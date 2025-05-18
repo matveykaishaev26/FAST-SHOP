@@ -11,9 +11,17 @@ interface IFilterListItem {
   filterType: Exclude<keyof IFilters, "priceRange">;
   renderItem?: any;
   variant?: "desktop" | "mobile";
+  handleCheckboxChange: any;
 }
 
-export default function FilterListItem({ item, filterType, renderItem, variant = "desktop" }: IFilterListItem) {
+export default function FilterListItem({
+  item,
+  filterType,
+  renderItem,
+  filters,
+  variant = "desktop",
+  handleCheckboxChange,
+}: IFilterListItem) {
   const dispatch = useAppDispatch();
   const searchParams = useSearchParams();
   const pathname = usePathname();
@@ -21,40 +29,12 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
 
   const paramValue = searchParams.get(filterType);
   const ids = paramValue ? paramValue.split(",") : [];
+  // const isChecked = filters[filterType].some(option => option.id === item.id)
   const isChecked = ids.includes(item.id);
 
-  // useEffect(() => {
-  //   dispatch(toggleFilter({ option: item, filterType, isChecked: isChecked }));
-  // }, []);
-
-  const handleCheckboxChange = (checked: boolean) => {
-  // обновить состояние фильтров в Redux
-  dispatch(toggleFilter({ option: item, filterType, isChecked: checked }));
-
-  // сформировать новый URL
-  const params = new URLSearchParams(searchParams.toString());
-  const currentValues = params.get(filterType) ? params.get(filterType)!.split(",") : [];
-
-  let newValues: string[];
-  if (checked) {
-    newValues = [...new Set([...currentValues, item.id])];
-  } else {
-    newValues = currentValues.filter((id) => id !== item.id);
-  }
-
-  params.delete(filterType);
-  if (newValues.length > 0) {
-    params.set(filterType, newValues.join(","));
-  }
-
-  if (variant === "desktop") {
-    params.delete("page");
-
-    // обновляем URL без перезагрузки страницы и серверного рендера
-    window.history.pushState({}, "", pathname + "?" + params.toString());
-  }
-};
-
+  const onChange = (checked: boolean) => {
+    handleCheckboxChange(checked, filterType, item);
+  };
 
   return (
     <div key={item.title}>
@@ -62,7 +42,7 @@ export default function FilterListItem({ item, filterType, renderItem, variant =
         id={item.id}
         className={`${item.productCount === 0 && "opacity-50 select-none"}`}
         checked={isChecked}
-        onChange={handleCheckboxChange}
+        onChange={onChange}
       >
         {renderItem ? (
           <>{renderItem}</>
