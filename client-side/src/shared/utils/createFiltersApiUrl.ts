@@ -2,7 +2,10 @@ import { filtersOrder } from "@/shared/types/filter.interface";
 
 // filtersOrder — это массив строк, указывающий порядок фильтров (например: ['brandIds', 'materialIds', ...])
 
-export default async function createFiltersApiUrl(paramsPromise: Record<string, string | string[]>) {
+export default async function createFiltersApiUrl(
+  paramsPromise: Record<string, string | string[]>,
+  limit: number = 24
+) {
   const params = await paramsPromise;
   const searchParams = new URLSearchParams();
 
@@ -22,8 +25,9 @@ export default async function createFiltersApiUrl(paramsPromise: Record<string, 
   if (priceRangeStr) searchParams.append("priceRange", priceRangeStr);
   const page = params["page"] || 1;
   if (page) searchParams.append("page", page.toString());
-  const sortType = params['sortType'];
+  const sortType = params["sortType"];
   if (sortType) searchParams.append("sortType", sortType.toString());
+  searchParams.append("limit", limit.toString());
 
   return searchParams.toString(); // Возвращает строку для запроса
 }

@@ -34,10 +34,6 @@ async function getProduct(id: string) {
     next: { revalidate: 60 },
   });
 
-  // if (res.status === 500) {
-  //   return notFound();
-  // }
-
   if (!res.ok) {
     return notFound();
   }

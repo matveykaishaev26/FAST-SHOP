@@ -14,11 +14,11 @@ export class UserService {
         id,
       },
       include: {
-        favorites: {
-          include: {
-            productVariant: true,
-          },
-        },
+        // favorites: {
+        //   include: {
+        //     productVariant: true,
+        //   },
+        // },
         orders: true,
       },
     });
@@ -51,14 +51,14 @@ export class UserService {
           not: null,
         },
       },
-      include: {
-        favorites: {
-          include: {
-            productVariant: true,
-          },
-        },
-        orders: true,
-      },
+      // include: {
+      //   favorites: {
+      //     include: {
+      //       productVariant: true,
+      //     },
+      //   },
+      //   orders: true,
+      // },
     });
     return user;
   }

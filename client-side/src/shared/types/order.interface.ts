@@ -1,3 +1,4 @@
+import { IBasketCardItem } from "./card.interface";
 import { IUser } from "./user.interface";
 
 interface IAmount {
@@ -24,7 +25,7 @@ interface IConfirmation {
 export interface IPaymenentResponse {
   id: string;
   status: string;
-  url:string
+  url: string;
   amount: IAmount;
   recipient: IRecipient;
   paynment_method: IPaymentMethod;
@@ -39,8 +40,6 @@ export enum EnumOrderStatus {
 export interface IOrder {
   id: string;
   createdAt: string;
-  items: { produdctVariantId: string; sizeId: string; quantity: number }[];
-  status: EnumOrderStatus;
-  user: IUser;
   total: number;
+  items: IBasketCardItem[];
 }

@@ -7,22 +7,41 @@ import { fetchFilters } from "./utils/fetchFiltersData";
 import { createInitialFiltersState } from "./utils/createInitialFiltersState";
 import fetchProductCards from "./utils/fetchProductCards";
 import { parseFiltersFromSearchParams } from "./utils/parseFiltersFromSearchParams";
-import createFiltersApiUrl from "./utils/createFiltersApiUrl";
 import { Metadata } from "next";
-import { SITE_DESCRIPTION, SITE_NAME } from "@/constants/seo.constants";
+import createFiltersApiUrl from "@/shared/utils/createFiltersApiUrl";
 type Props = {
   searchParams: Promise<Record<string, string | string[]>>;
 };
 export const metadata: Metadata = {
   title: "Каталог",
+  description: "Полный каталог товаров интернет-магазина: одежда, обувь, аксессуары и многое другое. Большой выбор и быстрая доставка.",
+  keywords: ["каталог", "интернет-магазин", "одежда", "обувь", "аксессуары", "купить онлайн"],
+  openGraph: {
+    title: "Каталог товаров – Название магазина",
+    description: "Смотрите полный каталог товаров нашего интернет-магазина.",
+    url: "https://example.com/catalog",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Каталог товаров – Название магазина",
+    description: "Ознакомьтесь с ассортиментом товаров в нашем каталоге.",
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
+
+
+const LIMIT = 24;
 export default async function Catalog({ searchParams }: Props) {
-  const params = await searchParams; 
+  const params = await searchParams;
   const filtersData = await fetchFilters();
   const parsedFilters = await parseFiltersFromSearchParams(params);
   const initialState = await createInitialFiltersState(filtersData, parsedFilters);
 
-  const filtersUrl = createFiltersApiUrl(params);
+  const filtersUrl = createFiltersApiUrl(params, LIMIT);
 
   const productCards = await fetchProductCards(await filtersUrl);
 

@@ -1,5 +1,6 @@
 import { EnumOrderStatus, IPaymenentResponse } from "@/shared/types/order.interface";
 import { api } from "./api";
+import { IBasketCardItem } from "@/shared/types/card.interface";
 
 export const orderApi = api.injectEndpoints({
   endpoints: (build) => ({
@@ -17,7 +18,14 @@ export const orderApi = api.injectEndpoints({
         body: data,
       }),
     }),
+    getOrders: build.query<IOrder, void>({
+      query: (data) => ({
+        url: "/orders",
+        method: "GET",
+        body: data,
+      }),
+    }),
   }),
 });
 
-export const { usePlaceOrderMutation } = orderApi;
+export const { usePlaceOrderMutation, useGetOrdersQuery } = orderApi;

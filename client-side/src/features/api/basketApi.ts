@@ -2,19 +2,14 @@ import { api } from "./api";
 import { API_URL } from "@/config/api.config";
 import { CARDS_RESPONSE_MODE } from "./productApi";
 import { IPaginatedResponse } from "@/shared/types/pagination.interface";
-import { IBasketCardItem, IFavoriteCardItem } from "@/shared/types/card.interface";
+import { IBasketCardItem } from "@/shared/types/card.interface";
 
 interface IAddToBasketPayload {
   productVariantId: string;
   sizeId: string;
 }
 
-export interface IFavoritesResponse {
-  items: IFavoriteCardItem[];
-  totalCount: number;
-  currentPage: number;
-  totalPages: number;
-}
+
 
 export const basketApi = api.injectEndpoints({
   endpoints: (build) => ({
