@@ -1,7 +1,7 @@
 "use client";
 import { useMemo, useCallback, useState, useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
-
+import { useDebouncedCallback } from "use-debounce";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
 import { IFilterItem, filtersOrder, IFilterOption, IFilters } from "@/shared/types/filter.interface";
 
@@ -34,8 +34,8 @@ export default function Filters({
   initialState,
   setMobileFilters,
 }: IFiltersProps) {
-  // const [localFilters, setLocalFilters] = useState<IFilters>(initialState);
-  const { priceRange, ...filtersWithoutPrice } = initialState;
+  const [localFilters, setLocalFilters] = useState<IFilters>(initialState);
+  const { priceRange, ...filtersWithoutPrice } = localFilters;
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -54,63 +54,115 @@ export default function Filters({
     ],
     [filtersData]
   );
+  const updateUrlWithFilters = useCallback(
+    (filters: IFilters) => {
+      const params = new URLSearchParams();
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (key === "priceRange" && value) {
+          params.set("priceRange", value);
+        } else if (Array.isArray(value) && value.length > 0) {
+          params.set(key, value.map((opt: IFilterOption) => opt.id).join(","));
+        }
+      });
+
+      router.push(`?${params.toString()}`, { scroll: false });
+    },
+    [router]
+  );
+
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrlWithFilters, 500);
 
   const handleCheckboxChange = (
     checked: boolean,
     filterType: keyof Omit<IFilters, "priceRange">,
     item: IFilterOption
   ) => {
-    const params = new URLSearchParams(searchParams.toString());
-    const currentValues = params.get(filterType)?.split(",") ?? [];
+    setLocalFilters((prev) => {
+      const updated = checked ? [...prev[filterType], item] : prev[filterType].filter((opt) => opt.id !== item.id);
 
-    const newValues = checked
-      ? [...new Set([...currentValues, item.id])]
-      : currentValues.filter((id) => id !== item.id);
+      const newFilters = {
+        ...prev,
+        [filterType]: updated,
+      };
 
-    if (newValues.length > 0) {
-      params.set(filterType, newValues.join(","));
-    } else {
-      params.delete(filterType);
-    }
+      debouncedUpdateUrl(newFilters); // вызов с задержкой
 
-    if (variant === "desktop") {
-      params.delete("page");
-      router.push(`?${params.toString()}`, { scroll: false });
-    } else {
-      setMobileFilters(initialState);
-    }
+      return newFilters;
+    });
   };
-
+  const setPriceRange = (priceRange: [number, number] | null) => {
+    setLocalFilters((prev) => ({
+      ...prev,
+      priceRange: priceRange,
+    }));
+  };
   const deleteFilters = useCallback(
     (filterType: Exclude<keyof IFilters, "priceRange">, filterId?: string) => {
       const params = new URLSearchParams(searchParams.toString());
       const current = params.get(filterType);
       const ids = current ? current.split(",") : [];
 
+      let newFilters = { ...localFilters };
+
       if (filterId) {
         const newIds = ids.filter((id) => id !== filterId);
-        newIds.length ? params.set(filterType, newIds.join(",")) : params.delete(filterType);
+        if (newIds.length) {
+          params.set(filterType, newIds.join(","));
+        } else {
+          params.delete(filterType);
+        }
+
+        newFilters = {
+          ...newFilters,
+          [filterType]: newFilters[filterType].filter((opt) => opt.id !== filterId),
+        };
       } else {
         params.delete(filterType);
+
+        newFilters = {
+          ...newFilters,
+          [filterType]: [],
+        };
       }
 
+      setLocalFilters(newFilters);
       router.push(`?${params.toString()}`, { scroll: false });
     },
-    [router, pathname, searchParams]
+    [router, searchParams, localFilters]
   );
 
   const deletePriceRange = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("priceRange");
+
+    // Обновляем локальный стейт
+    setLocalFilters((prev) => ({
+      ...prev,
+      priceRange: null,
+    }));
+
     router.push(`?${params.toString()}`, { scroll: false });
-  }, [router, pathname, searchParams]);
+  }, [router, searchParams]);
 
   const clearAllFilters = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());
     params.delete("priceRange");
     filtersOrder.forEach((item) => params.delete(item));
+
+    setLocalFilters((prev) => ({
+      brandIds: [],
+      colorIds: [],
+      categoryIds: [],
+      sizeIds: [],
+      genderIds: [],
+      materialIds: [],
+      styleIds: [],
+      priceRange: null,
+    }));
+
     router.push(`?${params.toString()}`, { scroll: false });
-  }, [searchParams, pathname, router]);
+  }, [searchParams, router]);
 
   if (!shouldShow) return null;
 
@@ -135,8 +187,7 @@ export default function Filters({
       />
 
       <div className="p-4 lg:mt-5 space-y-5 lg:p-0">
-        <PriceFilter priceRangeData={filtersData.priceRange} priceRange={priceRange} />
-
+        <PriceFilter setPriceRange={setPriceRange} priceRangeData={filtersData.priceRange} priceRange={priceRange} />
         {firstHalf.map((item) => (
           <FilterBase
             handleCheckboxChange={handleCheckboxChange}

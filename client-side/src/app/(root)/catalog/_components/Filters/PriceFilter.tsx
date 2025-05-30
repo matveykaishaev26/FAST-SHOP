@@ -2,23 +2,20 @@
 import Slider from "rc-slider";
 import "rc-slider/assets/index.css";
 import { Input } from "@/shared/components/ui/input";
-import { useGetPriceRangeQuery } from "@/features/api/productVariantApi";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 import { useEffect, useState } from "react";
 import { IPriceRange } from "@/shared/types/filter.interface";
-import { useAppDispatch } from "@/hooks/useAppDispatch";
-import { setPriceRange } from "@/features/slices/filtersSlice";
-import { typeIsFiltersLoading } from "../../types";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IPriceRangeResponse } from "@/shared/types/productVariant.interface";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
   priceRangeData: IPriceRangeResponse;
+  setPriceRange: (priceRange :[number, number] | null) => void
 }
 
 const MAX_DEFAULT = 32199;
 const MIN_DEFAULT = 1199;
-export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilterProps) {
+export default function PriceFilter({ priceRange, priceRangeData, setPriceRange }: IPriceFilterProps) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
@@ -28,7 +25,6 @@ export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilter
       : [priceRangeData?.minPrice ?? MIN_DEFAULT, priceRangeData?.maxPrice ?? MAX_DEFAULT]
   );
 
-  const dispatch = useAppDispatch();
   useEffect(() => {
     const priceParam = searchParams.get("priceRange");
     if (priceParam) {
@@ -36,7 +32,7 @@ export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilter
       const min = parseInt(minStr);
       const max = parseInt(maxStr);
       if (!isNaN(min) && !isNaN(max)) {
-        dispatch(setPriceRange([min, max]));
+        
         setLocalRange([min, max]);
       }
     } else {
@@ -48,47 +44,26 @@ export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilter
     }
   }, [priceRangeData]);
 
-  // useEffect(() => {
-  //   if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
-  //     dispatch(setPriceRange(null));
-  //     const params = new URLSearchParams(searchParams);
-  //     params.delete("priceRange");
-  //     router.push(pathname + "?" + params.toString(), { scroll: false });
-  //   }
-  // }, [priceRange]);
+  const handleAfterChange = (range: [number, number]) => {
+    const defaultMin = priceRangeData?.minPrice ?? MIN_DEFAULT;
+    const defaultMax = priceRangeData?.maxPrice ?? MAX_DEFAULT;
 
-const handleAfterChange = (range: [number, number]) => {
-  const defaultMin = priceRangeData?.minPrice ?? MIN_DEFAULT;
-  const defaultMax = priceRangeData?.maxPrice ?? MAX_DEFAULT;
+    const isDefault = range[0] === defaultMin && range[1] === defaultMax;
 
-  const isDefault = range[0] === defaultMin && range[1] === defaultMax;
+    const params = new URLSearchParams(searchParams);
 
-  const params = new URLSearchParams(searchParams);
+    if (isDefault) {
+      // Сброс фильтра
+      setPriceRange(null)
+      params.delete("priceRange");
+    } else {
+      // Установка фильтра
+      setPriceRange(localRange)
+      params.set("priceRange", range.join("-"));
+    }
 
-  if (isDefault) {
-    // Сброс фильтра
-    dispatch(setPriceRange(null));
-    params.delete("priceRange");
-  } else {
-    // Установка фильтра
-    dispatch(setPriceRange(range));
-    params.set("priceRange", range.join("-"));
-  }
-
-  router.push(pathname + "?" + params.toString(), { scroll: false });
-};
-
-
-  // const onChange = (newRange: [number, number]) => {
-  //   if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
-  //     dispatch(setPriceRange(null));
-  //     const params = new URLSearchParams(searchParams);
-  //     params.delete("priceRange");
-  //     router.push(pathname + "?" + params.toString(), { scroll: false });
-  //   } else {
-  //     setLocalRange(newRange as [number, number]);
-  //   }
-  // };
+    router.push(pathname + "?" + params.toString(), { scroll: false });
+  };
 
   return (
     <div className="space-y-2">

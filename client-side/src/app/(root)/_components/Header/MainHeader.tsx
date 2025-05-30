@@ -1,5 +1,4 @@
 "use client";
-
 import Logo from "@/shared/components/Logo";
 import { Input } from "@/shared/components/ui/input";
 import { ThemeToggle } from "@/shared/components/ui/ThemeToggle";
@@ -16,6 +15,10 @@ export default function MainHeader() {
   const initialSearch = searchParams.get("search") || "";
   const [searchQuery, setSearchQuery] = useState(initialSearch);
 
+  useEffect(() => {
+    const initialSearch = searchParams.get("search") || "";
+    setSearchQuery(initialSearch);
+  }, [searchParams]);
   const handleSearch = () => {
     const params = new URLSearchParams(searchParams.toString());
 

@@ -29,8 +29,8 @@ export default function FilterListItem({
 
   const paramValue = searchParams.get(filterType);
   const ids = paramValue ? paramValue.split(",") : [];
-  // const isChecked = filters[filterType].some(option => option.id === item.id)
-  const isChecked = ids.includes(item.id);
+  const isChecked = filters[filterType].some(option => option.id === item.id)
+  // const isChecked = ids.includes(item.id);
 
   const onChange = (checked: boolean) => {
     handleCheckboxChange(checked, filterType, item);
