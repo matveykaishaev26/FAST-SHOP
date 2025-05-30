@@ -3,15 +3,12 @@ import { useEffect, useState } from "react";
 import { Button } from "@/shared/components/ui/button";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/shared/components/ui/sheet";
 import { SlidersHorizontal } from "lucide-react";
-import Filters from "./Filters";
 import { X } from "lucide-react";
 import { useBreakpointMatch } from "@/hooks/useBreakpointMatch";
-import { useSearchParams } from "next/navigation";
 import { IFilters, IPriceRange } from "@/shared/types/filter.interface";
-import { useAppDispatch, useAppSelector } from "@/hooks/useAppDispatch";
-import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
-import { clearFilters, setPriceRange } from "@/features/slices/filtersSlice";
 import { IFiltersData } from "../../utils/fetchFiltersData";
+import FiltersMobile from "./FiltersMobile";
+import { useFiltersSyncWithUrl } from "@/hooks/useFiltersSyncWithUrl";
 interface IFiltersSheetProps {
   filtersData: IFiltersData;
   initialState: IFilters;
@@ -19,20 +16,24 @@ interface IFiltersSheetProps {
 export default function FiltersSheet({ filtersData, initialState }: IFiltersSheetProps) {
   const [isOpen, setIsOpen] = useState(false);
   const isMobile = useBreakpointMatch(1024);
-  const [mobileFilters, setMobileFilters] = useState()
+  const [mobileFilters, setMobileFilters] = useState<IFilters>(initialState);
   const [filtersCount, setFiltersCount] = useState(0);
-  // const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
-  const { priceRange, ...filters } = initialState;
+  const { priceRange, ...filters } = mobileFilters;
+  const { updateUrlWithFilters } = useFiltersSyncWithUrl(filters, priceRange);
+
+useEffect(() => {
   const allFiltersCount =
-    Object.values(filters).reduce((acc, arr, index) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
+    Object.values(filters).reduce((acc, arr) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
+  setFiltersCount(allFiltersCount);
 
-  // const searchParams = useSearchParams();
+  console.log("count now:", allFiltersCount); 
+}, [mobileFilters]);
+
+
+
   useEffect(() => {
-    // const allFiltersCount =
-    //   Object.values(filters).reduce((acc, arr, index) => acc + arr.length, 0) + (priceRange === null ? 0 : 1);
-    setFiltersCount(allFiltersCount);
-  }, [filters, priceRange]);
-
+    setMobileFilters(initialState)
+  }, [isOpen])
   if (!isMobile) {
     return null;
   }
@@ -44,7 +45,7 @@ export default function FiltersSheet({ filtersData, initialState }: IFiltersShee
           <Button className="relative" variant={"outline"}>
             {filtersCount > 0 && (
               <div className="absolute h-4 w-4 bg-destructive rounded-full -right-1 -top-1 text-xs flex justify-center items-center text-background">
-                {allFiltersCount ? allFiltersCount : filtersCount}
+                {filtersCount}
               </div>
             )}
             <SlidersHorizontal />
@@ -56,22 +57,20 @@ export default function FiltersSheet({ filtersData, initialState }: IFiltersShee
               <SheetTitle className="text-2xl shadow-none">Фильтры</SheetTitle>
               <X onClick={() => setIsOpen((prev) => !prev)} className="w-5 h-5 cursor-pointer text-muted-foreground" />
             </div>
-            <Filters
+            <FiltersMobile
               setMobileFilters={setMobileFilters}
-              initialState={initialState}
               filtersData={filtersData}
-              // isFiltersReady={isFiltersReady}
-              // setIsOpen={() => setIsOpen((prev) => !prev)}
-              variant="mobile"
+              mobileFilters={mobileFilters}
             />
             <div className="sticky bottom-0  w-full bg-background border-t h-[80px] flex items-center justify-center px-4  lg:hidden ">
               <Button
                 onClick={() => {
+                  updateUrlWithFilters();
                   setIsOpen((prev) => !prev);
                 }}
                 className="w-full uppercase"
               >
-                Применить фильтры: {allFiltersCount}
+                Применить фильтры: {filtersCount}
               </Button>
             </div>
           </SheetContent>

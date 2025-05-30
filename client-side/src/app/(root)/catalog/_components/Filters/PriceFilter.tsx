@@ -9,6 +9,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { IPriceRangeResponse } from "@/shared/types/productVariant.interface";
 interface IPriceFilterProps {
   priceRange: IPriceRange;
+     variant?: "desktop" | "mobile";
   priceRangeData: IPriceRangeResponse;
   setPriceRange: (priceRange :[number, number] | null) => void
 }
@@ -53,13 +54,11 @@ export default function PriceFilter({ priceRange, priceRangeData, setPriceRange 
     const params = new URLSearchParams(searchParams);
 
     if (isDefault) {
-      // Сброс фильтра
       setPriceRange(null)
-      params.delete("priceRange");
+      // params.delete("priceRange");
     } else {
-      // Установка фильтра
       setPriceRange(localRange)
-      params.set("priceRange", range.join("-"));
+      // params.set("priceRange", range.join("-"));
     }
 
     router.push(pathname + "?" + params.toString(), { scroll: false });

@@ -43,14 +43,14 @@ export default async function Catalog({ searchParams }: Props) {
       <PageHeader header="Каталог" />
       <div className="w-full flex flex-row gap-x-20">
         <Suspense fallback={<Skeleton className="w-[350px]" />}>
-          <FiltersProvider params={params} />
+          <FiltersProvider type={"desktop"} params={params} />
         </Suspense>
 
         <div className="w-full ">
           <div className="flex justify-between items-center  mb-4">
             <SortSelect />
             <div className="block lg:hidden">
-              {/* <FiltersSheet filtersData={filtersData} initialState={initialState} /> */}
+              <FiltersProvider type={"mobile"} params={params} />
             </div>
           </div>
           <div className="w-full">
