@@ -346,6 +346,7 @@ export class ProductService {
       colorIds?: string[];
       priceRange?: number[];
       sortType?: string;
+      search?: string;
     } = {},
   ) {
     const skip = (page - 1) * limit;
@@ -360,7 +361,6 @@ export class ProductService {
       case SORT_TYPE.BY_PRICE_DESC:
         orderBy = { price: 'desc' };
         break;
-      // Рейтинг сортируется вручную ниже
     }
 
     const hasValidPriceRange =
@@ -368,21 +368,47 @@ export class ProductService {
       filters.priceRange.length === 2 &&
       filters.priceRange.every((v) => typeof v === 'number' && !isNaN(v));
 
+    const productConditions = [];
+
+    if (filters.brandIds?.length) {
+      productConditions.push({ brandId: { in: filters.brandIds } });
+    }
+    if (filters.materialIds?.length) {
+      productConditions.push({ materialId: { in: filters.materialIds } });
+    }
+    if (filters.genderIds?.length) {
+      productConditions.push({ genderId: { in: filters.genderIds } });
+    }
+    if (filters.styleIds?.length) {
+      productConditions.push({ styleId: { in: filters.styleIds } });
+    }
+    if (filters.categoryIds?.length) {
+      productConditions.push({ categoryId: { in: filters.categoryIds } });
+    }
+
+    // Поиск по title и description
+    if (filters.search) {
+      productConditions.push({
+        OR: [
+          {
+            title: {
+              contains: filters.search,
+              mode: 'insensitive',
+            },
+          },
+          {
+            description: {
+              contains: filters.search,
+              mode: 'insensitive',
+            },
+          },
+        ],
+      });
+    }
+
     const where: any = {
-      ...(filters.brandIds?.length && {
-        product: { brandId: { in: filters.brandIds } },
-      }),
-      ...(filters.materialIds?.length && {
-        product: { materialId: { in: filters.materialIds } },
-      }),
-      ...(filters.genderIds?.length && {
-        product: { genderId: { in: filters.genderIds } },
-      }),
-      ...(filters.styleIds?.length && {
-        product: { styleId: { in: filters.styleIds } },
-      }),
-      ...(filters.categoryIds?.length && {
-        product: { categoryId: { in: filters.categoryIds } },
+      ...(productConditions.length > 0 && {
+        product: { AND: productConditions },
       }),
       ...(filters.sizeIds?.length && {
         productVariantQuantity: {
@@ -419,6 +445,7 @@ export class ProductService {
         product: {
           select: {
             title: true,
+            description: true, // если надо отображать на клиенте
             brand: {
               select: { title: true },
             },
@@ -478,7 +505,6 @@ export class ProductService {
       };
     });
 
-    // Сортировка по рейтингу — на клиенте
     if (filters.sortType === SORT_TYPE.BY_RATING) {
       items.sort(
         (a, b) => parseFloat(b.rating.value) - parseFloat(a.rating.value),

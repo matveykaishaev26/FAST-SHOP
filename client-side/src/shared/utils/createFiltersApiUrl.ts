@@ -29,5 +29,8 @@ export default async function createFiltersApiUrl(
   if (sortType) searchParams.append("sortType", sortType.toString());
   searchParams.append("limit", limit.toString());
 
+  const search = params["search"];
+  if (search) searchParams.append("search", search.toString());
+
   return searchParams.toString(); // Возвращает строку для запроса
 }

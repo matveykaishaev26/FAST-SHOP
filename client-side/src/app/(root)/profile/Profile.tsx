@@ -15,17 +15,18 @@ import { saveTokenStorage } from "@/services/auth/auth-token.service";
 export default function Profile() {
   const { user, isLoading } = useProfile();
   const router = useRouter();
-  const { data: orders, isLoading: isOrdersLoading } = useGetOrdersQuery();
+  const { data: orders = [], isLoading: isOrdersLoading } = useGetOrdersQuery(); // значение по умолчанию
 
   const isLoadingAll = isLoading || isOrdersLoading;
   const searchParams = useSearchParams();
+
   useEffect(() => {
     const accessToken = searchParams.get("accessToken");
-
     if (accessToken) {
       saveTokenStorage(accessToken);
     }
   }, [searchParams]);
+
   return (
     <div className="space-y-6">
       <Card>
@@ -58,7 +59,6 @@ export default function Profile() {
         <h2 className="text-lg font-semibold">Мои заказы</h2>
 
         {isOrdersLoading ? (
-          // Скелетон для заказов
           Array.from({ length: 2 }).map((_, idx) => (
             <Card key={idx} className="rounded-xl shadow-sm">
               <CardHeader>
@@ -83,7 +83,7 @@ export default function Profile() {
               </CardContent>
             </Card>
           ))
-        ) : orders?.length === 0 ? (
+        ) : orders.length === 0 ? (
           <div className="text-muted-foreground">Нет заказов</div>
         ) : (
           orders.map((order: IOrder) => (
@@ -125,3 +125,4 @@ export default function Profile() {
     </div>
   );
 }
+2

@@ -22,7 +22,6 @@ export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilter
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
-  // const { data: priceRangeData, isLoading } = useGetPriceRangeQuery();
   const [localRange, setLocalRange] = useState<[number, number]>(
     priceRange
       ? [priceRange[0], priceRange[1]]
@@ -50,28 +49,46 @@ export default function PriceFilter({ priceRange, priceRangeData }: IPriceFilter
   }, [priceRangeData]);
 
   // useEffect(() => {
-  //   if (priceRange) {
-  //     setLocalRange(priceRange);
-  //   } else if (priceRangeData) {
-  //     setLocalRange([priceRangeData.minPrice ?? MIN_DEFAULT, priceRangeData.maxPrice ?? MAX_DEFAULT]);
+  //   if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
+  //     dispatch(setPriceRange(null));
+  //     const params = new URLSearchParams(searchParams);
+  //     params.delete("priceRange");
+  //     router.push(pathname + "?" + params.toString(), { scroll: false });
   //   }
-  // }, [priceRangeData]);
-  useEffect(() => {
-    if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
-      dispatch(setPriceRange(null));
-      const params = new URLSearchParams(searchParams);
-      params.delete("priceRange");
-      router.push(pathname + "?" + params.toString(), { scroll: false });
-    }
-  }, [priceRange]);
+  // }, [priceRange]);
 
-  const handleAfterChange = (range: [number, number]) => {
-    const params = new URLSearchParams(searchParams);
-    params.set("priceRange", range.join("-"));
-    router.push(pathname + "?" + params.toString(), { scroll: false });
+const handleAfterChange = (range: [number, number]) => {
+  const defaultMin = priceRangeData?.minPrice ?? MIN_DEFAULT;
+  const defaultMax = priceRangeData?.maxPrice ?? MAX_DEFAULT;
 
+  const isDefault = range[0] === defaultMin && range[1] === defaultMax;
+
+  const params = new URLSearchParams(searchParams);
+
+  if (isDefault) {
+    // Сброс фильтра
+    dispatch(setPriceRange(null));
+    params.delete("priceRange");
+  } else {
+    // Установка фильтра
     dispatch(setPriceRange(range));
-  };
+    params.set("priceRange", range.join("-"));
+  }
+
+  router.push(pathname + "?" + params.toString(), { scroll: false });
+};
+
+
+  // const onChange = (newRange: [number, number]) => {
+  //   if (priceRange && priceRange[0] === priceRangeData?.minPrice && priceRange[1] === priceRangeData?.maxPrice) {
+  //     dispatch(setPriceRange(null));
+  //     const params = new URLSearchParams(searchParams);
+  //     params.delete("priceRange");
+  //     router.push(pathname + "?" + params.toString(), { scroll: false });
+  //   } else {
+  //     setLocalRange(newRange as [number, number]);
+  //   }
+  // };
 
   return (
     <div className="space-y-2">

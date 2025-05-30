@@ -41,8 +41,10 @@ async function getProduct(id: string) {
   return res.json();
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }): Promise<Metadata> {
-  const product: IProduct = await getProduct(params.id);
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { id } = await params
+ 
+  const product: IProduct = await getProduct(id);
 
   return {
     title: product.title,

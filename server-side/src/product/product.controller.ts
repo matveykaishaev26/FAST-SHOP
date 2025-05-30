@@ -72,12 +72,13 @@ export class ProductController {
     @Query('colorIds') colorIds?: string[] | string,
     @Query('priceRange') priceRange?: string,
     @Query('sortType') sortType?: string,
+    @Query('search') search?: string,
   ) {
     function toArray(param?: string[] | string): string[] {
-  if (!param) return [];
-  if (Array.isArray(param)) return param;
-  return param.split(','); // <--- важное изменение!
-}
+      if (!param) return [];
+      if (Array.isArray(param)) return param;
+      return param.split(','); // <--- важное изменение!
+    }
 
     let parsedPriceRange: number[] | undefined;
     console.log(priceRange);
@@ -98,6 +99,7 @@ export class ProductController {
       colorIds: toArray(colorIds),
       priceRange: parsedPriceRange,
       sortType: sortType,
+      search,
     });
   }
 
@@ -133,7 +135,6 @@ export class ProductController {
     return this.productService.update(id, dto);
   }
   @HttpCode(200)
-
   @Get(':productVariantId')
   async getProduct(@Param('productVariantId') productVariantId: string) {
     return this.productService.getProduct(productVariantId);

@@ -18,7 +18,7 @@ export const orderApi = api.injectEndpoints({
         body: data,
       }),
     }),
-    getOrders: build.query<IOrder, void>({
+    getOrders: build.query<IOrder[], void>({
       query: (data) => ({
         url: "/orders",
         method: "GET",

@@ -1,20 +1,20 @@
 import PageHeader from "../_components/PageHeader";
 import CatalogCards from "./_components/CatalogCards/CatalogCards";
-import Filters from "./_components/Filters/Filters";
-import FiltersSheet from "./_components/Filters/FiltersSheet";
 import SortSelect from "./_components/SortSelect";
-import { fetchFilters } from "./utils/fetchFiltersData";
-import { createInitialFiltersState } from "./utils/createInitialFiltersState";
-import fetchProductCards from "./utils/fetchProductCards";
-import { parseFiltersFromSearchParams } from "./utils/parseFiltersFromSearchParams";
 import { Metadata } from "next";
+import { Suspense } from "react";
+import FiltersProvider from "./_components/Filters/FiltersProvider";
+import CardsSkeleton from "@/shared/components/Cards/CardsSkeleton";
 import createFiltersApiUrl from "@/shared/utils/createFiltersApiUrl";
+import fetchProductCards from "./utils/fetchProductCards";
+import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 type Props = {
   searchParams: Promise<Record<string, string | string[]>>;
 };
 export const metadata: Metadata = {
   title: "Каталог",
-  description: "Полный каталог товаров интернет-магазина: одежда, обувь, аксессуары и многое другое. Большой выбор и быстрая доставка.",
+  description:
+    "Полный каталог товаров интернет-магазина: одежда, обувь, аксессуары и многое другое. Большой выбор и быстрая доставка.",
   keywords: ["каталог", "интернет-магазин", "одежда", "обувь", "аксессуары", "купить онлайн"],
   openGraph: {
     title: "Каталог товаров – Название магазина",
@@ -33,38 +33,30 @@ export const metadata: Metadata = {
   },
 };
 
-
-const LIMIT = 24;
 export default async function Catalog({ searchParams }: Props) {
   const params = await searchParams;
-  const filtersData = await fetchFilters();
-  const parsedFilters = await parseFiltersFromSearchParams(params);
-  const initialState = await createInitialFiltersState(filtersData, parsedFilters);
-
-  const filtersUrl = createFiltersApiUrl(params, LIMIT);
+  const filtersUrl = createFiltersApiUrl(params, 20);
 
   const productCards = await fetchProductCards(await filtersUrl);
-
   return (
     <div className=" h-full">
       <PageHeader header="Каталог" />
       <div className="w-full flex flex-row gap-x-20">
-        <Filters
-          initialState={initialState}
-          filtersData={filtersData}
-          variant="desktop"
-          className="w-[350px] hidden lg:block"
-        />
+        <Suspense fallback={<Skeleton className="w-[350px]" />}>
+          <FiltersProvider params={params} />
+        </Suspense>
 
         <div className="w-full ">
           <div className="flex justify-between items-center  mb-4">
             <SortSelect />
             <div className="block lg:hidden">
-              <FiltersSheet filtersData={filtersData} initialState={initialState} />
+              {/* <FiltersSheet filtersData={filtersData} initialState={initialState} /> */}
             </div>
           </div>
           <div className="w-full">
-            <CatalogCards productCards={productCards} parsedFilters={parsedFilters} />
+            <Suspense fallback={<CardsSkeleton />}>
+              <CatalogCards params={params} />
+            </Suspense>
           </div>
         </div>
       </div>
