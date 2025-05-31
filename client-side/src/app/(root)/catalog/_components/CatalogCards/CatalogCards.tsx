@@ -1,7 +1,6 @@
 import { ICardItem } from "@/shared/types/card.interface";
 import PaginationControl from "@/shared/components/ui/PaginationControl";
 import Card from "@/shared/components/Cards/Card";
-import { IPaginatedResponse } from "@/shared/types/pagination.interface";
 import createFiltersApiUrl from "@/shared/utils/createFiltersApiUrl";
 import fetchProductCards from "../../utils/fetchProductCards";
 
@@ -14,7 +13,7 @@ export default async function CatalogCards({ params }: ICardsProps) {
   const filtersUrl = createFiltersApiUrl(params, LIMIT);
 
   const productCards = await fetchProductCards(await filtersUrl);
-  const { items, totalCount, totalPages, currentPage } = productCards || {};
+  const { items, totalPages, currentPage } = productCards || {};
 
   if (!items?.length) {
     return <p className="text-gray-500">Нет товаров для отображения</p>;

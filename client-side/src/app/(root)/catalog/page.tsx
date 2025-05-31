@@ -5,8 +5,6 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import FiltersProvider from "./_components/Filters/FiltersProvider";
 import CardsSkeleton from "@/shared/components/Cards/CardsSkeleton";
-import createFiltersApiUrl from "@/shared/utils/createFiltersApiUrl";
-import fetchProductCards from "./utils/fetchProductCards";
 import { Skeleton } from "@/shared/components/ui/Skeleton/Skeleton";
 type Props = {
   searchParams: Promise<Record<string, string | string[]>>;
@@ -35,9 +33,7 @@ export const metadata: Metadata = {
 
 export default async function Catalog({ searchParams }: Props) {
   const params = await searchParams;
-  const filtersUrl = createFiltersApiUrl(params, 20);
 
-  const productCards = await fetchProductCards(await filtersUrl);
   return (
     <div className=" h-full">
       <PageHeader header="Каталог" />
@@ -50,7 +46,9 @@ export default async function Catalog({ searchParams }: Props) {
           <div className="flex justify-between items-center  mb-4">
             <SortSelect />
             <div className="block lg:hidden">
-              <FiltersProvider type={"mobile"} params={params} />
+              <Suspense fallback={<Skeleton className="w-[350px]" />}>
+                <FiltersProvider type={"mobile"} params={params} />
+              </Suspense>
             </div>
           </div>
           <div className="w-full">

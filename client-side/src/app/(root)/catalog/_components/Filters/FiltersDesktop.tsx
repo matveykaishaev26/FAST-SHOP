@@ -48,6 +48,8 @@ export default function FiltersDesktop({ initialState, filtersData }: IFiltersDe
     }));
     if (priceRange !== null) params.set("priceRange", priceRange.join("-"));
     else params.delete("priceRange");
+
+    router.push(`?${params.toString()}`);
   };
   const deletePriceRange = useCallback(() => {
     const params = new URLSearchParams(searchParams.toString());

@@ -61,7 +61,7 @@ export default function PriceFilter({ priceRange, priceRangeData, setPriceRange 
       // params.set("priceRange", range.join("-"));
     }
 
-    router.push(pathname + "?" + params.toString(), { scroll: false });
+    // router.push(pathname + "?" + params.toString(), { scroll: false });
   };
 
   return (

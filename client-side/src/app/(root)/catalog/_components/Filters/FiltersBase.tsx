@@ -72,7 +72,7 @@ export default function FiltersBase({
     },
     [router, variant]
   );
-  const debouncedUpdateUrl = useDebouncedCallback(updateUrlWithFilters, 500);
+  const debouncedUpdateUrl = useDebouncedCallback(updateUrlWithFilters, 200);
 
   const handleCheckboxChange = (
     checked: boolean,

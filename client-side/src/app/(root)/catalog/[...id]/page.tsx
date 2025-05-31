@@ -1,10 +1,6 @@
-// файл: app/posts/[id]/page.tsx
-
-import Image from "next/image";
 import { Badge } from "@/shared/components/ui/badge";
 import Rating from "@/shared/components/Rating";
 import { IReview } from "@/shared/types/review.interface";
-import { Button } from "@/shared/components/ui/button";
 import AddToCartForm from "./components/AddToBasketForm";
 import { ISize } from "@/shared/types/size.interface";
 import Variants from "./components/Variants";
@@ -85,7 +81,6 @@ export default async function Page({ params }: Props) {
   return (
     <div>
       <div className="mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Галерея */}
         <div
           className="relative
         "

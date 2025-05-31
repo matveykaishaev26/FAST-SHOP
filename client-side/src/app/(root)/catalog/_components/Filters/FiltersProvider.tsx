@@ -3,7 +3,8 @@ import { fetchFilters } from "../../utils/fetchFiltersData";
 import { parseFiltersFromSearchParams } from "../../utils/parseFiltersFromSearchParams";
 import FiltersSheet from "./FiltersSheet";
 import FiltersDesktop from "./FiltersDesktop";
-
+import createFiltersApiUrl from "@/shared/utils/createFiltersApiUrl";
+import fetchProductCards from "../../utils/fetchProductCards";
 
 interface IFilterProvider {
   params: Record<string, string | string[]>;
@@ -14,19 +15,12 @@ export default async function FiltersProvider({ params, type = "desktop" }: IFil
   const parsedFilters = await parseFiltersFromSearchParams(params);
   const initialState = await createInitialFiltersState(filtersData, parsedFilters);
 
-  if (type === "desktop")
-    return (
-      <FiltersDesktop
-        initialState={initialState}
-        filtersData={filtersData}
-      />
-    );
+  // const filtersUrl = createFiltersApiUrl(params, 20);
+
+  //   const productCards = await fetchProductCards(await filtersUrl);
+
+  if (type === "desktop") return <FiltersDesktop initialState={initialState} filtersData={filtersData} />;
   else {
-    return (
-      <FiltersSheet
-        initialState={initialState}
-        filtersData={filtersData}
-      />
-    );
+    return <FiltersSheet initialState={initialState} filtersData={filtersData} />;
   }
 }
